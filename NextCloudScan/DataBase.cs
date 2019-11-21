@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Collections.Generic;
 
 namespace NextCloudScan
 {
@@ -8,18 +8,18 @@ namespace NextCloudScan
         string _baseFile = "base.dat";
         string _diffFile = "diff.dat";
         string _path;
-        HashSet<string> _base;
-        HashSet<string> _newFiles;
+        List<string> _base;
+        List<string> _newFiles;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
-        public HashSet<string> Added { get; private set; } = new HashSet<string>();
-        public HashSet<string> Removed { get; private set; } = new HashSet<string>();
+        public List<string> Added { get; private set; } = new List<string>();
+        public List<string> Removed { get; private set; } = new List<string>();
 
         public DataBase(string path, bool resetBase = false)
         {
             _path = path;
-            _base = new HashSet<string>();
+            _base = new List<string>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -34,14 +34,14 @@ namespace NextCloudScan
                 Load();
                 _newFiles = Scan();
 
-                HashSetCompare hsc = new HashSetCompare();
+                ListDiffFinder hsc = new ListDiffFinder();
                 hsc.Compare(_base, _newFiles);
 
                 if (!hsc.AddedIsEmpty) Added = hsc.Added;
                 if (!hsc.RemovedIsEmpty) Removed = hsc.Removed;
 
-                HashSet<string> total = new HashSet<string>(Added);
-                total.UnionWith(Removed);
+                List<string> total = new List<string>(Added);
+                total.AddRange(Removed);
                 if (total.Count != 0) SaveDiff(total);
 
                 _base = _newFiles;
@@ -49,9 +49,9 @@ namespace NextCloudScan
             }
         }
 
-        private HashSet<string> Scan()
+        private List<string> Scan()
         {
-            HashSet<string> result = new HashSet<string>();
+            List<string> result = new List<string>();
 
             string[] list = Directory.GetFiles(_path, "*.*", SearchOption.AllDirectories);
 
@@ -78,7 +78,7 @@ namespace NextCloudScan
         {
             File.WriteAllLines(_baseFile, _base);
         }
-        private void SaveDiff(HashSet<string> total)
+        private void SaveDiff(List<string> total)
         {
             File.WriteAllLines(_diffFile, total);
         }
@@ -86,7 +86,7 @@ namespace NextCloudScan
         private void Load()
         {
             string[] files = File.ReadAllLines(_baseFile);
-            _base = new HashSet<string>(files);
+            _base = new List<string>(files);
         }
     }
 }

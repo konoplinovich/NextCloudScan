@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NextCloudScan
 {
-    public class HashSetCompare
+    public class ListDiffFinder
     {
-        HashSet<string> added = new HashSet<string>();
-        HashSet<string> removed = new HashSet<string>();
+        List<string> added = new List<string>();
+        List<string> removed = new List<string>();
 
         public int AddedCount { get { return added.Count; } }
         public int RemovedCount { get { return removed.Count; } }
-        public HashSet<string> Added { get { return added; } }
-        public HashSet<string> Removed { get { return removed; } }
+        public List<string> Added { get { return added; } }
+        public List<string> Removed { get { return removed; } }
         public bool AddedIsEmpty { get { return added.Count == 0; } }
         public bool RemovedIsEmpty { get { return removed.Count == 0; } }
 
-        public void Compare(HashSet<string> oldList, HashSet<string> newList)
+        public void Compare(List<string> oldList, List<string> newList)
         {
             foreach(string newPath in newList)
             {
