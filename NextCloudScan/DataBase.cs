@@ -78,6 +78,7 @@ namespace NextCloudScan
         {
             File.WriteAllLines(_baseFile, _base);
         }
+        
         private void SaveDiff(List<string> total)
         {
             File.WriteAllLines(_diffFile, total);

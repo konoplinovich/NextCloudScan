@@ -8,7 +8,7 @@ namespace NextCloudScan.Tests
     public class DataBaseTests
     {
         string _tempFolder;
-        Dictionary<string, string[]> _map = new Dictionary<string, string[]>()
+        readonly Dictionary<string, string[]> _map = new Dictionary<string, string[]>()
         {
             { "one", new string[]{"1","2"} },
             { "two", new string[]{"1","2"} },
@@ -24,11 +24,6 @@ namespace NextCloudScan.Tests
         public void Startup()
         {
             _tempFolder = Path.Combine(Path.GetTempPath(), "NCSTemp");
-
-            if (Directory.Exists(_tempFolder))
-            {
-                Directory.Delete(_tempFolder, true);
-            }
 
             Directory.CreateDirectory(_tempFolder);
 
@@ -50,6 +45,15 @@ namespace NextCloudScan.Tests
                 Path.Combine(_tempFolder, "five", "1", "file_9.tmp"),
                 Path.Combine(_tempFolder, "four", "2", "file_105.tmp")
             };
+        }
+
+        [TestCleanup()]
+        public void CleanUp()
+        {
+            if (Directory.Exists(_tempFolder))
+            {
+                Directory.Delete(_tempFolder, true);
+            }
         }
 
         [TestMethod()]
