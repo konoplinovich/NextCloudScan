@@ -16,12 +16,12 @@ namespace NextCloudScan
         public HashSet<string> Added { get; private set; } = new HashSet<string>();
         public HashSet<string> Removed { get; private set; } = new HashSet<string>();
 
-        public DataBase(string path)
+        public DataBase(string path, bool resetBase = false)
         {
             _path = path;
             _base = new HashSet<string>();
 
-            if (!File.Exists(_baseFile))
+            if (!File.Exists(_baseFile) || resetBase)
             {
                 _base = Scan();
                 Save();
@@ -30,6 +30,7 @@ namespace NextCloudScan
             else
             {
                 if (File.Exists(_diffFile)) File.Delete(_diffFile);
+
                 Load();
                 _newFiles = Scan();
 
@@ -47,6 +48,7 @@ namespace NextCloudScan
                 Save();
             }
         }
+
         private HashSet<string> Scan()
         {
             HashSet<string> result = new HashSet<string>();
