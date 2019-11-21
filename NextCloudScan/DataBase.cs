@@ -34,11 +34,11 @@ namespace NextCloudScan
                 Load();
                 _newFiles = Scan();
 
-                ListDiffFinder hsc = new ListDiffFinder();
-                hsc.Compare(_base, _newFiles);
+                ListComparator lc = new ListComparator();
+                lc.Compare(_base, _newFiles);
 
-                if (!hsc.AddedIsEmpty) Added = hsc.Added;
-                if (!hsc.RemovedIsEmpty) Removed = hsc.Removed;
+                if (!lc.AddedIsEmpty) Added = lc.Added;
+                if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
                 List<string> total = new List<string>(Added);
                 total.AddRange(Removed);

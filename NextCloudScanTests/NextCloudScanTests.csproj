@@ -57,7 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DataBaseTests.cs" />
-    <Compile Include="HashSetCompareTests.cs" />
+    <Compile Include="ListComparatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

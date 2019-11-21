@@ -2,7 +2,7 @@
 
 namespace NextCloudScan
 {
-    public class ListDiffFinder
+    public class ListComparator
     {
         List<string> added = new List<string>();
         List<string> removed = new List<string>();
