@@ -9,9 +9,9 @@ namespace NextCloudScan
             if (args.Length == 0) return;
 
             DateTime start = DateTime.Now;
-            
+
             DataBase sf = new DataBase(args[0]);
-            
+
             if (sf.IsNewBase)
             {
                 DateTime stop = DateTime.Now;

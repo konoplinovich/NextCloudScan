@@ -20,12 +20,12 @@ namespace NextCloudScan.Tests
             new FileItem(){Path = "3", LastWriteTime = new DateTime(2019,5,2,12,15,5)},
             new FileItem(){Path = "4", LastWriteTime = new DateTime(2019,5,2,12,15,5)},
         };
-        readonly List<FileItem> _removeOne = new List<FileItem>() 
+        readonly List<FileItem> _removeOne = new List<FileItem>()
         {
             new FileItem(){Path = "2", LastWriteTime = new DateTime(2019,5,2,12,15,5)},
             new FileItem(){Path = "3", LastWriteTime = new DateTime(2019,5,2,12,15,5)}
         };
-        readonly List<FileItem> _removeOneAndAddOne = new List<FileItem>() 
+        readonly List<FileItem> _removeOneAndAddOne = new List<FileItem>()
         {
             new FileItem(){Path = "2", LastWriteTime = new DateTime(2019,5,2,12,15,5)},
             new FileItem(){Path = "3", LastWriteTime = new DateTime(2019,5,2,12,15,5)},

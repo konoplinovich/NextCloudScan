@@ -86,7 +86,7 @@ namespace NextCloudScan.Tests
             FileStream f = File.Open(Files[3], FileMode.Create);
             f.Flush();
             f.Close();
-           
+
             dataBase = new DataBase(_tempFolder);
             Assert.AreEqual(1, dataBase.Added.Count);
         }
@@ -121,7 +121,7 @@ namespace NextCloudScan.Tests
 
             dataBase = new DataBase(_tempFolder);
 
-            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() {Path = Files[3], LastWriteTime = lwt }));
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[3], LastWriteTime = lwt }));
         }
 
         [TestMethod()]
@@ -147,7 +147,7 @@ namespace NextCloudScan.Tests
 
             DateTime lwt_old = File.GetLastWriteTime(Files[0]);
             File.AppendAllText(Files[0], "TEST");
-            DateTime lwt_new = File.GetLastWriteTime(Files[0]); 
+            DateTime lwt_new = File.GetLastWriteTime(Files[0]);
 
             dataBase = new DataBase(_tempFolder);
 

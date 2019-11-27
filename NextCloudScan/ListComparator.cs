@@ -17,7 +17,7 @@ namespace NextCloudScan
 
         public void Compare(List<T> oldList, List<T> newList)
         {
-            foreach(T newPath in newList)
+            foreach (T newPath in newList)
             {
                 if (!oldList.Contains(newPath))
                 {
