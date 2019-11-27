@@ -27,12 +27,12 @@ namespace NextCloudScan
 
                 Console.WriteLine($"Removed: {sf.Removed.Count}, added: {sf.Added.Count}");
 
-                foreach (string path in sf.Added)
+                foreach (var path in sf.Added)
                 {
                     Console.WriteLine($"A: {path}");
                 }
 
-                foreach (string path in sf.Removed)
+                foreach (var path in sf.Removed)
                 {
                     Console.WriteLine($"R: {path}");
                 }

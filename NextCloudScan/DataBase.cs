@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System;
 
 namespace NextCloudScan
 {
@@ -8,18 +9,18 @@ namespace NextCloudScan
         string _baseFile = "base.dat";
         string _diffFile = "diff.dat";
         string _path;
-        List<string> _base;
-        List<string> _newFiles;
+        List<FileItem> _base;
+        List<FileItem> _newFiles;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
-        public List<string> Added { get; private set; } = new List<string>();
-        public List<string> Removed { get; private set; } = new List<string>();
+        public List<FileItem> Added { get; private set; } = new List<FileItem>();
+        public List<FileItem> Removed { get; private set; } = new List<FileItem>();
 
         public DataBase(string path, bool resetBase = false)
         {
             _path = path;
-            _base = new List<string>();
+            _base = new List<FileItem>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -34,13 +35,13 @@ namespace NextCloudScan
                 Load();
                 _newFiles = Scan();
 
-                ListComparator lc = new ListComparator();
+                ListComparator<FileItem> lc = new ListComparator<FileItem>();
                 lc.Compare(_base, _newFiles);
 
                 if (!lc.AddedIsEmpty) Added = lc.Added;
                 if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
-                List<string> total = new List<string>(Added);
+                List<FileItem> total = new List<FileItem>();
                 total.AddRange(Removed);
                 if (total.Count != 0) SaveDiff(total);
 
@@ -49,9 +50,9 @@ namespace NextCloudScan
             }
         }
 
-        private List<string> Scan()
+        private List<FileItem> Scan()
         {
-            List<string> result = new List<string>();
+            List<FileItem> result = new List<FileItem>();
 
             string[] list = Directory.GetFiles(_path, "*.*", SearchOption.AllDirectories);
 
@@ -67,7 +68,12 @@ namespace NextCloudScan
 
                 if (goodfile)
                 {
-                    if (!result.Contains(path)) result.Add(path);
+                    DateTime lwt = File.GetLastWriteTime(path);
+                    FileItem fi = new FileItem() { Path = path, LastWriteTime = lwt };
+                    if (!result.Contains(fi))
+                    {
+                        result.Add(fi);
+                    }
                 }
             }
 
@@ -76,18 +82,54 @@ namespace NextCloudScan
 
         private void Save()
         {
-            File.WriteAllLines(_baseFile, _base);
+            XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
         
-        private void SaveDiff(List<string> total)
+        private void SaveDiff(List<FileItem> total)
         {
-            File.WriteAllLines(_diffFile, total);
+            List<string> diffs = new List<string>();
+            foreach (var fi in total)
+            {
+                diffs.Add(fi.ToString());
+            }
+            
+            File.WriteAllLines(_diffFile, diffs);
         }
 
         private void Load()
         {
-            string[] files = File.ReadAllLines(_baseFile);
-            _base = new List<string>(files);
+            _base = XmlExtensions.ReadFromXmlFile<List<FileItem>>(_baseFile);
+        }
+    }
+
+    public class FileItem : IEquatable<FileItem>
+    {
+        public string Path { get; set; }
+        public DateTime LastWriteTime { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as FileItem);
+        }
+
+        public bool Equals(FileItem other)
+        {
+            return other != null &&
+                   Path == other.Path &&
+                   LastWriteTime == other.LastWriteTime;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1469020353;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Path);
+            hashCode = hashCode * -1521134295 + LastWriteTime.GetHashCode();
+            return hashCode;
+        }
+
+        public override string ToString()
+        {
+            return $"{Path}:{LastWriteTime}";
         }
     }
 }

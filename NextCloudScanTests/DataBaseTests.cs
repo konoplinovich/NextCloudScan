@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -115,9 +116,11 @@ namespace NextCloudScan.Tests
             f.Flush();
             f.Close();
 
+            DateTime lwt = File.GetLastWriteTime(Files[3]);
+
             dataBase = new DataBase(_tempFolder);
 
-            Assert.AreEqual(true, dataBase.Added.Contains(Files[3]));
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() {Path = Files[3], LastWriteTime = lwt }));
         }
 
         [TestMethod()]
@@ -125,15 +128,30 @@ namespace NextCloudScan.Tests
         {
             DataBase dataBase = new DataBase(_tempFolder, true);
 
-            File.Delete(Files[0]);
-            File.Delete(Files[1]);
-            File.Delete(Files[2]);
+            DateTime lwt0 = File.GetLastWriteTime(Files[0]); File.Delete(Files[0]);
+            DateTime lwt1 = File.GetLastWriteTime(Files[1]); File.Delete(Files[1]);
+            DateTime lwt2 = File.GetLastWriteTime(Files[2]); File.Delete(Files[2]);
 
             dataBase = new DataBase(_tempFolder);
 
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[0]));
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[1]));
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[2]));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt0 }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[1], LastWriteTime = lwt1 }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[2], LastWriteTime = lwt2 }));
+        }
+
+        [TestMethod()]
+        public void ChangeLWTTest()
+        {
+            DataBase dataBase = new DataBase(_tempFolder, true);
+
+            DateTime lwt_old = File.GetLastWriteTime(Files[0]);
+            File.AppendAllText(Files[0], "TEST");
+            DateTime lwt0 = File.GetLastWriteTime(Files[0]); 
+
+            dataBase = new DataBase(_tempFolder);
+
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt0 }));
         }
 
         private void CreateTempFiles(string path)
