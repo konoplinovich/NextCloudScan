@@ -41,9 +41,9 @@ namespace NextCloudScan
                 if (!lc.AddedIsEmpty) Added = lc.Added;
                 if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
-                List<FileItem> total = new List<FileItem>();
-                total.AddRange(Removed);
-                if (total.Count != 0) SaveDiff(total);
+                List<FileItem> diff = new List<FileItem>();
+                diff.AddRange(Removed);
+                if (diff.Count != 0) SaveDiff(diff);
 
                 _base = _newFiles;
                 Save();
@@ -84,16 +84,10 @@ namespace NextCloudScan
         {
             XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
-        
-        private void SaveDiff(List<FileItem> total)
+
+        private void SaveDiff(List<FileItem> diff)
         {
-            List<string> diffs = new List<string>();
-            foreach (var fi in total)
-            {
-                diffs.Add(fi.ToString());
-            }
-            
-            File.WriteAllLines(_diffFile, diffs);
+            XmlExtensions.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
         }
 
         private void Load()
