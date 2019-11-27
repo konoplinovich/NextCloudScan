@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NextCloudScan.Tests
 {
@@ -146,12 +147,12 @@ namespace NextCloudScan.Tests
 
             DateTime lwt_old = File.GetLastWriteTime(Files[0]);
             File.AppendAllText(Files[0], "TEST");
-            DateTime lwt0 = File.GetLastWriteTime(Files[0]); 
+            DateTime lwt_new = File.GetLastWriteTime(Files[0]); 
 
             dataBase = new DataBase(_tempFolder);
 
-            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
-            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt0 }));
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_new }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
         }
 
         private void CreateTempFiles(string path)
