@@ -18,6 +18,7 @@ namespace NextCloudScan
                 TimeSpan interval = stop - start;
 
                 Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                Console.ReadLine();
                 return;
             }
             else
@@ -27,17 +28,18 @@ namespace NextCloudScan
 
                 Console.WriteLine($"Removed: {sf.Removed.Count}, added: {sf.Added.Count}");
 
-                foreach (var path in sf.Added)
-                {
-                    Console.WriteLine($"A: {path}");
-                }
-
                 foreach (var path in sf.Removed)
                 {
                     Console.WriteLine($"R: {path}");
                 }
 
+                foreach (var path in sf.Added)
+                {
+                    Console.WriteLine($"A: {path}");
+                }
+
                 Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                Console.ReadLine();
                 return;
             }
         }
