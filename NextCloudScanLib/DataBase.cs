@@ -1,8 +1,8 @@
-﻿using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using System.IO;
 
-namespace NextCloudScan
+namespace NextCloudScanLib
 {
     public class DataBase
     {

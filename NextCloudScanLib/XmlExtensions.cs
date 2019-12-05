@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace NextCloudScan
+namespace NextCloudScanLib
 {
     public static class XmlExtensions
     {

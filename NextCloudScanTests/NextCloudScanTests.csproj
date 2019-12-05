@@ -64,9 +64,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NextCloudScan\NextCloudScan.csproj">
-      <Project>{7E6EFAFE-8291-41BE-9427-52BC6570F120}</Project>
-      <Name>NextCloudScan</Name>
+    <ProjectReference Include="..\NextCloudScanLib\NextCloudScanLib.csproj">
+      <Project>{477cc46f-1db2-41d0-912d-b9e30dcdebe8}</Project>
+      <Name>NextCloudScanLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

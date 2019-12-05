@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScan", "NextCloudS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanTests", "NextCloudScanTests\NextCloudScanTests.csproj", "{4C993E70-A41C-448F-B899-2DF75769203B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanLib", "NextCloudScanLib\NextCloudScanLib.csproj", "{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4C993E70-A41C-448F-B899-2DF75769203B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

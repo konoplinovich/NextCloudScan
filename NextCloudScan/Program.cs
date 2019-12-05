@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NextCloudScanLib;
+using System;
 
 namespace NextCloudScan
 {

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
-namespace NextCloudScan
+namespace NextCloudScanLib
 {
     public class FileItem : IEquatable<FileItem>
     {

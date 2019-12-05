@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NextCloudScan
+namespace NextCloudScanLib
 {
     public class ListComparator<T> where T : IEquatable<T>
     {
