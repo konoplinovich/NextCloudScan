@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScan", "NextCloudScan\NextCloudScan.csproj", "{7E6EFAFE-8291-41BE-9427-52BC6570F120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanTests", "NextCloudScanTests\NextCloudScanTests.csproj", "{4C993E70-A41C-448F-B899-2DF75769203B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanLibTests", "NextCloudScanTests\NextCloudScanLibTests.csproj", "{4C993E70-A41C-448F-B899-2DF75769203B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanLib", "NextCloudScanLib\NextCloudScanLib.csproj", "{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}"
 EndProject

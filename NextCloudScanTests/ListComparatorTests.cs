@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NextCloudScanLib;
 using System;
 using System.Collections.Generic;
 
 
-namespace NextCloudScan.Tests
+namespace NextCloudScanLib.Tests
 {
     [TestClass()]
     public class ListComparatorTests
