@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataBase.cs" />
+    <Compile Include="FileDataBase.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="ListComparator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

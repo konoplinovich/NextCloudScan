@@ -1,4 +1,4 @@
-﻿using NextCloudScanLib;
+﻿using FileScanLib;
 using System;
 
 namespace NextCloudScan
@@ -11,14 +11,14 @@ namespace NextCloudScan
 
             DateTime start = DateTime.Now;
 
-            DataBase sf = new DataBase(args[0]);
+            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml");
 
-            if (sf.IsNewBase)
+            if (fdb.IsNewBase)
             {
                 DateTime stop = DateTime.Now;
                 TimeSpan interval = stop - start;
 
-                Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
                 Console.ReadLine();
                 return;
             }
@@ -27,19 +27,19 @@ namespace NextCloudScan
                 DateTime stop = DateTime.Now;
                 TimeSpan interval = stop - start;
 
-                Console.WriteLine($"Removed: {sf.Removed.Count}, added: {sf.Added.Count}");
+                Console.WriteLine($"Removed: {fdb.Removed.Count}, added: {fdb.Added.Count}");
 
-                foreach (var path in sf.Removed)
+                foreach (FileItem path in fdb.Removed)
                 {
                     Console.WriteLine($"R: {path}");
                 }
 
-                foreach (var path in sf.Added)
+                foreach (FileItem path in fdb.Added)
                 {
                     Console.WriteLine($"A: {path}");
                 }
 
-                Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
                 Console.ReadLine();
                 return;
             }

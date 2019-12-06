@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace NextCloudScanLib
+namespace FileScanLib
 {
-    public class DataBase
+    public class FileDataBase
     {
-        string _baseFile = "base.dat";
-        string _diffFile = "diff.dat";
+        string _baseFile;
+        string _diffFile;
         string _path;
         List<FileItem> _base;
         List<FileItem> _newFiles;
@@ -17,9 +17,11 @@ namespace NextCloudScanLib
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
 
-        public DataBase(string path, bool resetBase = false)
+        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", bool resetBase = false)
         {
             _path = path;
+            _baseFile = baseFile;
+            _diffFile = diffFile;
             _base = new List<FileItem>();
 
             if (!File.Exists(_baseFile) || resetBase)
