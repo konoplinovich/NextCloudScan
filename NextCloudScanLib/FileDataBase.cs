@@ -1,25 +1,28 @@
-﻿using System.IO;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
-namespace NextCloudScan
+namespace FileScanLib
 {
-    public class DataBase
+    public class FileDataBase
     {
-        string _baseFile = "base.dat";
-        string _diffFile = "diff.dat";
+        string _baseFile;
+        string _diffFile;
         string _path;
-        List<string> _base;
-        List<string> _newFiles;
+        List<FileItem> _base;
+        List<FileItem> _newFiles;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
-        public List<string> Added { get; private set; } = new List<string>();
-        public List<string> Removed { get; private set; } = new List<string>();
+        public List<FileItem> Added { get; private set; } = new List<FileItem>();
+        public List<FileItem> Removed { get; private set; } = new List<FileItem>();
 
-        public DataBase(string path, bool resetBase = false)
+        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", bool resetBase = false)
         {
             _path = path;
-            _base = new List<string>();
+            _baseFile = baseFile;
+            _diffFile = diffFile;
+            _base = new List<FileItem>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -34,24 +37,24 @@ namespace NextCloudScan
                 Load();
                 _newFiles = Scan();
 
-                ListComparator lc = new ListComparator();
+                ListComparator<FileItem> lc = new ListComparator<FileItem>();
                 lc.Compare(_base, _newFiles);
 
                 if (!lc.AddedIsEmpty) Added = lc.Added;
                 if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
-                List<string> total = new List<string>(Added);
-                total.AddRange(Removed);
-                if (total.Count != 0) SaveDiff(total);
+                List<FileItem> diff = new List<FileItem>();
+                diff.AddRange(Removed);
+                if (diff.Count != 0) SaveDiff(diff);
 
                 _base = _newFiles;
                 Save();
             }
         }
 
-        private List<string> Scan()
+        private List<FileItem> Scan()
         {
-            List<string> result = new List<string>();
+            List<FileItem> result = new List<FileItem>();
 
             string[] list = Directory.GetFiles(_path, "*.*", SearchOption.AllDirectories);
 
@@ -67,7 +70,12 @@ namespace NextCloudScan
 
                 if (goodfile)
                 {
-                    if (!result.Contains(path)) result.Add(path);
+                    DateTime lwt = File.GetLastWriteTime(path);
+                    FileItem fi = new FileItem() { Path = path, LastWriteTime = lwt };
+                    if (!result.Contains(fi))
+                    {
+                        result.Add(fi);
+                    }
                 }
             }
 
@@ -76,18 +84,17 @@ namespace NextCloudScan
 
         private void Save()
         {
-            File.WriteAllLines(_baseFile, _base);
+            XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
-        
-        private void SaveDiff(List<string> total)
+
+        private void SaveDiff(List<FileItem> diff)
         {
-            File.WriteAllLines(_diffFile, total);
+            XmlExtensions.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
         }
 
         private void Load()
         {
-            string[] files = File.ReadAllLines(_baseFile);
-            _base = new List<string>(files);
+            _base = XmlExtensions.ReadFromXmlFile<List<FileItem>>(_baseFile);
         }
     }
 }

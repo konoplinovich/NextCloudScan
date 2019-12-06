@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileScanLib;
+using System;
 
 namespace NextCloudScan
 {
@@ -9,15 +10,16 @@ namespace NextCloudScan
             if (args.Length == 0) return;
 
             DateTime start = DateTime.Now;
-            
-            DataBase sf = new DataBase(args[0]);
-            
-            if (sf.IsNewBase)
+
+            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml");
+
+            if (fdb.IsNewBase)
             {
                 DateTime stop = DateTime.Now;
                 TimeSpan interval = stop - start;
 
-                Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
+                Console.ReadLine();
                 return;
             }
             else
@@ -25,19 +27,20 @@ namespace NextCloudScan
                 DateTime stop = DateTime.Now;
                 TimeSpan interval = stop - start;
 
-                Console.WriteLine($"Removed: {sf.Removed.Count}, added: {sf.Added.Count}");
+                Console.WriteLine($"Removed: {fdb.Removed.Count}, added: {fdb.Added.Count}");
 
-                foreach (string path in sf.Added)
-                {
-                    Console.WriteLine($"A: {path}");
-                }
-
-                foreach (string path in sf.Removed)
+                foreach (FileItem path in fdb.Removed)
                 {
                     Console.WriteLine($"R: {path}");
                 }
 
-                Console.WriteLine($"{sf.Count} files, time: {interval.TotalSeconds}");
+                foreach (FileItem path in fdb.Added)
+                {
+                    Console.WriteLine($"A: {path}");
+                }
+
+                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
+                Console.ReadLine();
                 return;
             }
         }

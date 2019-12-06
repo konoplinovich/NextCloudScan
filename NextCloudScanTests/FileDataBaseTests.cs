@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace NextCloudScan.Tests
+namespace FileScanLib.Tests
 {
     [TestClass()]
-    public class DataBaseTests
+    public class FileDataBaseTests
     {
         string _tempFolder;
         readonly Dictionary<string, string[]> _map = new Dictionary<string, string[]>()
@@ -59,40 +60,40 @@ namespace NextCloudScan.Tests
         [TestMethod()]
         public void IsNewBaseTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true );
             Assert.AreEqual(true, dataBase.IsNewBase);
 
-            dataBase = new DataBase(_tempFolder);
+            dataBase = new FileDataBase(_tempFolder);
             Assert.AreEqual(false, dataBase.IsNewBase);
         }
 
         [TestMethod()]
         public void RemoveOneFileTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
             File.Delete(Files[0]);
-            dataBase = new DataBase(_tempFolder);
+            dataBase = new FileDataBase(_tempFolder);
             Assert.AreEqual(1, dataBase.Removed.Count);
         }
 
         [TestMethod()]
         public void AddOneFileTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
             FileStream f = File.Open(Files[3], FileMode.Create);
             f.Flush();
             f.Close();
-           
-            dataBase = new DataBase(_tempFolder);
+
+            dataBase = new FileDataBase(_tempFolder);
             Assert.AreEqual(1, dataBase.Added.Count);
         }
 
         [TestMethod()]
         public void AddAndRemoveTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
             File.Delete(Files[0]);
             File.Delete(Files[1]);
@@ -101,7 +102,7 @@ namespace NextCloudScan.Tests
             f.Flush();
             f.Close();
 
-            dataBase = new DataBase(_tempFolder);
+            dataBase = new FileDataBase(_tempFolder);
             Assert.AreEqual(3, dataBase.Removed.Count);
             Assert.AreEqual(1, dataBase.Added.Count);
         }
@@ -109,31 +110,48 @@ namespace NextCloudScan.Tests
         [TestMethod()]
         public void AddedFileNameTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
             FileStream f = File.Open(Files[3], FileMode.Create);
             f.Flush();
             f.Close();
 
-            dataBase = new DataBase(_tempFolder);
+            DateTime lwt = File.GetLastWriteTime(Files[3]);
 
-            Assert.AreEqual(true, dataBase.Added.Contains(Files[3]));
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[3], LastWriteTime = lwt }));
         }
 
         [TestMethod()]
         public void RemovedFileNameTest()
         {
-            DataBase dataBase = new DataBase(_tempFolder, true);
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
-            File.Delete(Files[0]);
-            File.Delete(Files[1]);
-            File.Delete(Files[2]);
+            DateTime lwt0 = File.GetLastWriteTime(Files[0]); File.Delete(Files[0]);
+            DateTime lwt1 = File.GetLastWriteTime(Files[1]); File.Delete(Files[1]);
+            DateTime lwt2 = File.GetLastWriteTime(Files[2]); File.Delete(Files[2]);
 
-            dataBase = new DataBase(_tempFolder);
+            dataBase = new FileDataBase(_tempFolder);
 
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[0]));
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[1]));
-            Assert.AreEqual(true, dataBase.Removed.Contains(Files[2]));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt0 }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[1], LastWriteTime = lwt1 }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[2], LastWriteTime = lwt2 }));
+        }
+
+        [TestMethod()]
+        public void ChangeLWTTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            DateTime lwt_old = File.GetLastWriteTime(Files[0]);
+            File.AppendAllText(Files[0], "TEST");
+            DateTime lwt_new = File.GetLastWriteTime(Files[0]);
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_new }));
+            Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
         }
 
         private void CreateTempFiles(string path)
