@@ -17,19 +17,19 @@ namespace FileScanLib
 
         public void Compare(List<T> oldList, List<T> newList)
         {
-            foreach (T newPath in newList)
+            foreach (T newItem in newList)
             {
-                if (!oldList.Contains(newPath))
+                if (!oldList.Contains(newItem))
                 {
-                    added.Add(newPath);
+                    added.Add(newItem);
                 }
             }
 
-            foreach (T oldPath in oldList)
+            foreach (T oldItem in oldList)
             {
-                if (!newList.Contains(oldPath))
+                if (!newList.Contains(oldItem))
                 {
-                    removed.Add(oldPath);
+                    removed.Add(oldItem);
                 }
             }
         }
