@@ -11,7 +11,7 @@ namespace NextCloudScan
 
             DateTime start = DateTime.Now;
 
-            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml");
+            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml", "change.log");
 
             if (fdb.IsNewBase)
             {

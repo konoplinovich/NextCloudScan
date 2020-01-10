@@ -44,7 +44,9 @@ namespace FileScanLib.Tests
                 Path.Combine(_tempFolder, "one", "1", "file_0.tmp"),
                 Path.Combine(_tempFolder, "three", "2", "file_5.tmp"),
                 Path.Combine(_tempFolder, "five", "1", "file_9.tmp"),
-                Path.Combine(_tempFolder, "four", "2", "file_105.tmp")
+                Path.Combine(_tempFolder, "four", "2", "file_105.tmp"),
+                Path.Combine(_tempFolder, "one", "1", "file_3.tmp"),
+                Path.Combine(_tempFolder, "three", "2", "file_1.tmp")
             };
         }
 
@@ -60,7 +62,7 @@ namespace FileScanLib.Tests
         [TestMethod()]
         public void IsNewBaseTest()
         {
-            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true );
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
             Assert.AreEqual(true, dataBase.IsNewBase);
 
             dataBase = new FileDataBase(_tempFolder);
@@ -152,6 +154,38 @@ namespace FileScanLib.Tests
 
             Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_new }));
             Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
+        }
+
+        [TestMethod()]
+        public void ChangedFoldersCountTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            File.AppendAllText(Files[0], "TEST");
+            File.AppendAllText(Files[1], "TEST");
+            File.AppendAllText(Files[4], "TEST");
+            File.AppendAllText(Files[5], "TEST");
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(2, dataBase.ChangedCount);
+        }
+
+        [TestMethod()]
+        public void ChangedFoldersTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            File.AppendAllText(Files[0], "TEST");
+            File.AppendAllText(Files[1], "TEST");
+            File.AppendAllText(Files[4], "TEST");
+            File.AppendAllText(Files[5], "TEST");
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(Path.GetDirectoryName(Files[0]), dataBase.Changed[0]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[4]), dataBase.Changed[0]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[1]), dataBase.Changed[1]);
         }
 
         private void CreateTempFiles(string path)

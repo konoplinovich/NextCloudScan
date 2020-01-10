@@ -6,23 +6,31 @@ namespace FileScanLib
 {
     public class FileDataBase
     {
+        string _path;
         string _baseFile;
         string _diffFile;
-        string _path;
+        string _changedFile;
+
         List<FileItem> _base;
         List<FileItem> _newFiles;
+        List<string> _changedFolders;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
+        public List<string> Changed { get; private set; } = new List<string>();
+        public int ChangedCount { get { return _changedFolders.Count; } }
 
-        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", bool resetBase = false)
+        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string changedFile = "changed.log", bool resetBase = false)
         {
             _path = path;
             _baseFile = baseFile;
             _diffFile = diffFile;
+            _changedFile = changedFile;
+
             _base = new List<FileItem>();
+            _changedFolders = new List<string>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -45,7 +53,19 @@ namespace FileScanLib
 
                 List<FileItem> diff = new List<FileItem>();
                 diff.AddRange(Removed);
-                if (diff.Count != 0) SaveDiff(diff);
+                if (diff.Count != 0)
+                {
+                    foreach (FileItem item in diff)
+                    {
+                        string folder = Path.GetDirectoryName(item.Path);
+                        if (!_changedFolders.Contains(folder)) _changedFolders.Add(folder);
+                    }
+
+                    Changed = _changedFolders;
+
+                    SaveChangedPlainText();
+                    SaveDiff(diff);
+                }
 
                 _base = _newFiles;
                 Save();
@@ -86,7 +106,13 @@ namespace FileScanLib
         {
             XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
-
+        
+        private void SaveChangedPlainText()
+        {
+            string[] folders = _changedFolders.ToArray();
+            File.WriteAllLines(_changedFile, folders);
+        }
+        
         private void SaveDiff(List<FileItem> diff)
         {
             XmlExtensions.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
