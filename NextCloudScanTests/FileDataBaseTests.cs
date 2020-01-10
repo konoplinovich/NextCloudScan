@@ -84,7 +84,7 @@ namespace FileScanLib.Tests
         {
             FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
-            FileStream f = File.Open(Files[3], FileMode.Create);
+            FileStream f = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx.tmp"), FileMode.Create);
             f.Flush();
             f.Close();
 
@@ -172,20 +172,35 @@ namespace FileScanLib.Tests
         }
 
         [TestMethod()]
-        public void AffectedFoldersAddCountTest()
+        public void AffectedFoldersAddOnlyCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
-            File.AppendAllText(Files[0], "TEST");
-            File.AppendAllText(Files[1], "TEST");
-            File.AppendAllText(Files[4], "TEST");
-            File.AppendAllText(Files[5], "TEST");
+            FileStream f1 = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx1.tmp"), FileMode.Create);
+            f1.Flush();
+            f1.Close();
+
+            FileStream f2 = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx2.tmp"), FileMode.Create);
+            f2.Flush();
+            f2.Close();
 
             dataBase = new FileDataBase(_tempFolder);
 
-            Assert.AreEqual(2, dataBase.AffectedFoldersCount);
+            Assert.AreEqual(1, dataBase.AffectedFoldersCount);
         }
 
+        [TestMethod()]
+        public void AffectedFoldersRemoveOnlyCountTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            File.Delete(Files[0]);
+            File.Delete(Files[4]);
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(1, dataBase.AffectedFoldersCount);
+        }
 
         [TestMethod()]
         public void AffectedFoldersTest()
@@ -200,8 +215,9 @@ namespace FileScanLib.Tests
             dataBase = new FileDataBase(_tempFolder);
 
             Assert.AreEqual(Path.GetDirectoryName(Files[0]), dataBase.AffectedFolders[0]);
-            Assert.AreEqual(Path.GetDirectoryName(Files[4]), dataBase.AffectedFolders[0]);
             Assert.AreEqual(Path.GetDirectoryName(Files[1]), dataBase.AffectedFolders[1]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[4]), dataBase.AffectedFolders[0]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[5]), dataBase.AffectedFolders[1]);
         }
 
         private void CreateTempFiles(string path)
