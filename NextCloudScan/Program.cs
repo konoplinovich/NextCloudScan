@@ -27,7 +27,7 @@ namespace NextCloudScan
                 DateTime stop = DateTime.Now;
                 TimeSpan interval = stop - start;
 
-                Console.WriteLine($"Removed: {fdb.Removed.Count}, added: {fdb.Added.Count}");
+                Console.WriteLine();
 
                 foreach (FileItem path in fdb.Removed)
                 {
@@ -43,8 +43,14 @@ namespace NextCloudScan
                 {
                     Console.WriteLine($"Affected: {path}");
                 }
-
-                Console.WriteLine($"{fdb.Count} files, {fdb.AffectedFoldersCount} affected folders, time: {interval.TotalSeconds}");
+                
+                Console.WriteLine("---");
+                Console.WriteLine($"Removed: {fdb.Removed.Count}");
+                Console.WriteLine($"Added: {fdb.Added.Count}");
+                Console.WriteLine($"Affected folders: {fdb.AffectedFoldersCount}");
+                Console.WriteLine();
+                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
+                
                 Console.ReadLine();
                 return;
             }
