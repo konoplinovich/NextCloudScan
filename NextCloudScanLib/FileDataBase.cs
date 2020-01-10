@@ -76,7 +76,7 @@ namespace FileScanLib
 
         private List<FileItem> Scan()
         {
-            List<FileItem> result = new List<FileItem>();
+            HashSet<FileItem> result = new HashSet<FileItem>();
 
             string[] list = Directory.GetFiles(_path, "*.*", SearchOption.AllDirectories);
 
@@ -94,14 +94,13 @@ namespace FileScanLib
                 {
                     DateTime lwt = File.GetLastWriteTime(path);
                     FileItem fi = new FileItem() { Path = path, LastWriteTime = lwt };
-                    if (!result.Contains(fi))
-                    {
-                        result.Add(fi);
-                    }
+                    result.Add(fi);
                 }
             }
 
-            return result;
+            FileItem[] resultArray = new FileItem[result.Count];
+            result.CopyTo(resultArray);
+            return new List<FileItem>(resultArray);
         }
 
         private void Save()
