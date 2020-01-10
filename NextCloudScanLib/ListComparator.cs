@@ -17,17 +17,20 @@ namespace FileScanLib
 
         public void Compare(List<T> oldList, List<T> newList)
         {
-            foreach (T newItem in newList)
+            HashSet<T> oldH = new HashSet<T>(oldList);
+            HashSet<T> newH = new HashSet<T>(newList);
+            
+            foreach (T newItem in newH)
             {
-                if (!oldList.Contains(newItem))
+                if (!oldH.Contains(newItem))
                 {
                     added.Add(newItem);
                 }
             }
 
-            foreach (T oldItem in oldList)
+            foreach (T oldItem in oldH)
             {
-                if (!newList.Contains(oldItem))
+                if (!newH.Contains(oldItem))
                 {
                     removed.Add(oldItem);
                 }
