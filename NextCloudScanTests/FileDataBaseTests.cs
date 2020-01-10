@@ -100,7 +100,7 @@ namespace FileScanLib.Tests
             File.Delete(Files[0]);
             File.Delete(Files[1]);
             File.Delete(Files[2]);
-            FileStream f = File.Open(Files[3], FileMode.Create);
+            FileStream f = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx.tmp"), FileMode.Create);
             f.Flush();
             f.Close();
 
@@ -170,6 +170,22 @@ namespace FileScanLib.Tests
 
             Assert.AreEqual(2, dataBase.AffectedFoldersCount);
         }
+
+        [TestMethod()]
+        public void AffectedFoldersAddCountTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            File.AppendAllText(Files[0], "TEST");
+            File.AppendAllText(Files[1], "TEST");
+            File.AppendAllText(Files[4], "TEST");
+            File.AppendAllText(Files[5], "TEST");
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(2, dataBase.AffectedFoldersCount);
+        }
+
 
         [TestMethod()]
         public void AffectedFoldersTest()
