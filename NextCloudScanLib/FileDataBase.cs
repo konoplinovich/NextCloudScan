@@ -52,7 +52,9 @@ namespace FileScanLib
                 if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
                 List<FileItem> diff = new List<FileItem>();
+                diff.AddRange(Added);
                 diff.AddRange(Removed);
+
                 if (diff.Count != 0)
                 {
                     foreach (FileItem item in diff)
