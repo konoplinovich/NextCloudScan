@@ -157,7 +157,7 @@ namespace FileScanLib.Tests
         }
 
         [TestMethod()]
-        public void ChangedFoldersCountTest()
+        public void AffectedFoldersCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
@@ -168,11 +168,11 @@ namespace FileScanLib.Tests
 
             dataBase = new FileDataBase(_tempFolder);
 
-            Assert.AreEqual(2, dataBase.ChangedCount);
+            Assert.AreEqual(2, dataBase.AffectedFoldersCount);
         }
 
         [TestMethod()]
-        public void ChangedFoldersTest()
+        public void AffectedFoldersTest()
         {
             FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
 
@@ -183,9 +183,9 @@ namespace FileScanLib.Tests
 
             dataBase = new FileDataBase(_tempFolder);
 
-            Assert.AreEqual(Path.GetDirectoryName(Files[0]), dataBase.Changed[0]);
-            Assert.AreEqual(Path.GetDirectoryName(Files[4]), dataBase.Changed[0]);
-            Assert.AreEqual(Path.GetDirectoryName(Files[1]), dataBase.Changed[1]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[0]), dataBase.AffectedFolders[0]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[4]), dataBase.AffectedFolders[0]);
+            Assert.AreEqual(Path.GetDirectoryName(Files[1]), dataBase.AffectedFolders[1]);
         }
 
         private void CreateTempFiles(string path)

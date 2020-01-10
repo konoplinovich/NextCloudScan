@@ -11,7 +11,7 @@ namespace NextCloudScan
 
             DateTime start = DateTime.Now;
 
-            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml", "change.log");
+            FileDataBase fdb = new FileDataBase(args[0], "base.xml", "diff.xml", "affected_folders.log");
 
             if (fdb.IsNewBase)
             {
@@ -39,7 +39,12 @@ namespace NextCloudScan
                     Console.WriteLine($"A: {path}");
                 }
 
-                Console.WriteLine($"{fdb.Count} files, time: {interval.TotalSeconds}");
+                foreach (string path in fdb.AffectedFolders)
+                {
+                    Console.WriteLine($"Affected: {path}");
+                }
+
+                Console.WriteLine($"{fdb.Count} files, {fdb.AffectedFoldersCount} affected folders, time: {interval.TotalSeconds}");
                 Console.ReadLine();
                 return;
             }

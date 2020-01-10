@@ -9,28 +9,28 @@ namespace FileScanLib
         string _path;
         string _baseFile;
         string _diffFile;
-        string _changedFile;
+        string _affectedFoldersFile;
 
         List<FileItem> _base;
         List<FileItem> _newFiles;
-        List<string> _changedFolders;
+        List<string> _affectedFolders;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
-        public List<string> Changed { get; private set; } = new List<string>();
-        public int ChangedCount { get { return _changedFolders.Count; } }
+        public List<string> AffectedFolders { get; private set; } = new List<string>();
+        public int AffectedFoldersCount { get { return _affectedFolders.Count; } }
 
-        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string changedFile = "changed.log", bool resetBase = false)
+        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false)
         {
             _path = path;
             _baseFile = baseFile;
             _diffFile = diffFile;
-            _changedFile = changedFile;
+            _affectedFoldersFile = affectedFoldersFile;
 
             _base = new List<FileItem>();
-            _changedFolders = new List<string>();
+            _affectedFolders = new List<string>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -58,12 +58,12 @@ namespace FileScanLib
                     foreach (FileItem item in diff)
                     {
                         string folder = Path.GetDirectoryName(item.Path);
-                        if (!_changedFolders.Contains(folder)) _changedFolders.Add(folder);
+                        if (!_affectedFolders.Contains(folder)) _affectedFolders.Add(folder);
                     }
 
-                    Changed = _changedFolders;
+                    AffectedFolders = _affectedFolders;
 
-                    SaveChangedPlainText();
+                    SaveAffectedFoldersAsPlainText();
                     SaveDiff(diff);
                 }
 
@@ -107,10 +107,10 @@ namespace FileScanLib
             XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
         
-        private void SaveChangedPlainText()
+        private void SaveAffectedFoldersAsPlainText()
         {
-            string[] folders = _changedFolders.ToArray();
-            File.WriteAllLines(_changedFile, folders);
+            string[] folders = _affectedFolders.ToArray();
+            File.WriteAllLines(_affectedFoldersFile, folders);
         }
         
         private void SaveDiff(List<FileItem> diff)
