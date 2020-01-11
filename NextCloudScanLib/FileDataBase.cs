@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Extensions;
 
 namespace FileScanLib
 {
@@ -105,7 +106,7 @@ namespace FileScanLib
 
         private void Save()
         {
-            XmlExtensions.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
+            XmlExtension.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
         
         private void SaveAffectedFoldersAsPlainText()
@@ -116,12 +117,12 @@ namespace FileScanLib
         
         private void SaveDiff(List<FileItem> diff)
         {
-            XmlExtensions.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
+            XmlExtension.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
         }
 
         private void Load()
         {
-            _base = XmlExtensions.ReadFromXmlFile<List<FileItem>>(_baseFile);
+            _base = XmlExtension.ReadFromXmlFile<List<FileItem>>(_baseFile);
         }
     }
 }

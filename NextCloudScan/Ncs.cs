@@ -3,7 +3,7 @@ using System;
 
 namespace NextCloudScan
 {
-    class Program
+    class Ncs
     {
         static void Main(string[] args)
         {
