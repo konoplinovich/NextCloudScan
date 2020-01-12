@@ -1,7 +1,6 @@
-﻿using FileScanLib;
+﻿using Extensions;
+using FileScanLib;
 using System;
-using Extensions;
-using System.IO;
 
 namespace NextCloudScan
 {
@@ -14,6 +13,7 @@ namespace NextCloudScan
         private static string _diffFile;
         private static string _affectedFile;
         private static bool _waitOnExit;
+        private static bool _showFileDetails;
         static void Main(string[] args)
         {
             if (args.Length == 0) return;
@@ -25,14 +25,16 @@ namespace NextCloudScan
             if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
             {
                 Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Green;
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"The specified configuration file \"{_configFile}\" is missing.");
                 Console.WriteLine($"A new file was created with this name and the following default settings:");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine($"Path: {_config.Conf.Path}");
-                Console.WriteLine($"Base: {_config.Conf.BaseFile}");
-                Console.WriteLine($"Diff: {_config.Conf.DiffFile}");
-                Console.WriteLine($"Affected: {_config.Conf.AffectedFoldersFile}");
-                Console.WriteLine($"WaitOnExit: {_config.Conf.WaitOnExit}");
+                Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
+                Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
+                Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
+                Console.WriteLine($"Show file details: {_config.Conf.WaitOnExit}");
                 Console.ResetColor();
 
                 return;
@@ -43,6 +45,7 @@ namespace NextCloudScan
             _diffFile = _config.Conf.DiffFile;
             _affectedFile = _config.Conf.AffectedFoldersFile;
             _waitOnExit = _config.Conf.WaitOnExit;
+            _showFileDetails = _config.Conf.ShowFileDetails;
 
             DateTime start = DateTime.Now;
 
@@ -64,26 +67,31 @@ namespace NextCloudScan
 
                 Console.WriteLine();
 
-                foreach (FileItem item in fdb.Removed)
+                if (_showFileDetails)
                 {
-                    Marker(ConsoleColor.Red, "[-]");
-                    Console.WriteLine(item);
+
+                    foreach (FileItem item in fdb.Removed)
+                    {
+                        Marker(ConsoleColor.Red, "[-]");
+                        Console.WriteLine(item);
+                    }
+
+                    foreach (FileItem item in fdb.Added)
+                    {
+                        Marker(ConsoleColor.Green, "[+]");
+                        Console.WriteLine(item);
+                    }
+
+                    Console.WriteLine("---");
+
+                    foreach (string path in fdb.AffectedFolders)
+                    {
+                        Console.WriteLine($"Affected: {path}");
+                    }
+
+                    Console.WriteLine("---");
                 }
 
-                foreach (FileItem item in fdb.Added)
-                {
-                    Marker(ConsoleColor.Green, "[+]");
-                    Console.WriteLine(item);
-                }
-
-                Console.WriteLine("---");
-
-                foreach (string path in fdb.AffectedFolders)
-                {
-                    Console.WriteLine($"Affected: {path}");
-                }
-
-                Console.WriteLine("---");
                 Console.WriteLine($"Removed: {fdb.Removed.Count}");
                 Console.WriteLine($"Added: {fdb.Added.Count}");
                 Console.WriteLine($"Affected folders: {fdb.AffectedFoldersCount}");

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NextCloudScan
+﻿namespace NextCloudScan
 {
     public sealed class NcsConfig
     {
@@ -10,6 +7,7 @@ namespace NextCloudScan
         public string DiffFile { get; set; } = "diff.xml";
         public string AffectedFoldersFile { get; set; } = "affected_folders";
         public bool WaitOnExit { get; set; } = false;
+        public bool ShowFileDetails { get; set; } = false;
 
         public NcsConfig() { }
     }
