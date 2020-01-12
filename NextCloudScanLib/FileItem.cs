@@ -30,7 +30,7 @@ namespace FileScanLib
 
         public override string ToString()
         {
-            return $"{Path}:{LastWriteTime}";
+            return $"{Path} [{LastWriteTime}]";
         }
     }
 }
