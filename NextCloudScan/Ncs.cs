@@ -29,23 +29,23 @@ namespace NextCloudScan
                 Console.WriteLine($"The specified configuration file \"{_configFile}\" is missing.");
                 Console.WriteLine($"A new file was created with this name and the following default settings:");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"Path: {_config.Conf.Path}");
-                Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
-                Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
-                Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
-                Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
-                Console.WriteLine($"Show file details: {_config.Conf.WaitOnExit}");
+                Console.WriteLine($"Path: {_config.Parameters.Path}");
+                Console.WriteLine($"Base file: {_config.Parameters.BaseFile}");
+                Console.WriteLine($"Diff file: {_config.Parameters.DiffFile}");
+                Console.WriteLine($"Affected folders file: {_config.Parameters.AffectedFoldersFile}");
+                Console.WriteLine($"Wait on exit: {_config.Parameters.WaitOnExit}");
+                Console.WriteLine($"Show file details: {_config.Parameters.WaitOnExit}");
                 Console.ResetColor();
 
                 return;
             }
 
-            _path = _config.Conf.Path;
-            _baseFile = _config.Conf.BaseFile;
-            _diffFile = _config.Conf.DiffFile;
-            _affectedFile = _config.Conf.AffectedFoldersFile;
-            _waitOnExit = _config.Conf.WaitOnExit;
-            _showFileDetails = _config.Conf.ShowFileDetails;
+            _path = _config.Parameters.Path;
+            _baseFile = _config.Parameters.BaseFile;
+            _diffFile = _config.Parameters.DiffFile;
+            _affectedFile = _config.Parameters.AffectedFoldersFile;
+            _waitOnExit = _config.Parameters.WaitOnExit;
+            _showFileDetails = _config.Parameters.ShowFileDetails;
 
             DateTime start = DateTime.Now;
 
