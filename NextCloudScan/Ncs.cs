@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using FileScanLib;
 using System;
+using System.Diagnostics;
 
 namespace NextCloudScan
 {
@@ -41,8 +42,40 @@ namespace NextCloudScan
                 ShowDetails();
             }
 
+            FileActions();
             ShowSummary();
             ExitWaiter();
+        }
+
+        private static void FileActions()
+        {
+            if (string.IsNullOrEmpty(_fileAction)) return;
+
+            Console.WriteLine();
+            Marker(Mark.Scan);
+            Console.WriteLine("Launch FileAction for each new file:");
+            Console.WriteLine();
+
+            foreach (FileItem item in _fdb.Added)
+            {
+                try
+                {
+                    using (Process process = new Process())
+                    {
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.FileName = _fileAction;
+                        process.StartInfo.Arguments = item.Path;
+                        process.StartInfo.CreateNoWindow = false;
+                        process.Start();
+                        process.WaitForExit();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Marker(Mark.Error);
+                    Console.WriteLine(e.Message);
+                }
+            }
         }
 
         private static void Scan()
@@ -179,6 +212,10 @@ namespace NextCloudScan
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write("[>]");
                     break;
+                case Mark.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("[E]");
+                    break;
                 default:
                     break;
             }
@@ -191,7 +228,8 @@ namespace NextCloudScan
             Add,
             Remove,
             Affected,
-            Scan
+            Scan,
+            Error
         }
     }
 }

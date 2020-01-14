@@ -9,7 +9,11 @@ namespace NCSPerFilePayload
         
         static void Main(string[] args)
         {
-            if (args.Length == 0) return;
+            if (args.Length == 0)
+            {
+                Console.WriteLine("[E]No file name specified");
+                return;
+            }
             _fileName = args[0];
 
             if (!File.Exists(_fileName))
