@@ -27,7 +27,7 @@ namespace NCSPerFilePayload
                     FileInfo fi = new FileInfo(_fileName);
                     if (fi != null)
                     {
-                        Console.WriteLine($"[D]{fi.Directory} [F]{fi.Name} [Size]{fi.Length} [LWT]{fi.LastWriteTime} [LAT]{fi.LastAccessTime}");
+                        Console.WriteLine($"{fi.Name} : [D]{fi.Directory} [Size]{fi.Length} [LWT]{fi.LastWriteTime} [LAT]{fi.LastAccessTime}");
                     }
                 }
                 catch (UnauthorizedAccessException e)

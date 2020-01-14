@@ -14,6 +14,9 @@ namespace NextCloudScan
         private static string _diffFile;
         private static string _affectedFile;
         private static string _fileAction;
+        private static int _fileActionCompleteCount;
+        private static int _fileActionErrorCount;
+        private static string _folderAction;
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
@@ -49,6 +52,9 @@ namespace NextCloudScan
 
         private static void FileActions()
         {
+            _fileActionCompleteCount = 0;
+            _fileActionErrorCount = 0;
+            
             if (string.IsNullOrEmpty(_fileAction)) return;
 
             Console.WriteLine();
@@ -68,12 +74,16 @@ namespace NextCloudScan
                         process.StartInfo.CreateNoWindow = false;
                         process.Start();
                         process.WaitForExit();
+
+                        _fileActionCompleteCount++;
                     }
                 }
                 catch (Exception e)
                 {
                     Marker(Mark.Error);
                     Console.WriteLine(e.Message);
+
+                    _fileActionErrorCount++;
                 }
             }
         }
@@ -130,7 +140,9 @@ namespace NextCloudScan
             if (_fdb.AffectedFoldersCount != 0) Console.WriteLine($"Affected folders: {_fdb.AffectedFoldersCount}");
             if (thereAreChanges) Console.WriteLine();
 
-            Console.WriteLine($"Total in the database {_fdb.Count} files, scan time: {_interval.TotalSeconds}");
+            Console.WriteLine($"Total in the database {_fdb.Count} files");
+            Console.WriteLine($"Scan time: {_interval.TotalSeconds}");
+            Console.WriteLine($"File action: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error");
             Console.ResetColor();
         }
 
@@ -145,6 +157,7 @@ namespace NextCloudScan
             _showConfigParametersOnStart = _config.Parameters.ShowConfigParametersOnStart;
 
             _fileAction = _config.Parameters.FileAction;
+            _folderAction = _config.Parameters.FolderAction;
 
             if (_showConfigParametersOnStart)
             {
@@ -175,10 +188,12 @@ namespace NextCloudScan
             Console.WriteLine($"Base file: {_config.Parameters.BaseFile}");
             Console.WriteLine($"Diff file: {_config.Parameters.DiffFile}");
             Console.WriteLine($"Affected folders file: {_config.Parameters.AffectedFoldersFile}");
-            Console.WriteLine($"File action: {_config.Parameters.FileAction}");
             Console.WriteLine($"Show config on start: {_config.Parameters.ShowConfigParametersOnStart}");
             Console.WriteLine($"Wait on exit: {_config.Parameters.WaitOnExit}");
             Console.WriteLine($"Show file details: {_config.Parameters.ShowFileDetails}");
+            Console.WriteLine();
+            Console.WriteLine($"File action: {_config.Parameters.FileAction}");
+            Console.WriteLine($"Folder action: {_config.Parameters.FolderAction}");
             Console.ResetColor();
         }
 
@@ -201,7 +216,7 @@ namespace NextCloudScan
                     Console.Write("[+]");
                     break;
                 case Mark.Remove:
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.Write("[-]");
                     break;
                 case Mark.Affected:
