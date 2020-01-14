@@ -12,6 +12,7 @@ namespace NextCloudScan
         private static string _baseFile;
         private static string _diffFile;
         private static string _affectedFile;
+        private static string _fileAction;
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
@@ -110,6 +111,8 @@ namespace NextCloudScan
             _showFileDetails = _config.Parameters.ShowFileDetails;
             _showConfigParametersOnStart = _config.Parameters.ShowConfigParametersOnStart;
 
+            _fileAction = _config.Parameters.FileAction;
+
             if (_showConfigParametersOnStart)
             {
                 Console.WriteLine();
@@ -139,6 +142,7 @@ namespace NextCloudScan
             Console.WriteLine($"Base file: {_config.Parameters.BaseFile}");
             Console.WriteLine($"Diff file: {_config.Parameters.DiffFile}");
             Console.WriteLine($"Affected folders file: {_config.Parameters.AffectedFoldersFile}");
+            Console.WriteLine($"File action: {_config.Parameters.FileAction}");
             Console.WriteLine($"Show config on start: {_config.Parameters.ShowConfigParametersOnStart}");
             Console.WriteLine($"Wait on exit: {_config.Parameters.WaitOnExit}");
             Console.WriteLine($"Show file details: {_config.Parameters.ShowFileDetails}");
