@@ -8,6 +8,7 @@
         public string AffectedFoldersFile { get; set; } = "affected_folders";
         public bool WaitOnExit { get; set; } = false;
         public bool ShowFileDetails { get; set; } = false;
+        public bool ShowConfigParametersOnStart { get; set; } = false;
 
         public NcsConfig() { }
     }
