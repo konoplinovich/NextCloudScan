@@ -17,11 +17,11 @@ namespace NextCloudScan
         private static string _fileAction;
         private static int _fileActionCompleteCount;
         private static int _fileActionErrorCount;
-        
+
         private static string _folderAction;
         private static int _folderActionCompleteCount;
         private static int _folderActionErrorCount;
-        
+
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
@@ -44,16 +44,38 @@ namespace NextCloudScan
             MapConfigParameters();
             Scan();
 
-            if (_showFileDetails && !_fdb.IsNewBase)
+            if (!_fdb.IsNewBase)
             {
+                if (_showFileDetails)
+                {
+                    Console.WriteLine();
+                    ShowFileDetails();
+                }
                 Console.WriteLine();
-                ShowDetails();
+                ShowFolderDetails();
             }
 
             FileActions();
             FolderActions();
+            
             ShowSummary();
-            ExitWaiter();
+            GoAway();
+        }
+
+        private static void Scan()
+        {
+            Console.WriteLine();
+            Marker(Mark.Scan);
+            Console.Write("Scan ...");
+
+            DateTime start = DateTime.Now;
+
+            _fdb = new FileDataBase(_path, _baseFile, _diffFile, _affectedFile);
+
+            DateTime stop = DateTime.Now;
+            _interval = stop - start;
+
+            Console.WriteLine("\b\b\bcomplete.");
         }
 
         private static void FolderActions()
@@ -98,7 +120,7 @@ namespace NextCloudScan
         {
             _fileActionCompleteCount = 0;
             _fileActionErrorCount = 0;
-            
+
             if (string.IsNullOrEmpty(_fileAction)) return;
 
             Console.WriteLine();
@@ -132,23 +154,27 @@ namespace NextCloudScan
             }
         }
 
-        private static void Scan()
+        private static void MapConfigParameters()
         {
-            Console.WriteLine();
-            Marker(Mark.Scan);
-            Console.Write("Scan ...");
+            _path = _config.Parameters.Path;
+            _baseFile = _config.Parameters.BaseFile;
+            _diffFile = _config.Parameters.DiffFile;
+            _affectedFile = _config.Parameters.AffectedFoldersFile;
+            _waitOnExit = _config.Parameters.WaitOnExit;
+            _showFileDetails = _config.Parameters.ShowFileDetails;
+            _showConfigParametersOnStart = _config.Parameters.ShowConfigParametersOnStart;
 
-            DateTime start = DateTime.Now;
+            _fileAction = _config.Parameters.FileAction;
+            _folderAction = _config.Parameters.FolderAction;
 
-            _fdb = new FileDataBase(_path, _baseFile, _diffFile, _affectedFile);
-
-            DateTime stop = DateTime.Now;
-            _interval = stop - start;
-
-            Console.WriteLine("\b\b\bcomplete.");
+            if (_showConfigParametersOnStart)
+            {
+                Console.WriteLine();
+                ShowConfigParameters();
+            }
         }
 
-        private static void ShowDetails()
+        private static void ShowFileDetails()
         {
             foreach (FileItem item in _fdb.Removed)
             {
@@ -161,9 +187,10 @@ namespace NextCloudScan
                 Marker(Mark.Add);
                 Console.WriteLine(item);
             }
+        }
 
-            Console.WriteLine();
-
+        private static void ShowFolderDetails()
+        {
             foreach (string path in _fdb.AffectedFolders)
             {
                 Marker(Mark.Affected);
@@ -189,26 +216,6 @@ namespace NextCloudScan
             Console.WriteLine($"File action: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error");
             Console.WriteLine($"Folder action: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error");
             Console.ResetColor();
-        }
-
-        private static void MapConfigParameters()
-        {
-            _path = _config.Parameters.Path;
-            _baseFile = _config.Parameters.BaseFile;
-            _diffFile = _config.Parameters.DiffFile;
-            _affectedFile = _config.Parameters.AffectedFoldersFile;
-            _waitOnExit = _config.Parameters.WaitOnExit;
-            _showFileDetails = _config.Parameters.ShowFileDetails;
-            _showConfigParametersOnStart = _config.Parameters.ShowConfigParametersOnStart;
-
-            _fileAction = _config.Parameters.FileAction;
-            _folderAction = _config.Parameters.FolderAction;
-
-            if (_showConfigParametersOnStart)
-            {
-                Console.WriteLine();
-                ShowConfigParameters();
-            }
         }
 
         private static void ShowDefaultConfigBanner()
@@ -242,7 +249,7 @@ namespace NextCloudScan
             Console.ResetColor();
         }
 
-        private static void ExitWaiter()
+        private static void GoAway()
         {
             if (!_waitOnExit) return;
 
