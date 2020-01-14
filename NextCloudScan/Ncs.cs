@@ -13,10 +13,15 @@ namespace NextCloudScan
         private static string _baseFile;
         private static string _diffFile;
         private static string _affectedFile;
+
         private static string _fileAction;
         private static int _fileActionCompleteCount;
         private static int _fileActionErrorCount;
+        
         private static string _folderAction;
+        private static int _folderActionCompleteCount;
+        private static int _folderActionErrorCount;
+        
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
@@ -46,8 +51,47 @@ namespace NextCloudScan
             }
 
             FileActions();
+            FolderActions();
             ShowSummary();
             ExitWaiter();
+        }
+
+        private static void FolderActions()
+        {
+            _folderActionCompleteCount = 0;
+            _folderActionErrorCount = 0;
+
+            if (string.IsNullOrEmpty(_folderAction)) return;
+
+            Console.WriteLine();
+            Marker(Mark.Scan);
+            Console.WriteLine("Launch FolderAction for each affected folder:");
+            Console.WriteLine();
+
+            foreach (string folder in _fdb.AffectedFolders)
+            {
+                try
+                {
+                    using (Process process = new Process())
+                    {
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.FileName = _folderAction;
+                        process.StartInfo.CreateNoWindow = false;
+                        process.StartInfo.Arguments = folder;
+                        process.Start();
+                        process.WaitForExit();
+
+                        _folderActionCompleteCount++;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Marker(Mark.Error);
+                    Console.WriteLine(e.Message);
+
+                    _folderActionErrorCount++;
+                }
+            }
         }
 
         private static void FileActions()
@@ -143,6 +187,7 @@ namespace NextCloudScan
             Console.WriteLine($"Total in the database {_fdb.Count} files");
             Console.WriteLine($"Scan time: {_interval.TotalSeconds}");
             Console.WriteLine($"File action: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error");
+            Console.WriteLine($"Folder action: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error");
             Console.ResetColor();
         }
 
