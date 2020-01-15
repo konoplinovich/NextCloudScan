@@ -26,7 +26,9 @@ namespace NextCloudScan
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
         private static FileDataBase _fdb;
-        private static TimeSpan _interval;
+        private static TimeSpan _scanTime;
+        private static TimeSpan _fileActionsTime;
+        private static TimeSpan _folderActionsTime;
 
         static void Main(string[] args)
         {
@@ -73,13 +75,15 @@ namespace NextCloudScan
             _fdb = new FileDataBase(_path, _baseFile, _diffFile, _affectedFile);
 
             DateTime stop = DateTime.Now;
-            _interval = stop - start;
+            _scanTime = stop - start;
 
             Console.WriteLine("\b\b\bcomplete.");
         }
 
         private static void FolderActions()
         {
+            DateTime start = DateTime.Now;
+
             _folderActionCompleteCount = 0;
             _folderActionErrorCount = 0;
 
@@ -114,10 +118,15 @@ namespace NextCloudScan
                     _folderActionErrorCount++;
                 }
             }
+
+            DateTime stop = DateTime.Now;
+            _folderActionsTime = stop - start;
         }
 
         private static void FileActions()
         {
+            DateTime start = DateTime.Now;
+
             _fileActionCompleteCount = 0;
             _fileActionErrorCount = 0;
 
@@ -152,6 +161,9 @@ namespace NextCloudScan
                     _fileActionErrorCount++;
                 }
             }
+
+            DateTime stop = DateTime.Now;
+            _fileActionsTime = stop - start;
         }
 
         private static void MapConfigParameters()
@@ -211,10 +223,10 @@ namespace NextCloudScan
             if (_fdb.AffectedFoldersCount != 0) Console.WriteLine($"Affected folders: {_fdb.AffectedFoldersCount}");
             if (thereAreChanges) Console.WriteLine();
 
-            Console.WriteLine($"Total in the database {_fdb.Count} files");
-            Console.WriteLine($"Scan time: {_interval.TotalSeconds}");
-            Console.WriteLine($"File action: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error");
-            Console.WriteLine($"Folder action: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error");
+            Console.WriteLine($"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+            Console.WriteLine();
+            Console.WriteLine($"File actions result: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error, elapsed time: {_fileActionsTime.TotalSeconds}");
+            Console.WriteLine($"Folder action result: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error, elapsed time: {_folderActionsTime.TotalSeconds}");
             Console.ResetColor();
         }
 
@@ -272,8 +284,8 @@ namespace NextCloudScan
                     Console.Write("[-]");
                     break;
                 case Mark.Affected:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("[#]");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("[A]");
                     break;
                 case Mark.Scan:
                     Console.ForegroundColor = ConsoleColor.DarkGray;
