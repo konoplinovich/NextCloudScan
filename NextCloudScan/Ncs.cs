@@ -53,14 +53,15 @@ namespace NextCloudScan
                     Console.WriteLine();
                     ShowFileDetails();
                 }
-                
+
                 Console.WriteLine();
                 ShowFolderDetails();
+                ShowErrors();
 
                 FileActions();
                 FolderActions();
             }
-            
+
             ShowSummary();
             GoAway();
         }
@@ -225,10 +226,28 @@ namespace NextCloudScan
             if (thereAreChanges) Console.WriteLine();
 
             Console.WriteLine($"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+            if (_fdb.Errors.Count != 0)
+            {
+                Console.WriteLine($"({_fdb.Errors.Count} folders unavailable during the last scan)");
+            }
+
             Console.WriteLine();
             Console.WriteLine($"File actions result: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error, elapsed time: {_fileActionsTime.TotalSeconds}");
             Console.WriteLine($"Folder action result: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error, elapsed time: {_folderActionsTime.TotalSeconds}");
             Console.ResetColor();
+        }
+
+        private static void ShowErrors()
+        {
+            if (_fdb.Errors.Count == 0) return;
+
+            Console.WriteLine();
+
+            foreach (var item in _fdb.Errors)
+            {
+                Marker(Mark.Info);
+                Console.WriteLine(item);
+            }
         }
 
         private static void ShowDefaultConfigBanner()
@@ -296,6 +315,10 @@ namespace NextCloudScan
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("[E]");
                     break;
+                case Mark.Info:
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write("[I]");
+                    break;
                 default:
                     break;
             }
@@ -309,7 +332,8 @@ namespace NextCloudScan
             Remove,
             Affected,
             Scan,
-            Error
+            Error,
+            Info
         }
     }
 }

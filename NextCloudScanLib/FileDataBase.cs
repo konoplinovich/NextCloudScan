@@ -15,6 +15,7 @@ namespace FileScanLib
         List<FileItem> _base;
         List<FileItem> _newFiles;
         List<string> _affectedFolders;
+        private HashSet<string> _files;
 
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
@@ -22,6 +23,7 @@ namespace FileScanLib
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
         public List<string> AffectedFolders { get; private set; } = new List<string>();
         public int AffectedFoldersCount { get { return _affectedFolders.Count; } }
+        public List<string> Errors { get; private set; } = new List<string>();
 
         public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false)
         {
@@ -32,6 +34,7 @@ namespace FileScanLib
 
             _base = new List<FileItem>();
             _affectedFolders = new List<string>();
+            _files = new HashSet<string>();
 
             if (!File.Exists(_baseFile) || resetBase)
             {
@@ -78,11 +81,10 @@ namespace FileScanLib
         private List<FileItem> Scan()
         {
             HashSet<FileItem> result = new HashSet<FileItem>();
-
-            string[] list = Directory.GetFiles(_path, "*.*", SearchOption.AllDirectories);
-
-            foreach (string path in list)
-            {
+            GetFiles(_path);
+            
+            foreach (string path in _files)
+                {
                 bool goodfile =
                     path.IndexOf("files_external") == -1
                     && path.IndexOf("appdata") == -1
@@ -102,6 +104,25 @@ namespace FileScanLib
             FileItem[] resultArray = new FileItem[result.Count];
             result.CopyTo(resultArray);
             return new List<FileItem>(resultArray);
+        }
+        
+        void GetFiles(string path)
+        {
+            try
+            {
+                foreach (string directory in Directory.GetDirectories(path))
+                {
+                    foreach (string file in Directory.GetFiles(directory))
+                    {
+                        _files.Add(file);
+                    }
+                    GetFiles(directory);
+                }
+            }
+            catch (Exception e)
+            {
+                Errors.Add(e.Message);
+            }
         }
 
         private void Save()
