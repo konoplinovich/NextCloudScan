@@ -169,16 +169,16 @@ namespace NextCloudScan
 
         private static void MapConfigParameters()
         {
-            _path = _config.Parameters.Path;
-            _baseFile = _config.Parameters.BaseFile;
-            _diffFile = _config.Parameters.DiffFile;
-            _affectedFile = _config.Parameters.AffectedFoldersFile;
-            _waitOnExit = _config.Parameters.WaitOnExit;
-            _showFileDetails = _config.Parameters.ShowFileDetails;
-            _showConfigParametersOnStart = _config.Parameters.ShowConfigParametersOnStart;
+            _path = _config.Conf.Path;
+            _baseFile = _config.Conf.BaseFile;
+            _diffFile = _config.Conf.DiffFile;
+            _affectedFile = _config.Conf.AffectedFoldersFile;
+            _waitOnExit = _config.Conf.WaitOnExit;
+            _showFileDetails = _config.Conf.ShowFileDetails;
+            _showConfigParametersOnStart = _config.Conf.ShowConfigParametersOnStart;
 
-            _fileAction = _config.Parameters.FileAction;
-            _folderAction = _config.Parameters.FolderAction;
+            _fileAction = _config.Conf.FileAction;
+            _folderAction = _config.Conf.FolderAction;
 
             if (_showConfigParametersOnStart)
             {
@@ -249,16 +249,16 @@ namespace NextCloudScan
         private static void ShowConfigParameters()
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"Path: {_config.Parameters.Path}");
-            Console.WriteLine($"Base file: {_config.Parameters.BaseFile}");
-            Console.WriteLine($"Diff file: {_config.Parameters.DiffFile}");
-            Console.WriteLine($"Affected folders file: {_config.Parameters.AffectedFoldersFile}");
-            Console.WriteLine($"Show config on start: {_config.Parameters.ShowConfigParametersOnStart}");
-            Console.WriteLine($"Wait on exit: {_config.Parameters.WaitOnExit}");
-            Console.WriteLine($"Show file details: {_config.Parameters.ShowFileDetails}");
+            Console.WriteLine($"Path: {_config.Conf.Path}");
+            Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
+            Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
+            Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+            Console.WriteLine($"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+            Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
+            Console.WriteLine($"Show file details: {_config.Conf.ShowFileDetails}");
             Console.WriteLine();
-            Console.WriteLine($"File action: {_config.Parameters.FileAction}");
-            Console.WriteLine($"Folder action: {_config.Parameters.FolderAction}");
+            Console.WriteLine($"File action: {_config.Conf.FileAction}");
+            Console.WriteLine($"Folder action: {_config.Conf.FolderAction}");
             Console.ResetColor();
         }
 
