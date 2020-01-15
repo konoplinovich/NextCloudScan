@@ -34,17 +34,26 @@ namespace NextCloudScan
         {
             if (args.Length == 0) return;
             _configFile = args[0];
-            _config = new ConfigExtension<NcsConfig>(_configFile);
-            ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
-            if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
+            try
             {
-                ShowDefaultConfigBanner();
+                _config = new ConfigExtension<NcsConfig>(_configFile);
+                ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
+
+                if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
+                {
+                    ShowDefaultConfigBanner();
+                    return;
+                }
+
+                MapConfigParameters();
+                Scan();
+            }
+            catch (Exception e)
+            {
+                ShowFatalException(e);
                 return;
             }
-
-            MapConfigParameters();
-            Scan();
 
             if (!_fdb.IsNewBase)
             {
@@ -248,6 +257,17 @@ namespace NextCloudScan
                 Marker(Mark.Info);
                 Console.WriteLine(item);
             }
+        }
+
+        private static void ShowFatalException(Exception e)
+        {
+            Console.WriteLine();
+            Marker(Mark.Info);
+            Console.WriteLine($"Config file: {_configFile}");
+            Marker(Mark.Error);
+            Console.WriteLine(e.Message);
+            Marker(Mark.Error);
+            Console.WriteLine("Exit");
         }
 
         private static void ShowDefaultConfigBanner()
