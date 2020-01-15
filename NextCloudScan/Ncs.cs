@@ -53,12 +53,13 @@ namespace NextCloudScan
                     Console.WriteLine();
                     ShowFileDetails();
                 }
+                
                 Console.WriteLine();
                 ShowFolderDetails();
-            }
 
-            FileActions();
-            FolderActions();
+                FileActions();
+                FolderActions();
+            }
             
             ShowSummary();
             GoAway();
