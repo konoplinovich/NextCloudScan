@@ -1,7 +1,6 @@
 ﻿using Extensions;
 using FileScanLib;
 using System;
-using System.Diagnostics;
 
 namespace NextCloudScan
 {
@@ -13,22 +12,16 @@ namespace NextCloudScan
         private static string _baseFile;
         private static string _diffFile;
         private static string _affectedFile;
-
         private static string _fileAction;
-        private static int _fileActionCompleteCount;
-        private static int _fileActionErrorCount;
-
         private static string _folderAction;
-        private static int _folderActionCompleteCount;
-        private static int _folderActionErrorCount;
-
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
+        
         private static FileDataBase _fdb;
         private static TimeSpan _scanTime;
-        private static TimeSpan _fileActionsTime;
-        private static TimeSpan _folderActionsTime;
+        private static ActionsResult _fileActionsResult;
+        private static ActionsResult _folderActionsResult;
 
         static void Main(string[] args)
         {
@@ -93,11 +86,6 @@ namespace NextCloudScan
 
         private static void FolderActions()
         {
-            DateTime start = DateTime.Now;
-
-            _folderActionCompleteCount = 0;
-            _folderActionErrorCount = 0;
-
             if (string.IsNullOrEmpty(_folderAction)) return;
 
             Console.WriteLine();
@@ -105,42 +93,14 @@ namespace NextCloudScan
             Console.WriteLine("Launch FolderAction for each affected folder:");
             Console.WriteLine();
 
-            foreach (string folder in _fdb.AffectedFolders)
-            {
-                try
-                {
-                    using (Process process = new Process())
-                    {
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.FileName = _folderAction;
-                        process.StartInfo.CreateNoWindow = false;
-                        process.StartInfo.Arguments = folder;
-                        process.Start();
-                        process.WaitForExit();
+            FolderActions fa = new FolderActions(_fdb, _folderAction);
+            _folderActionsResult = fa.Run();
 
-                        _folderActionCompleteCount++;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Marker(Mark.Error);
-                    Console.WriteLine(e.Message);
-
-                    _folderActionErrorCount++;
-                }
-            }
-
-            DateTime stop = DateTime.Now;
-            _folderActionsTime = stop - start;
+            ShowActionsErrors(_folderActionsResult);
         }
 
         private static void FileActions()
         {
-            DateTime start = DateTime.Now;
-
-            _fileActionCompleteCount = 0;
-            _fileActionErrorCount = 0;
-
             if (string.IsNullOrEmpty(_fileAction)) return;
 
             Console.WriteLine();
@@ -148,33 +108,10 @@ namespace NextCloudScan
             Console.WriteLine("Launch FileAction for each new file:");
             Console.WriteLine();
 
-            foreach (FileItem item in _fdb.Added)
-            {
-                try
-                {
-                    using (Process process = new Process())
-                    {
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.FileName = _fileAction;
-                        process.StartInfo.Arguments = item.Path;
-                        process.StartInfo.CreateNoWindow = false;
-                        process.Start();
-                        process.WaitForExit();
+            FileActions fa = new FileActions(_fdb, _fileAction);
+            _fileActionsResult = fa.Run();
 
-                        _fileActionCompleteCount++;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Marker(Mark.Error);
-                    Console.WriteLine(e.Message);
-
-                    _fileActionErrorCount++;
-                }
-            }
-
-            DateTime stop = DateTime.Now;
-            _fileActionsTime = stop - start;
+            ShowActionsErrors(_fileActionsResult);
         }
 
         private static void MapConfigParameters()
@@ -241,8 +178,10 @@ namespace NextCloudScan
             }
 
             Console.WriteLine();
-            Console.WriteLine($"File actions result: {_fileActionCompleteCount} ok, {_fileActionErrorCount} error, elapsed time: {_fileActionsTime.TotalSeconds}");
-            Console.WriteLine($"Folder action result: {_folderActionCompleteCount} ok, {_folderActionErrorCount} error, elapsed time: {_folderActionsTime.TotalSeconds}");
+            if (_fileActionsResult != null)
+                Console.WriteLine($"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
+            if (_folderActionsResult != null)
+                Console.WriteLine($"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
             Console.ResetColor();
         }
 
@@ -256,6 +195,18 @@ namespace NextCloudScan
             {
                 Marker(Mark.Info);
                 Console.WriteLine(item);
+            }
+        }
+
+        private static void ShowActionsErrors(ActionsResult result)
+        {
+            if (result.Errors.Count != 0)
+            {
+                foreach (string error in result.Errors)
+                {
+                    Marker(Mark.Error);
+                    Console.WriteLine(error);
+                }
             }
         }
 
@@ -344,16 +295,6 @@ namespace NextCloudScan
             }
             Console.Write(" ");
             Console.ResetColor();
-        }
-
-        private enum Mark
-        {
-            Add,
-            Remove,
-            Affected,
-            Scan,
-            Error,
-            Info
         }
     }
 }
