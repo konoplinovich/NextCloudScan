@@ -47,9 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
-    <Compile Include="FileActions.cs" />
-    <Compile Include="FolderActions.cs" />
     <Compile Include="Mark.cs" />
     <Compile Include="Ncs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

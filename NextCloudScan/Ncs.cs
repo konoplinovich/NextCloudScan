@@ -17,7 +17,7 @@ namespace NextCloudScan
         private static bool _waitOnExit;
         private static bool _showFileDetails;
         private static bool _showConfigParametersOnStart;
-        
+
         private static FileDataBase _fdb;
         private static TimeSpan _scanTime;
         private static ActionsResult _fileActionsResult;
@@ -60,8 +60,11 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                FileActions();
-                FolderActions();
+                _fileActionsResult = Actions(_fileAction, "Launch FileAction for each new file");
+                ShowActionsErrors(_fileActionsResult);
+
+                _folderActionsResult = Actions(_folderAction, "Launch FolderAction for each affected folder");
+                ShowActionsErrors(_folderActionsResult);
             }
 
             ShowSummary();
@@ -84,34 +87,19 @@ namespace NextCloudScan
             Console.WriteLine("\b\b\bcomplete.");
         }
 
-        private static void FolderActions()
+        private static ActionsResult Actions(string action, string message)
         {
-            if (string.IsNullOrEmpty(_folderAction)) return;
+            if (string.IsNullOrEmpty(_fileAction)) return null;
 
             Console.WriteLine();
             Marker(Mark.Scan);
-            Console.WriteLine("Launch FolderAction for each affected folder:");
+            Console.WriteLine($"{message}: ");
             Console.WriteLine();
 
-            FolderActions fa = new FolderActions(_fdb, _folderAction);
-            _folderActionsResult = fa.Run();
+            Actions fa = new Actions(_fdb, action);
+            ActionsResult result = fa.Run();
 
-            ShowActionsErrors(_folderActionsResult);
-        }
-
-        private static void FileActions()
-        {
-            if (string.IsNullOrEmpty(_fileAction)) return;
-
-            Console.WriteLine();
-            Marker(Mark.Scan);
-            Console.WriteLine("Launch FileAction for each new file:");
-            Console.WriteLine();
-
-            FileActions fa = new FileActions(_fdb, _fileAction);
-            _fileActionsResult = fa.Run();
-
-            ShowActionsErrors(_fileActionsResult);
+            return result;
         }
 
         private static void MapConfigParameters()
@@ -200,13 +188,13 @@ namespace NextCloudScan
 
         private static void ShowActionsErrors(ActionsResult result)
         {
-            if (result.Errors.Count != 0)
+            if (result == null) return;
+            if (result.Errors.Count == 0) return;
+
+            foreach (string error in result.Errors)
             {
-                foreach (string error in result.Errors)
-                {
-                    Marker(Mark.Error);
-                    Console.WriteLine(error);
-                }
+                Marker(Mark.Error);
+                Console.WriteLine(error);
             }
         }
 

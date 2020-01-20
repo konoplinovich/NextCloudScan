@@ -5,15 +5,15 @@ using System.Diagnostics;
 
 namespace NextCloudScan
 {
-    internal class FolderActions
+    class Actions
     {
-        private string _folderAction;
+        private string _action;
         private FileDataBase _fdb;
 
-        public FolderActions(FileDataBase fdb, string folderAction)
+        public Actions(FileDataBase fileDataBase, string action)
         {
-            _fdb = fdb;
-            _folderAction = folderAction;
+            _fdb = fileDataBase;
+            _action = action;
         }
 
         public ActionsResult Run()
@@ -21,22 +21,22 @@ namespace NextCloudScan
             DateTime start = DateTime.Now;
 
             List<string> errors = new List<string>();
-            int folderActionCompleteCount = 0;
+            int completeCount = 0;
 
-            foreach (string folder in _fdb.AffectedFolders)
+            foreach (FileItem item in _fdb.Added)
             {
                 try
                 {
                     using (Process process = new Process())
                     {
                         process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.FileName = _folderAction;
+                        process.StartInfo.FileName = _action;
+                        process.StartInfo.Arguments = item.Path;
                         process.StartInfo.CreateNoWindow = false;
-                        process.StartInfo.Arguments = folder;
                         process.Start();
                         process.WaitForExit();
 
-                        folderActionCompleteCount++;
+                        completeCount++;
                     }
                 }
                 catch (Exception e)
@@ -46,9 +46,9 @@ namespace NextCloudScan
             }
 
             DateTime stop = DateTime.Now;
-            TimeSpan folderActionsTime = stop - start;
+            TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = folderActionCompleteCount, ElapsedTime = folderActionsTime, Errors = new List<string>(errors) };
+            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = new List<string>(errors) };
         }
     }
 }
