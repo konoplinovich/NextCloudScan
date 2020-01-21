@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using FileScanLib;
 using System;
+using System.Collections.Generic;
 
 namespace NextCloudScan
 {
@@ -8,15 +9,6 @@ namespace NextCloudScan
     {
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
-        //private static string _path;
-        //private static string _baseFile;
-        //private static string _diffFile;
-        //private static string _affectedFile;
-        //private static string _fileAction;
-        //private static string _folderAction;
-        //private static bool _waitOnExit;
-        //private static bool _showFileDetails;
-        //private static bool _showConfigParametersOnStart;
 
         private static FileDataBase _fdb;
         private static TimeSpan _scanTime;
@@ -60,10 +52,17 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch FileAction for each new file");
+                _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch action for each new file", _fdb.AddedPath);
                 ShowActionsErrors(_fileActionsResult);
 
-                _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch FolderAction for each affected folder");
+                if (_config.Conf.IsNextCloud)
+                {
+                    _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected NextCloud folder", _fdb.AffectedFolders, isNextCloud: true);
+                }
+                else
+                {
+                    _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected folder", _fdb.AffectedFolders);
+                }
                 ShowActionsErrors(_folderActionsResult);
             }
 
@@ -87,7 +86,7 @@ namespace NextCloudScan
             Console.WriteLine("\b\b\bcomplete.");
         }
 
-        private static ActionsResult Actions(string action, string actionOptions, string message)
+        private static ActionsResult Actions(string action, string actionOptions, string message, List<string> paths, bool isNextCloud = false)
         {
             if (string.IsNullOrEmpty(_config.Conf.FileActionApp)) return null;
 
@@ -96,8 +95,18 @@ namespace NextCloudScan
             Console.WriteLine($"{message}: ");
             Console.WriteLine();
 
-            Actions fa = new Actions(_fdb, action, actionOptions);
-            ActionsResult result = fa.Run();
+            ActionsResult result;
+
+            if (isNextCloud)
+            {
+                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path });
+                result = fa.Run();
+            }
+            else
+            {
+                Actions fa = new Actions(paths, action, actionOptions);
+                result = fa.Run();
+            }
 
             return result;
         }
@@ -208,17 +217,27 @@ namespace NextCloudScan
         {
             if (_config.Conf.ShowConfigParametersOnStart)
             {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"Path: {_config.Conf.Path}");
-                Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
-                Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
-                Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
-                Console.WriteLine($"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
-                Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
-                Console.WriteLine($"Show file details: {_config.Conf.ShowFileDetails}");
                 Console.WriteLine();
-                Console.WriteLine($"File action: {_config.Conf.FileActionApp}");
-                Console.WriteLine($"Folder action: {_config.Conf.FolderActionApp}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Marker(Mark.Options); Console.WriteLine($"Files");
+                Console.WriteLine($"    Path: {_config.Conf.Path}");
+                Console.WriteLine($"    Base file: {_config.Conf.BaseFile}");
+                Console.WriteLine($"    Diff file: {_config.Conf.DiffFile}");
+                Console.WriteLine($"    Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                Console.WriteLine();
+                Marker(Mark.Options); Console.WriteLine($"Options");
+                Console.WriteLine($"    Is NextCloud: {_config.Conf.IsNextCloud}");
+                Console.WriteLine($"    Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+                Console.WriteLine($"    Wait on exit: {_config.Conf.WaitOnExit}");
+                Console.WriteLine($"    Show file details: {_config.Conf.ShowFileDetails}");
+                Console.WriteLine();
+                Marker(Mark.Options); Console.WriteLine($"New files action");
+                Console.WriteLine($"    App: {_config.Conf.FileActionApp}");
+                Console.WriteLine($"    Options: {_config.Conf.FileActionAppOptions}");
+                Console.WriteLine();
+                Marker(Mark.Options); Console.WriteLine($"Affected folders action");
+                Console.WriteLine($"    App: {_config.Conf.FolderActionApp}");
+                Console.WriteLine($"    Options: {_config.Conf.FolderActionAppOptions}");
                 Console.ResetColor();
             }
         }
@@ -260,6 +279,10 @@ namespace NextCloudScan
                 case Mark.Info:
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.Write("[I]");
+                    break;
+                case Mark.Options:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("[#]");
                     break;
                 default:
                     break;

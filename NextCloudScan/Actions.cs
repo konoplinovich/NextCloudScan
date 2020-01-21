@@ -9,13 +9,17 @@ namespace NextCloudScan
     {
         private string _action;
         private string _actionOptions;
-        private FileDataBase _fdb;
+        private IPathParser _parser;
+        private List<string> _rules;
+        private List<string> _paths;
 
-        public Actions(FileDataBase fileDataBase, string action, string actionOptions)
+        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null)
         {
-            _fdb = fileDataBase;
+            _paths = paths;
             _action = action;
             _actionOptions = actionOptions;
+            _parser = parser;
+            _rules = rules;
         }
 
         public ActionsResult Run()
@@ -25,14 +29,16 @@ namespace NextCloudScan
             List<string> errors = new List<string>();
             int completeCount = 0;
 
-            foreach (FileItem item in _fdb.Added)
+            foreach (string path in _paths)
             {
+                string currentPath = path;
+                if (_parser != null) currentPath = _parser.Parse(path, _rules);
+                string arguments = _actionOptions.Replace("$f", path);
+
                 try
                 {
                     using (Process process = new Process())
                     {
-                        string arguments = _actionOptions.Replace("$f", item.Path);
-
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.FileName = _action;
                         process.StartInfo.Arguments = arguments;

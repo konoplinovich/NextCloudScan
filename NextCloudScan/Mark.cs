@@ -7,6 +7,7 @@
         Affected,
         Scan,
         Error,
-        Info
+        Info,
+        Options
     }
 }

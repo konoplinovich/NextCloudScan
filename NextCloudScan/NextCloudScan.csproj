@@ -49,7 +49,9 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
+    <Compile Include="IPathParser.cs" />
     <Compile Include="Mark.cs" />
+    <Compile Include="NcPathParser.cs" />
     <Compile Include="Ncs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NcsConfig.cs" />

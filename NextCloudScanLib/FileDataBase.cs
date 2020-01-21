@@ -20,6 +20,7 @@ namespace FileScanLib
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
+        public List<string> AddedPath { get; set; } = new List<string>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
         public List<string> AffectedFolders { get; private set; } = new List<string>();
         public int AffectedFoldersCount { get { return _affectedFolders.Count; } }
@@ -52,7 +53,11 @@ namespace FileScanLib
                 ListComparator<FileItem> lc = new ListComparator<FileItem>();
                 lc.Compare(_base, _newFiles);
 
-                if (!lc.AddedIsEmpty) Added = lc.Added;
+                if (!lc.AddedIsEmpty)
+                {
+                    Added = lc.Added;
+                    AddedPath = FileItemsToPaths(Added);
+                }
                 if (!lc.RemovedIsEmpty) Removed = lc.Removed;
 
                 List<FileItem> diff = new List<FileItem>();
@@ -82,9 +87,9 @@ namespace FileScanLib
         {
             HashSet<FileItem> result = new HashSet<FileItem>();
             GetFiles(_path);
-            
+
             foreach (string path in _files)
-                {
+            {
                 bool goodfile =
                     path.IndexOf("files_external") == -1
                     && path.IndexOf("appdata") == -1
@@ -105,7 +110,7 @@ namespace FileScanLib
             result.CopyTo(resultArray);
             return new List<FileItem>(resultArray);
         }
-        
+
         void GetFiles(string path)
         {
             try
@@ -129,13 +134,13 @@ namespace FileScanLib
         {
             XmlExtension.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
         }
-        
+
         private void SaveAffectedFoldersAsPlainText()
         {
             string[] folders = _affectedFolders.ToArray();
             File.WriteAllLines(_affectedFoldersFile, folders);
         }
-        
+
         private void SaveDiff(List<FileItem> diff)
         {
             XmlExtension.WriteToXmlFile<List<FileItem>>(_diffFile, diff);
@@ -144,6 +149,18 @@ namespace FileScanLib
         private void Load()
         {
             _base = XmlExtension.ReadFromXmlFile<List<FileItem>>(_baseFile);
+        }
+
+        private List<string> FileItemsToPaths(List<FileItem> items)
+        {
+            List<string> paths = new List<string>();
+
+            foreach (FileItem item in items)
+            {
+                paths.Add(item.Path);
+            }
+
+            return paths;
         }
     }
 }
