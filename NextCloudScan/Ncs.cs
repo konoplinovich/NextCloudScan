@@ -8,15 +8,15 @@ namespace NextCloudScan
     {
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
-        private static string _path;
-        private static string _baseFile;
-        private static string _diffFile;
-        private static string _affectedFile;
-        private static string _fileAction;
-        private static string _folderAction;
-        private static bool _waitOnExit;
-        private static bool _showFileDetails;
-        private static bool _showConfigParametersOnStart;
+        //private static string _path;
+        //private static string _baseFile;
+        //private static string _diffFile;
+        //private static string _affectedFile;
+        //private static string _fileAction;
+        //private static string _folderAction;
+        //private static bool _waitOnExit;
+        //private static bool _showFileDetails;
+        //private static bool _showConfigParametersOnStart;
 
         private static FileDataBase _fdb;
         private static TimeSpan _scanTime;
@@ -39,7 +39,7 @@ namespace NextCloudScan
                     return;
                 }
 
-                MapConfigParameters();
+                ShowConfigParameters();
                 Scan();
             }
             catch (Exception e)
@@ -50,7 +50,7 @@ namespace NextCloudScan
 
             if (!_fdb.IsNewBase)
             {
-                if (_showFileDetails)
+                if (_config.Conf.ShowFileDetails)
                 {
                     Console.WriteLine();
                     ShowFileDetails();
@@ -60,10 +60,10 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                _fileActionsResult = Actions(_fileAction, "Launch FileAction for each new file");
+                _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch FileAction for each new file");
                 ShowActionsErrors(_fileActionsResult);
 
-                _folderActionsResult = Actions(_folderAction, "Launch FolderAction for each affected folder");
+                _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch FolderAction for each affected folder");
                 ShowActionsErrors(_folderActionsResult);
             }
 
@@ -79,7 +79,7 @@ namespace NextCloudScan
 
             DateTime start = DateTime.Now;
 
-            _fdb = new FileDataBase(_path, _baseFile, _diffFile, _affectedFile);
+            _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile);
 
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
@@ -87,39 +87,19 @@ namespace NextCloudScan
             Console.WriteLine("\b\b\bcomplete.");
         }
 
-        private static ActionsResult Actions(string action, string message)
+        private static ActionsResult Actions(string action, string actionOptions, string message)
         {
-            if (string.IsNullOrEmpty(_fileAction)) return null;
+            if (string.IsNullOrEmpty(_config.Conf.FileActionApp)) return null;
 
             Console.WriteLine();
             Marker(Mark.Scan);
             Console.WriteLine($"{message}: ");
             Console.WriteLine();
 
-            Actions fa = new Actions(_fdb, action);
+            Actions fa = new Actions(_fdb, action, actionOptions);
             ActionsResult result = fa.Run();
 
             return result;
-        }
-
-        private static void MapConfigParameters()
-        {
-            _path = _config.Conf.Path;
-            _baseFile = _config.Conf.BaseFile;
-            _diffFile = _config.Conf.DiffFile;
-            _affectedFile = _config.Conf.AffectedFoldersFile;
-            _waitOnExit = _config.Conf.WaitOnExit;
-            _showFileDetails = _config.Conf.ShowFileDetails;
-            _showConfigParametersOnStart = _config.Conf.ShowConfigParametersOnStart;
-
-            _fileAction = _config.Conf.FileAction;
-            _folderAction = _config.Conf.FolderAction;
-
-            if (_showConfigParametersOnStart)
-            {
-                Console.WriteLine();
-                ShowConfigParameters();
-            }
         }
 
         private static void ShowFileDetails()
@@ -226,23 +206,26 @@ namespace NextCloudScan
 
         private static void ShowConfigParameters()
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"Path: {_config.Conf.Path}");
-            Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
-            Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
-            Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
-            Console.WriteLine($"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
-            Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
-            Console.WriteLine($"Show file details: {_config.Conf.ShowFileDetails}");
-            Console.WriteLine();
-            Console.WriteLine($"File action: {_config.Conf.FileAction}");
-            Console.WriteLine($"Folder action: {_config.Conf.FolderAction}");
-            Console.ResetColor();
+            if (_config.Conf.ShowConfigParametersOnStart)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"Path: {_config.Conf.Path}");
+                Console.WriteLine($"Base file: {_config.Conf.BaseFile}");
+                Console.WriteLine($"Diff file: {_config.Conf.DiffFile}");
+                Console.WriteLine($"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                Console.WriteLine($"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+                Console.WriteLine($"Wait on exit: {_config.Conf.WaitOnExit}");
+                Console.WriteLine($"Show file details: {_config.Conf.ShowFileDetails}");
+                Console.WriteLine();
+                Console.WriteLine($"File action: {_config.Conf.FileActionApp}");
+                Console.WriteLine($"Folder action: {_config.Conf.FolderActionApp}");
+                Console.ResetColor();
+            }
         }
 
         private static void GoAway()
         {
-            if (!_waitOnExit) return;
+            if (!_config.Conf.WaitOnExit) return;
 
             Console.WriteLine();
             Console.Write("press <Enter> to exit... ");
