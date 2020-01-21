@@ -52,18 +52,24 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch action for each new file", _fdb.AddedPath);
-                ShowActionsErrors(_fileActionsResult);
+                if (!string.IsNullOrEmpty(_config.Conf.FileActionApp))
+                {
+                    _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch action for each new file", _fdb.AddedPath);
+                    ShowActionsErrors(_fileActionsResult);
+                }
 
-                if (_config.Conf.IsNextCloud)
+                if (!string.IsNullOrEmpty(_config.Conf.FolderActionApp))
                 {
-                    _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected NextCloud folder", _fdb.AffectedFolders, isNextCloud: true);
+                    if (_config.Conf.IsNextCloud)
+                    {
+                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected NextCloud folder", _fdb.AffectedFolders, isNextCloud: true);
+                    }
+                    else
+                    {
+                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected folder", _fdb.AffectedFolders);
+                    }
+                    ShowActionsErrors(_folderActionsResult);
                 }
-                else
-                {
-                    _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected folder", _fdb.AffectedFolders);
-                }
-                ShowActionsErrors(_folderActionsResult);
             }
 
             ShowSummary();
@@ -88,7 +94,7 @@ namespace NextCloudScan
 
         private static ActionsResult Actions(string action, string actionOptions, string message, List<string> paths, bool isNextCloud = false)
         {
-            if (string.IsNullOrEmpty(_config.Conf.FileActionApp)) return null;
+            //if (string.IsNullOrEmpty(_config.Conf.FileActionApp)) return null;
 
             Console.WriteLine();
             Marker(Mark.Scan);
@@ -269,7 +275,7 @@ namespace NextCloudScan
                     Console.Write("[A]");
                     break;
                 case Mark.Scan:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[>]");
                     break;
                 case Mark.Error:
@@ -281,7 +287,7 @@ namespace NextCloudScan
                     Console.Write("[I]");
                     break;
                 case Mark.Options:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.Write("[#]");
                     break;
                 default:

@@ -33,7 +33,7 @@ namespace NextCloudScan
             {
                 string currentPath = path;
                 if (_parser != null) currentPath = _parser.Parse(path, _rules);
-                string arguments = _actionOptions.Replace("$f", path);
+                string arguments = _actionOptions.Replace("$f", currentPath);
 
                 try
                 {
@@ -46,7 +46,14 @@ namespace NextCloudScan
                         process.Start();
                         process.WaitForExit();
 
-                        completeCount++;
+                        if (process.ExitCode != 0)
+                        {
+                            errors.Add($"Internal process error, exit code: {process.ExitCode}");
+                        }
+                        else
+                        {
+                            completeCount++;
+                        }
                     }
                 }
                 catch (Exception e)
