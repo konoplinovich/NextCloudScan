@@ -1,6 +1,6 @@
-﻿namespace NextCloudScan.Interfaces
+﻿namespace NextCloudScan.UI
 {
-    public enum MessageType
+    public enum Message
     {
         NewFile,
         RemovedFile,

@@ -1,52 +1,52 @@
 ﻿using System;
 
-namespace NextCloudScan.Interfaces
+namespace NextCloudScan.UI
 {
-    public class ConsoleInterface : IHumanInterface
+    public class ConsoleUI : IHumanUI
     {
-        public void Show(MessageType type, string message)
+        public void Show(Message type, string message)
         {
             Marker(type);
             Console.WriteLine(message);
         }
 
-        private static void Marker(MessageType mark)
+        private static void Marker(Message mark)
         {
             switch (mark)
             {
-                case MessageType.NewFile:
+                case Message.NewFile:
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("[+]");
                     break;
-                case MessageType.RemovedFile:
+                case Message.RemovedFile:
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.Write("[-]");
                     break;
-                case MessageType.AffectedFolder:
+                case Message.AffectedFolder:
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("[A]");
                     break;
-                case MessageType.Start:
+                case Message.Start:
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[>]");
                     break;
-                case MessageType.Error:
+                case Message.Error:
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("[E]");
                     break;
-                case MessageType.Info:
+                case Message.Info:
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.Write("[I]");
                     break;
-                case MessageType.Config:
+                case Message.Config:
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.Write("[#]");
                     break;
-                case MessageType.Warning:
+                case Message.Warning:
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[!]");
                     break;
-                case MessageType.External:
+                case Message.External:
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write("[=]");
                     break;

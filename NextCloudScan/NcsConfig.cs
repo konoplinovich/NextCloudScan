@@ -14,7 +14,7 @@
         public bool WaitOnExit { get; set; } = false;
         public bool ShowFileDetails { get; set; } = false;
         public bool ShowConfigParametersOnStart { get; set; } = true;
-        public NextCloudScan.Interfaces.InterfaceType Interface { get; set; } = NextCloudScan.Interfaces.InterfaceType.Screen;
+        public NextCloudScan.UI.SupportedUI Interface { get; set; } = NextCloudScan.UI.SupportedUI.Screen;
         public string LogFile { get; set; } = "[logFile]";
 
         public NcsConfig() { }

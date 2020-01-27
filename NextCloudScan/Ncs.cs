@@ -2,7 +2,7 @@
 using FileScanLib;
 using System;
 using System.Collections.Generic;
-using NextCloudScan.Interfaces;
+using NextCloudScan.UI;
 
 namespace NextCloudScan
 {
@@ -16,7 +16,7 @@ namespace NextCloudScan
         private static ActionsResult _fileActionsResult;
         private static ActionsResult _folderActionsResult;
 
-        private static IHumanInterface _interface;
+        private static IHumanUI _interface;
 
         static void Main(string[] args)
         {
@@ -28,7 +28,7 @@ namespace NextCloudScan
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
                 
-                _interface = InterfaceFabrique.GetInterface(_config.Conf.Interface, _config.Conf.LogFile);
+                _interface = UIFabrique.GetUI(_config.Conf.Interface, _config.Conf.LogFile);
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
                 {
@@ -57,12 +57,12 @@ namespace NextCloudScan
 
                 if (!string.IsNullOrEmpty(_config.Conf.FileActionApp))
                 {
-                    _interface.Show(MessageType.Start, "Launch action for each new file");
+                    _interface.Show(Message.Start, "Launch action for each new file");
                     _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
 
                     foreach (string logLine in _fileActionsResult.Log)
                     {
-                        _interface.Show(MessageType.External, $"{logLine.Replace(Environment.NewLine,"")}");
+                        _interface.Show(Message.External, $"{logLine.Replace(Environment.NewLine,"")}");
                     }
 
                     ShowActionsErrors(_fileActionsResult);
@@ -72,12 +72,12 @@ namespace NextCloudScan
                 {
                     if (_config.Conf.IsNextCloud)
                     {
-                        _interface.Show(MessageType.Start, "Launch action for each affected NextCloud folder");
+                        _interface.Show(Message.Start, "Launch action for each affected NextCloud folder");
                         _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
                     }
                     else
                     {
-                        _interface.Show(MessageType.Start, "Launch action for each affected folder");
+                        _interface.Show(Message.Start, "Launch action for each affected folder");
                         _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
                     }
                     ShowActionsErrors(_folderActionsResult);
@@ -89,7 +89,7 @@ namespace NextCloudScan
 
         private static void Scan()
         {
-            _interface.Show(MessageType.Start, "Start scan");
+            _interface.Show(Message.Start, "Start scan");
 
             DateTime start = DateTime.Now;
 
@@ -98,7 +98,7 @@ namespace NextCloudScan
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
 
-            _interface.Show(MessageType.Start, "Scan complete");
+            _interface.Show(Message.Start, "Scan complete");
         }
 
         private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
@@ -123,12 +123,12 @@ namespace NextCloudScan
         {
             foreach (FileItem item in _fdb.Removed)
             {
-                _interface.Show(MessageType.RemovedFile, item.ToString());
+                _interface.Show(Message.RemovedFile, item.ToString());
             }
 
             foreach (FileItem item in _fdb.Added)
             {
-                _interface.Show(MessageType.NewFile, item.ToString());
+                _interface.Show(Message.NewFile, item.ToString());
             }
         }
 
@@ -136,26 +136,26 @@ namespace NextCloudScan
         {
             foreach (string path in _fdb.AffectedFolders)
             {
-                _interface.Show(MessageType.AffectedFolder, path);
+                _interface.Show(Message.AffectedFolder, path);
             }
         }
 
         private static void ShowSummary()
         {
-            _interface.Show(MessageType.Info, "---");
+            _interface.Show(Message.Info, "---");
 
-            if (_fdb.Removed.Count != 0) _interface.Show(MessageType.Info, $"Removed: {_fdb.Removed.Count}");
-            if (_fdb.Added.Count != 0) _interface.Show(MessageType.Info, $"Added: {_fdb.Added.Count}");
-            if (_fdb.AffectedFoldersCount != 0) _interface.Show(MessageType.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
-            _interface.Show(MessageType.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+            if (_fdb.Removed.Count != 0) _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
+            if (_fdb.Added.Count != 0) _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
+            if (_fdb.AffectedFoldersCount != 0) _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
+            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
             if (_fdb.Errors.Count != 0)
             {
-                _interface.Show(MessageType.Warning, $"({_fdb.Errors.Count} folders unavailable during the last scan)");
+                _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folders unavailable during the last scan)");
             }
             if (_fileActionsResult != null)
-                _interface.Show(MessageType.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
             if (_folderActionsResult != null)
-                _interface.Show(MessageType.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
         }
 
         private static void ShowErrors()
@@ -164,7 +164,7 @@ namespace NextCloudScan
 
             foreach (string error in _fdb.Errors)
             {
-                _interface.Show(MessageType.Error, error);
+                _interface.Show(Message.Error, error);
             }
         }
 
@@ -175,48 +175,48 @@ namespace NextCloudScan
 
             foreach (string error in result.Errors)
             {
-                _interface.Show(MessageType.Error, error);
+                _interface.Show(Message.Error, error);
             }
         }
 
         private static void ShowFatalException(string message)
         {
-            IHumanInterface defaultInterface = InterfaceFabrique.GetInterface(InterfaceType.Screen);
+            IHumanUI defaultInterface = UIFabrique.GetUI(UI.SupportedUI.Screen);
 
-            defaultInterface.Show(MessageType.Info, $"Config file: {_configFile}");
-            defaultInterface.Show(MessageType.Error, message);
-            defaultInterface.Show(MessageType.Error, "Exited");
+            defaultInterface.Show(Message.Info, $"Config file: {_configFile}");
+            defaultInterface.Show(Message.Error, message);
+            defaultInterface.Show(Message.Error, "Exited");
         }
 
         private static void ShowDefaultConfigBanner()
         {
-            _interface.Show(MessageType.Warning, $"The specified configuration file \"{_configFile}\" is missing.");
-            _interface.Show(MessageType.Warning, $"A new file was created with this name and the following default settings:");
+            _interface.Show(Message.Warning, $"The specified configuration file \"{_configFile}\" is missing.");
+            _interface.Show(Message.Warning, $"A new file was created with this name and the following default settings:");
 
             ShowConfigParameters();
-            _interface.Show(MessageType.Warning, "[!] Check the configuration file before next run!");
+            _interface.Show(Message.Warning, "[!] Check the configuration file before next run!");
         }
 
         private static void ShowConfigParameters()
         {
             if (_config.Conf.ShowConfigParametersOnStart)
             {
-                _interface.Show(MessageType.Config, $"Config file: {_configFile}");
-                _interface.Show(MessageType.Config, $"Path: {_config.Conf.Path}");
-                _interface.Show(MessageType.Config, $"Base file: {_config.Conf.BaseFile}");
-                _interface.Show(MessageType.Config, $"Diff file: {_config.Conf.DiffFile}");
-                _interface.Show(MessageType.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
-                _interface.Show(MessageType.Config, $"LogFile: {_config.Conf.LogFile}");
-                _interface.Show(MessageType.Config, $"Interface: {_config.Conf.Interface}");
-                _interface.Show(MessageType.Config, $"Interface module: {_interface}");
-                _interface.Show(MessageType.Config, $"File App: {_config.Conf.FileActionApp}");
-                _interface.Show(MessageType.Config, $"File App options: {_config.Conf.FileActionAppOptions}");
-                _interface.Show(MessageType.Config, $"Folder App: {_config.Conf.FolderActionApp}");
-                _interface.Show(MessageType.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
-                _interface.Show(MessageType.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
-                _interface.Show(MessageType.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
-                _interface.Show(MessageType.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
-                _interface.Show(MessageType.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
+                _interface.Show(Message.Config, $"Config file: {_configFile}");
+                _interface.Show(Message.Config, $"Path: {_config.Conf.Path}");
+                _interface.Show(Message.Config, $"Base file: {_config.Conf.BaseFile}");
+                _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
+                _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                _interface.Show(Message.Config, $"LogFile: {_config.Conf.LogFile}");
+                _interface.Show(Message.Config, $"Interface: {_config.Conf.Interface}");
+                _interface.Show(Message.Config, $"Interface module: {_interface}");
+                _interface.Show(Message.Config, $"File App: {_config.Conf.FileActionApp}");
+                _interface.Show(Message.Config, $"File App options: {_config.Conf.FileActionAppOptions}");
+                _interface.Show(Message.Config, $"Folder App: {_config.Conf.FolderActionApp}");
+                _interface.Show(Message.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
+                _interface.Show(Message.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
+                _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+                _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
+                _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
             }
         }
     }

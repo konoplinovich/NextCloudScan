@@ -50,13 +50,13 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
-    <Compile Include="Interfaces\CombinedInterface.cs" />
-    <Compile Include="Interfaces\ConsoleInterface.cs" />
-    <Compile Include="Interfaces\IHumanInterface.cs" />
-    <Compile Include="Interfaces\InterfaceFabrique.cs" />
-    <Compile Include="Interfaces\IntertfaceType.cs" />
-    <Compile Include="Interfaces\LogfileInterface.cs" />
-    <Compile Include="Interfaces\MessageType.cs" />
+    <Compile Include="UI\CombinedUI.cs" />
+    <Compile Include="UI\ConsoleUI.cs" />
+    <Compile Include="UI\IHumanUI.cs" />
+    <Compile Include="UI\UIFabrique.cs" />
+    <Compile Include="UI\SupportedUI.cs" />
+    <Compile Include="UI\LogfileUI.cs" />
+    <Compile Include="UI\Message.cs" />
     <Compile Include="IPathParser.cs" />
     <Compile Include="Mark.cs" />
     <Compile Include="NcPathParser.cs" />
