@@ -2,6 +2,7 @@
 using FileScanLib;
 using System;
 using System.Collections.Generic;
+using NextCloudScan.Interface;
 
 namespace NextCloudScan
 {
@@ -14,6 +15,8 @@ namespace NextCloudScan
         private static TimeSpan _scanTime;
         private static ActionsResult _fileActionsResult;
         private static ActionsResult _folderActionsResult;
+
+        private static IHumanInterface _interface;
 
         static void Main(string[] args)
         {
@@ -30,6 +33,8 @@ namespace NextCloudScan
                     ShowDefaultConfigBanner();
                     return;
                 }
+
+                _interface = InterfaceFabrique.GetInterface(_config.Conf.Interface);
 
                 ShowConfigParameters();
                 Scan();
@@ -237,6 +242,8 @@ namespace NextCloudScan
                 Console.WriteLine($"    Wait on exit: {_config.Conf.WaitOnExit}");
                 Console.WriteLine($"    Show file details: {_config.Conf.ShowFileDetails}");
                 Console.WriteLine($"    Interface: {_config.Conf.Interface}");
+                if (_interface != null)
+                    Console.WriteLine($"    Interface module: {_interface}");
                 Console.WriteLine();
                 Marker(Mark.Options); Console.WriteLine($"New files action");
                 Console.WriteLine($"    App: {_config.Conf.FileActionApp}");

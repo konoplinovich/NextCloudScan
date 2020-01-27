@@ -50,7 +50,13 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
-    <Compile Include="IntertfaceType.cs" />
+    <Compile Include="Interface\CombinedInterface.cs" />
+    <Compile Include="Interface\ConsoleInterface.cs" />
+    <Compile Include="Interface\IHumanInterface.cs" />
+    <Compile Include="Interface\InterfaceFabrique.cs" />
+    <Compile Include="Interface\IntertfaceType.cs" />
+    <Compile Include="Interface\LogfileInterface.cs" />
+    <Compile Include="Interface\MessageType.cs" />
     <Compile Include="IPathParser.cs" />
     <Compile Include="Mark.cs" />
     <Compile Include="NcPathParser.cs" />

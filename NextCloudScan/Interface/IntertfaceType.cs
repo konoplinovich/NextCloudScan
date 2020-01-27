@@ -1,4 +1,4 @@
-﻿namespace NextCloudScan
+﻿namespace NextCloudScan.Interface
 {
     public enum InterfaceType
     {

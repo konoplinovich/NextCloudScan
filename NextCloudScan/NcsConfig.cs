@@ -1,4 +1,6 @@
-﻿namespace NextCloudScan
+﻿using NextCloudScan.Interface;
+
+namespace NextCloudScan
 {
     public sealed class NcsConfig
     {
