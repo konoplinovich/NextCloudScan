@@ -41,7 +41,7 @@ namespace NextCloudScan
             }
             catch (Exception e)
             {
-                ShowFatalException(e);
+                ShowFatalException(e.Message);
                 return;
             }
 
@@ -179,11 +179,13 @@ namespace NextCloudScan
             }
         }
 
-        private static void ShowFatalException(Exception e)
+        private static void ShowFatalException(string message)
         {
-            _interface.Show(MessageType.Info, $"Config file: {_configFile}");
-            _interface.Show(MessageType.Error, e.Message);
-            _interface.Show(MessageType.Error, "Exited");
+            IHumanInterface defaultInterface = InterfaceFabrique.GetInterface(InterfaceType.Screen);
+
+            defaultInterface.Show(MessageType.Info, $"Config file: {_configFile}");
+            defaultInterface.Show(MessageType.Error, message);
+            defaultInterface.Show(MessageType.Error, "Exited");
         }
 
         private static void ShowDefaultConfigBanner()
