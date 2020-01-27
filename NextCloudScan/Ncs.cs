@@ -211,48 +211,33 @@ namespace NextCloudScan
 
         private static void ShowDefaultConfigBanner()
         {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"The specified configuration file \"{_configFile}\" is missing.");
-            Console.WriteLine($"A new file was created with this name and the following default settings:");
+            _interface.Show(MessageType.Info, $"The specified configuration file \"{_configFile}\" is missing.");
+            _interface.Show(MessageType.Info, $"A new file was created with this name and the following default settings:");
 
             ShowConfigParameters();
-            Console.WriteLine();
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("[!] Check the configuration file before next run!");
-            Console.ResetColor();
+            _interface.Show(MessageType.Info, "[!] Check the configuration file before next run!");
         }
 
         private static void ShowConfigParameters()
         {
             if (_config.Conf.ShowConfigParametersOnStart)
             {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.White;
-                Marker(Mark.Options); Console.WriteLine($"Files");
-                Console.WriteLine($"    Path: {_config.Conf.Path}");
-                Console.WriteLine($"    Base file: {_config.Conf.BaseFile}");
-                Console.WriteLine($"    Diff file: {_config.Conf.DiffFile}");
-                Console.WriteLine($"    Affected folders file: {_config.Conf.AffectedFoldersFile}");
-                Console.WriteLine();
-                Marker(Mark.Options); Console.WriteLine($"Options");
-                Console.WriteLine($"    Is NextCloud: {_config.Conf.IsNextCloud}");
-                Console.WriteLine($"    Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
-                Console.WriteLine($"    Wait on exit: {_config.Conf.WaitOnExit}");
-                Console.WriteLine($"    Show file details: {_config.Conf.ShowFileDetails}");
-                Console.WriteLine($"    Interface: {_config.Conf.Interface}");
-                if (_interface != null)
-                    Console.WriteLine($"    Interface module: {_interface}");
-                Console.WriteLine();
-                Marker(Mark.Options); Console.WriteLine($"New files action");
-                Console.WriteLine($"    App: {_config.Conf.FileActionApp}");
-                Console.WriteLine($"    Options: {_config.Conf.FileActionAppOptions}");
-                Console.WriteLine();
-                Marker(Mark.Options); Console.WriteLine($"Affected folders action");
-                Console.WriteLine($"    App: {_config.Conf.FolderActionApp}");
-                Console.WriteLine($"    Options: {_config.Conf.FolderActionAppOptions}");
-                Console.ResetColor();
+                _interface.Show(MessageType.Info, $"Config:");
+                _interface.Show(MessageType.Options, $"    Config file: {_configFile}");
+                _interface.Show(MessageType.Options, $"    Path: {_config.Conf.Path}");
+                _interface.Show(MessageType.Options, $"    Base file: {_config.Conf.BaseFile}");
+                _interface.Show(MessageType.Options, $"    Diff file: {_config.Conf.DiffFile}");
+                _interface.Show(MessageType.Options, $"    Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                _interface.Show(MessageType.Options, $"    Is NextCloud: {_config.Conf.IsNextCloud}");
+                _interface.Show(MessageType.Options, $"    Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+                _interface.Show(MessageType.Options, $"    Wait on exit: {_config.Conf.WaitOnExit}");
+                _interface.Show(MessageType.Options, $"    Show file details: {_config.Conf.ShowFileDetails}");
+                _interface.Show(MessageType.Options, $"    Interface: {_config.Conf.Interface}");
+                _interface.Show(MessageType.Options, $"    Interface module: {_interface}");
+                _interface.Show(MessageType.Options, $"    App: {_config.Conf.FileActionApp}");
+                _interface.Show(MessageType.Options, $"    Options: {_config.Conf.FileActionAppOptions}");
+                _interface.Show(MessageType.Options, $"    App: {_config.Conf.FolderActionApp}");
+                _interface.Show(MessageType.Options, $"    Options: {_config.Conf.FolderActionAppOptions}");
             }
         }
 
