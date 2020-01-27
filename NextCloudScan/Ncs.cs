@@ -49,17 +49,16 @@ namespace NextCloudScan
             {
                 if (_config.Conf.ShowFileDetails)
                 {
-                    Console.WriteLine();
                     ShowFileDetails();
                 }
 
-                Console.WriteLine();
                 ShowFolderDetails();
                 ShowErrors();
 
                 if (!string.IsNullOrEmpty(_config.Conf.FileActionApp))
                 {
-                    _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, "Launch action for each new file", _fdb.AddedPath);
+                    _interface.Show(MessageType.Scan, "Launch action for each new file");
+                    _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
                     ShowActionsErrors(_fileActionsResult);
                 }
 
@@ -67,25 +66,24 @@ namespace NextCloudScan
                 {
                     if (_config.Conf.IsNextCloud)
                     {
-                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected NextCloud folder", _fdb.AffectedFolders, isNextCloud: true);
+                        _interface.Show(MessageType.Scan, "Launch action for each affected NextCloud folder");
+                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
                     }
                     else
                     {
-                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, "Launch action for each affected folder", _fdb.AffectedFolders);
+                        _interface.Show(MessageType.Scan, "Launch action for each affected folder");
+                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
                     }
                     ShowActionsErrors(_folderActionsResult);
                 }
             }
 
             ShowSummary();
-            GoAway();
         }
 
         private static void Scan()
         {
-            Console.WriteLine();
-            Marker(Mark.Scan);
-            Console.Write("Scan ...");
+            _interface.Show(MessageType.Scan, "Start scan");
 
             DateTime start = DateTime.Now;
 
@@ -94,18 +92,11 @@ namespace NextCloudScan
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
 
-            Console.WriteLine("\b\b\bcomplete.");
+            _interface.Show(MessageType.Scan, "Scan complete");
         }
 
-        private static ActionsResult Actions(string action, string actionOptions, string message, List<string> paths, bool isNextCloud = false)
+        private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
         {
-            //if (string.IsNullOrEmpty(_config.Conf.FileActionApp)) return null;
-
-            Console.WriteLine();
-            Marker(Mark.Scan);
-            Console.WriteLine($"{message}: ");
-            Console.WriteLine();
-
             ActionsResult result;
 
             if (isNextCloud)
@@ -126,14 +117,12 @@ namespace NextCloudScan
         {
             foreach (FileItem item in _fdb.Removed)
             {
-                Marker(Mark.Remove);
-                Console.WriteLine(item);
+                _interface.Show(MessageType.Remove, item.ToString());
             }
 
             foreach (FileItem item in _fdb.Added)
             {
-                Marker(Mark.Add);
-                Console.WriteLine(item);
+                _interface.Show(MessageType.Add, item.ToString());
             }
         }
 
@@ -141,48 +130,35 @@ namespace NextCloudScan
         {
             foreach (string path in _fdb.AffectedFolders)
             {
-                Marker(Mark.Affected);
-                Console.WriteLine(path);
+                _interface.Show(MessageType.Affected, path);
             }
         }
 
         private static void ShowSummary()
         {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("---");
+            _interface.Show(MessageType.Info, "---");
 
-            bool thereAreChanges = _fdb.Removed.Count != 0 || _fdb.Added.Count != 0 || _fdb.AffectedFoldersCount != 0;
-
-            if (_fdb.Removed.Count != 0) Console.WriteLine($"Removed: {_fdb.Removed.Count}");
-            if (_fdb.Added.Count != 0) Console.WriteLine($"Added: {_fdb.Added.Count}");
-            if (_fdb.AffectedFoldersCount != 0) Console.WriteLine($"Affected folders: {_fdb.AffectedFoldersCount}");
-            if (thereAreChanges) Console.WriteLine();
-
-            Console.WriteLine($"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+            if (_fdb.Removed.Count != 0) _interface.Show(MessageType.Info, $"Removed: {_fdb.Removed.Count}");
+            if (_fdb.Added.Count != 0) _interface.Show(MessageType.Info, $"Added: {_fdb.Added.Count}");
+            if (_fdb.AffectedFoldersCount != 0) _interface.Show(MessageType.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
+            _interface.Show(MessageType.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
             if (_fdb.Errors.Count != 0)
             {
-                Console.WriteLine($"({_fdb.Errors.Count} folders unavailable during the last scan)");
+                _interface.Show(MessageType.Info, $"({_fdb.Errors.Count} folders unavailable during the last scan)");
             }
-
-            Console.WriteLine();
             if (_fileActionsResult != null)
-                Console.WriteLine($"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
+                _interface.Show(MessageType.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
             if (_folderActionsResult != null)
-                Console.WriteLine($"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
-            Console.ResetColor();
+                _interface.Show(MessageType.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
         }
 
         private static void ShowErrors()
         {
             if (_fdb.Errors.Count == 0) return;
 
-            Console.WriteLine();
-
-            foreach (var item in _fdb.Errors)
+            foreach (string error in _fdb.Errors)
             {
-                Marker(Mark.Info);
-                Console.WriteLine(item);
+                _interface.Show(MessageType.Error, error);
             }
         }
 
@@ -193,20 +169,15 @@ namespace NextCloudScan
 
             foreach (string error in result.Errors)
             {
-                Marker(Mark.Error);
-                Console.WriteLine(error);
+                _interface.Show(MessageType.Error, error);
             }
         }
 
         private static void ShowFatalException(Exception e)
         {
-            Console.WriteLine();
-            Marker(Mark.Info);
-            Console.WriteLine($"Config file: {_configFile}");
-            Marker(Mark.Error);
-            Console.WriteLine(e.Message);
-            Marker(Mark.Error);
-            Console.WriteLine("Exit");
+            _interface.Show(MessageType.Info, $"Config file: {_configFile}");
+            _interface.Show(MessageType.Error, e.Message);
+            _interface.Show(MessageType.Error, "Exited");
         }
 
         private static void ShowDefaultConfigBanner()
@@ -239,55 +210,6 @@ namespace NextCloudScan
                 _interface.Show(MessageType.Options, $"    App: {_config.Conf.FolderActionApp}");
                 _interface.Show(MessageType.Options, $"    Options: {_config.Conf.FolderActionAppOptions}");
             }
-        }
-
-        private static void GoAway()
-        {
-            if (!_config.Conf.WaitOnExit) return;
-
-            Console.WriteLine();
-            Console.Write("press <Enter> to exit... ");
-            while (Console.ReadKey().Key != ConsoleKey.Enter) { }
-            Console.WriteLine();
-        }
-
-        private static void Marker(Mark mark)
-        {
-            switch (mark)
-            {
-                case Mark.Add:
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("[+]");
-                    break;
-                case Mark.Remove:
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.Write("[-]");
-                    break;
-                case Mark.Affected:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write("[A]");
-                    break;
-                case Mark.Scan:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("[>]");
-                    break;
-                case Mark.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("[E]");
-                    break;
-                case Mark.Info:
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write("[I]");
-                    break;
-                case Mark.Options:
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("[#]");
-                    break;
-                default:
-                    break;
-            }
-            Console.Write(" ");
-            Console.ResetColor();
         }
     }
 }
