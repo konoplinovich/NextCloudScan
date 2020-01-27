@@ -26,9 +26,9 @@ namespace NextCloudScan
             try
             {
                 _config = new ConfigExtension<NcsConfig>(_configFile);
-                _interface = InterfaceFabrique.GetInterface(_config.Conf.Interface);
-
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
+                
+                _interface = InterfaceFabrique.GetInterface(_config.Conf.Interface, _config.Conf.LogFile);
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
                 {
