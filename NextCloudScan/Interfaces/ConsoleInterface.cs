@@ -14,19 +14,19 @@ namespace NextCloudScan.Interfaces
         {
             switch (mark)
             {
-                case MessageType.Add:
+                case MessageType.NewFile:
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("[+]");
                     break;
-                case MessageType.Remove:
+                case MessageType.RemovedFile:
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.Write("[-]");
                     break;
-                case MessageType.Affected:
+                case MessageType.AffectedFolder:
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("[A]");
                     break;
-                case MessageType.Scan:
+                case MessageType.Start:
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[>]");
                     break;
@@ -38,9 +38,13 @@ namespace NextCloudScan.Interfaces
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.Write("[I]");
                     break;
-                case MessageType.Options:
+                case MessageType.Config:
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.Write("[#]");
+                    break;
+                case MessageType.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("[!]");
                     break;
                 default:
                     break;

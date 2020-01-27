@@ -2,12 +2,13 @@
 {
     public enum MessageType
     {
-        Add,
-        Remove,
-        Affected,
-        Scan,
-        Error,
+        NewFile,
+        RemovedFile,
+        AffectedFolder,
+        Start,
+        Config,
         Info,
-        Options
+        Error,
+        Warning
     }
 }

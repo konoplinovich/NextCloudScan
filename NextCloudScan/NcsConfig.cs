@@ -2,7 +2,7 @@
 {
     public sealed class NcsConfig
     {
-        public string Path { get; set; } = @"w:\dev\";
+        public string Path { get; set; } = "<folder>";
         public bool IsNextCloud { get; set; } = false;
         public string BaseFile { get; set; } = "base.xml";
         public string DiffFile { get; set; } = "diff.xml";
