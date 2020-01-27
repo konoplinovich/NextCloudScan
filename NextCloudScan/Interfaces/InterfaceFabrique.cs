@@ -1,4 +1,4 @@
-﻿namespace NextCloudScan.Interface
+﻿namespace NextCloudScan.Interfaces
 {
     public static class InterfaceFabrique
     {

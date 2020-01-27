@@ -2,7 +2,7 @@
 using FileScanLib;
 using System;
 using System.Collections.Generic;
-using NextCloudScan.Interface;
+using NextCloudScan.Interfaces;
 
 namespace NextCloudScan
 {

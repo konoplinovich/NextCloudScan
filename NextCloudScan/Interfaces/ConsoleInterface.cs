@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NextCloudScan.Interface
+namespace NextCloudScan.Interfaces
 {
     public class ConsoleInterface : IHumanInterface
     {

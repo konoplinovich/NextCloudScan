@@ -1,4 +1,4 @@
-﻿using NextCloudScan.Interface;
+﻿using NextCloudScan.Interfaces;
 
 namespace NextCloudScan
 {
