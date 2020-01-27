@@ -14,6 +14,7 @@
         public bool WaitOnExit { get; set; } = false;
         public bool ShowFileDetails { get; set; } = false;
         public bool ShowConfigParametersOnStart { get; set; } = true;
+        public InterfaceType Interface { get; set; } = InterfaceType.Screen;
 
         public NcsConfig() { }
     }

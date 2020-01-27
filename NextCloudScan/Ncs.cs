@@ -236,6 +236,7 @@ namespace NextCloudScan
                 Console.WriteLine($"    Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
                 Console.WriteLine($"    Wait on exit: {_config.Conf.WaitOnExit}");
                 Console.WriteLine($"    Show file details: {_config.Conf.ShowFileDetails}");
+                Console.WriteLine($"    Interface: {_config.Conf.Interface}");
                 Console.WriteLine();
                 Marker(Mark.Options); Console.WriteLine($"New files action");
                 Console.WriteLine($"    App: {_config.Conf.FileActionApp}");
