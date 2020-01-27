@@ -2,6 +2,7 @@
 {
     public enum Message
     {
+        None,
         NewFile,
         RemovedFile,
         AffectedFolder,
@@ -10,6 +11,6 @@
         Info,
         Error,
         Warning,
-        External
+        External       
     }
 }

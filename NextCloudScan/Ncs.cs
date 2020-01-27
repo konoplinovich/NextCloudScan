@@ -3,6 +3,7 @@ using FileScanLib;
 using System;
 using System.Collections.Generic;
 using NextCloudScan.UI;
+using System.Reflection;
 
 namespace NextCloudScan
 {
@@ -15,6 +16,8 @@ namespace NextCloudScan
         private static TimeSpan _scanTime;
         private static ActionsResult _fileActionsResult;
         private static ActionsResult _folderActionsResult;
+        private static Version _version;
+        private static Dictionary<string, Version> _componentsVersions;
 
         private static IHumanUI _interface;
 
@@ -23,12 +26,15 @@ namespace NextCloudScan
             if (args.Length == 0) return;
             _configFile = args[0];
 
+            GetVersions();
+
             try
             {
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
-                
+
                 _interface = UIFabrique.GetUI(_config.Conf.Interface, _config.Conf.LogFile);
+                ShowStartUpBanner();
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
                 {
@@ -62,7 +68,7 @@ namespace NextCloudScan
 
                     foreach (string logLine in _fileActionsResult.Log)
                     {
-                        _interface.Show(Message.External, $"{logLine.Replace(Environment.NewLine,"")}");
+                        _interface.Show(Message.External, $"{logLine.Replace(Environment.NewLine, "")}");
                     }
 
                     ShowActionsErrors(_fileActionsResult);
@@ -217,6 +223,31 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
                 _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
                 _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
+            }
+        }
+
+        private static void ShowStartUpBanner()
+        {
+            _interface.Show(Message.None, $"");
+            _interface.Show(Message.None, $"NextClouScan started. Version {_version}");
+
+            foreach (var componentVersion in _componentsVersions)
+            {
+                _interface.Show(Message.None, $"{componentVersion.Key}, version={componentVersion.Value}");
+            }
+            
+            _interface.Show(Message.None, $"");
+        }
+        private static void GetVersions()
+        {
+            AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
+
+            _version = anBase.Version;
+            _componentsVersions = new Dictionary<string, Version>();
+
+            foreach (AssemblyName an in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+            {
+                _componentsVersions[an.Name] = an.Version;
             }
         }
     }
