@@ -68,7 +68,19 @@ namespace NextCloudScan
 
                     foreach (string logLine in _fileActionsResult.Log)
                     {
-                        _interface.Show(Message.External, $"{logLine.Replace(Environment.NewLine, "")}");
+                        string clearLogLine;
+                        
+                        if (logLine.EndsWith(Environment.NewLine))
+                        {
+                            int index = logLine.LastIndexOf(Environment.NewLine);
+                            clearLogLine = logLine.Substring(0, index);
+                        }
+                        else
+                        {
+                            clearLogLine = logLine;
+                        }
+                        
+                        _interface.Show(Message.External, $"{clearLogLine}");
                     }
 
                     ShowActionsErrors(_fileActionsResult);
