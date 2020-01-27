@@ -2,7 +2,7 @@
 {
     public sealed class NcsConfig
     {
-        public string Path { get; set; } = "<folder>";
+        public string Path { get; set; } = "[folder]";
         public bool IsNextCloud { get; set; } = false;
         public string BaseFile { get; set; } = "base.xml";
         public string DiffFile { get; set; } = "diff.xml";
@@ -15,6 +15,7 @@
         public bool ShowFileDetails { get; set; } = false;
         public bool ShowConfigParametersOnStart { get; set; } = true;
         public NextCloudScan.Interfaces.InterfaceType Interface { get; set; } = NextCloudScan.Interfaces.InterfaceType.Screen;
+        public string LogFile { get; set; } = "[logFile]";
 
         public NcsConfig() { }
     }

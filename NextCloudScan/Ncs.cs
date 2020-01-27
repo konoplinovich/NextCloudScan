@@ -204,6 +204,7 @@ namespace NextCloudScan
                 _interface.Show(MessageType.Config, $"Base file: {_config.Conf.BaseFile}");
                 _interface.Show(MessageType.Config, $"Diff file: {_config.Conf.DiffFile}");
                 _interface.Show(MessageType.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                _interface.Show(MessageType.Config, $"LogFile: {_config.Conf.LogFile}");
                 _interface.Show(MessageType.Config, $"Interface: {_config.Conf.Interface}");
                 _interface.Show(MessageType.Config, $"Interface module: {_interface}");
                 _interface.Show(MessageType.Config, $"File App: {_config.Conf.FileActionApp}");
