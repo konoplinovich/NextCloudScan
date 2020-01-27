@@ -148,7 +148,7 @@ namespace NextCloudScan
 
         private static void ShowSummary()
         {
-            _interface.Show(Message.Info, "---");
+            _interface.Show(Message.None, "");
 
             if (_fdb.Removed.Count != 0) _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
             if (_fdb.Added.Count != 0) _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
@@ -238,6 +238,7 @@ namespace NextCloudScan
             
             _interface.Show(Message.None, $"");
         }
+        
         private static void GetVersions()
         {
             AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
