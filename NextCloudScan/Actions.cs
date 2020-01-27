@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using System.Threading;
 
 namespace NextCloudScan
 {
@@ -27,6 +29,7 @@ namespace NextCloudScan
             DateTime start = DateTime.Now;
 
             List<string> errors = new List<string>();
+            List<string> logs = new List<string>();
             int completeCount = 0;
 
             foreach (string path in _paths)
@@ -37,23 +40,16 @@ namespace NextCloudScan
 
                 try
                 {
-                    using (Process process = new Process())
-                    {
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.FileName = _action;
-                        process.StartInfo.Arguments = arguments;
-                        process.StartInfo.CreateNoWindow = false;
-                        process.Start();
-                        process.WaitForExit();
+                    ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
 
-                        if (process.ExitCode != 0)
-                        {
-                            errors.Add($"Internal process error, exit code: {process.ExitCode}");
-                        }
-                        else
-                        {
-                            completeCount++;
-                        }
+                    if (result.ExitCode != 0)
+                    {
+                        errors.Add($"Internal process error, exit code: {result.ExitCode}");
+                    }
+                    else
+                    {
+                        logs.Add(result.Log);
+                        completeCount++;
                     }
                 }
                 catch (Exception e)
@@ -65,7 +61,81 @@ namespace NextCloudScan
             DateTime stop = DateTime.Now;
             TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = new List<string>(errors) };
+            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = new List<string>(errors), Log = logs };
         }
+
+        private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
+        {
+            StringBuilder log = new StringBuilder();
+            int exitCode;
+
+            using (Process process = new Process())
+            {
+                process.StartInfo.FileName = fileName;
+                process.StartInfo.Arguments = args;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+
+                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+                {
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            outputWaitHandle.Set();
+                        }
+                        else
+                        {
+                            log.AppendLine(e.Data);
+                        }
+                    };
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            errorWaitHandle.Set();
+                        }
+                        else
+                        {
+                            log.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.Start();
+
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    if (timeout > 0)
+                    {
+                        if (process.WaitForExit(timeout) &&
+                            outputWaitHandle.WaitOne(timeout) &&
+                            errorWaitHandle.WaitOne(timeout))
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        process.WaitForExit();
+                        outputWaitHandle.WaitOne();
+                        errorWaitHandle.WaitOne();
+
+                    }
+                }
+
+                exitCode = process.ExitCode;
+            }
+
+            return new ExecuteExternalResult() { Log = log.ToString(), ExitCode = exitCode };
+        }
+    }
+
+    internal class ExecuteExternalResult
+    {
+        public string Log { get; set; }
+        public int ExitCode { get; set; }
     }
 }

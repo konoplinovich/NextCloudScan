@@ -9,6 +9,7 @@
         Config,
         Info,
         Error,
-        Warning
+        Warning,
+        External
     }
 }

@@ -2,8 +2,14 @@
 {
     public class CombinedInterface : IHumanInterface
     {
-        ConsoleInterface _console = new ConsoleInterface();
-        LogfileInterface _logfile = new LogfileInterface();
+        ConsoleInterface _console;
+        LogfileInterface _logfile;
+
+        public CombinedInterface(string logFilePath)
+        {
+            _logfile = new LogfileInterface(logFilePath);
+            _console = new ConsoleInterface();
+        }
 
         public void Show(MessageType type, string message)
         {

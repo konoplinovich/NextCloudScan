@@ -46,6 +46,10 @@ namespace NextCloudScan.Interfaces
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[!]");
                     break;
+                case MessageType.External:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("[=]");
+                    break;
                 default:
                     break;
             }

@@ -59,6 +59,12 @@ namespace NextCloudScan
                 {
                     _interface.Show(MessageType.Start, "Launch action for each new file");
                     _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
+
+                    foreach (string logLine in _fileActionsResult.Log)
+                    {
+                        _interface.Show(MessageType.External, $"{logLine.Replace(Environment.NewLine,"")}");
+                    }
+
                     ShowActionsErrors(_fileActionsResult);
                 }
 
@@ -193,21 +199,21 @@ namespace NextCloudScan
         {
             if (_config.Conf.ShowConfigParametersOnStart)
             {
-                _interface.Show(MessageType.Config, $"\tConfig file: {_configFile}");
-                _interface.Show(MessageType.Config, $"\tPath: {_config.Conf.Path}");
-                _interface.Show(MessageType.Config, $"\tBase file: {_config.Conf.BaseFile}");
-                _interface.Show(MessageType.Config, $"\tDiff file: {_config.Conf.DiffFile}");
-                _interface.Show(MessageType.Config, $"\tAffected folders file: {_config.Conf.AffectedFoldersFile}");
-                _interface.Show(MessageType.Config, $"\tIs NextCloud: {_config.Conf.IsNextCloud}");
-                _interface.Show(MessageType.Config, $"\tShow config on start: {_config.Conf.ShowConfigParametersOnStart}");
-                _interface.Show(MessageType.Config, $"\tWait on exit: {_config.Conf.WaitOnExit}");
-                _interface.Show(MessageType.Config, $"\tShow file details: {_config.Conf.ShowFileDetails}");
-                _interface.Show(MessageType.Config, $"\tInterface: {_config.Conf.Interface}");
-                _interface.Show(MessageType.Config, $"\tInterface module: {_interface}");
-                _interface.Show(MessageType.Config, $"\tApp: {_config.Conf.FileActionApp}");
-                _interface.Show(MessageType.Config, $"\tOptions: {_config.Conf.FileActionAppOptions}");
-                _interface.Show(MessageType.Config, $"\tApp: {_config.Conf.FolderActionApp}");
-                _interface.Show(MessageType.Config, $"\tOptions: {_config.Conf.FolderActionAppOptions}");
+                _interface.Show(MessageType.Config, $"Config file: {_configFile}");
+                _interface.Show(MessageType.Config, $"Path: {_config.Conf.Path}");
+                _interface.Show(MessageType.Config, $"Base file: {_config.Conf.BaseFile}");
+                _interface.Show(MessageType.Config, $"Diff file: {_config.Conf.DiffFile}");
+                _interface.Show(MessageType.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
+                _interface.Show(MessageType.Config, $"Interface: {_config.Conf.Interface}");
+                _interface.Show(MessageType.Config, $"Interface module: {_interface}");
+                _interface.Show(MessageType.Config, $"File App: {_config.Conf.FileActionApp}");
+                _interface.Show(MessageType.Config, $"File App options: {_config.Conf.FileActionAppOptions}");
+                _interface.Show(MessageType.Config, $"Folder App: {_config.Conf.FolderActionApp}");
+                _interface.Show(MessageType.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
+                _interface.Show(MessageType.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
+                _interface.Show(MessageType.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
+                _interface.Show(MessageType.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
+                _interface.Show(MessageType.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
             }
         }
     }
