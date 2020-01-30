@@ -27,7 +27,7 @@ namespace NCSPerFolderPayload
                     DirectoryInfo di = new DirectoryInfo(_foldername);
                     if (di != null)
                     {
-                        Console.WriteLine($"{di.Name} : [D]{di.Parent}");
+                        Console.WriteLine($"{di.Name} : {di.Parent}");
 
                         string[] files = new string[] { };
                         if (Directory.Exists(_foldername))
@@ -37,7 +37,7 @@ namespace NCSPerFolderPayload
 
                         foreach (var item in files)
                         {
-                            Console.WriteLine($"     {item}");
+                            Console.WriteLine($"---{item}");
                         }
                     }
                 }
