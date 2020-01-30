@@ -66,23 +66,7 @@ namespace NextCloudScan
                     _interface.Show(Message.Start, "Launch action for each new file");
                     _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
 
-                    foreach (string logLine in _fileActionsResult.Log)
-                    {
-                        string clearLogLine;
-                        
-                        if (logLine.EndsWith(Environment.NewLine))
-                        {
-                            int index = logLine.LastIndexOf(Environment.NewLine);
-                            clearLogLine = logLine.Substring(0, index);
-                        }
-                        else
-                        {
-                            clearLogLine = logLine;
-                        }
-                        
-                        _interface.Show(Message.External, $"{clearLogLine}");
-                    }
-
+                    ShowExternaMessages(_fileActionsResult.Log);
                     ShowActionsErrors(_fileActionsResult);
                 }
 
@@ -98,11 +82,26 @@ namespace NextCloudScan
                         _interface.Show(Message.Start, "Launch action for each affected folder");
                         _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
                     }
+
+                    ShowExternaMessages(_folderActionsResult.Log);
                     ShowActionsErrors(_folderActionsResult);
                 }
             }
 
             ShowSummary();
+        }
+
+        private static void ShowExternaMessages(List<string> messages)
+        {
+            foreach (string logLine in messages)
+            {
+                string[] lines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string line in lines)
+                {
+                    _interface.Show(Message.External, $"{line}");
+                }
+            }
         }
 
         private static void Scan()
