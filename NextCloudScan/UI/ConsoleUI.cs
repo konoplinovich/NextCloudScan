@@ -2,7 +2,7 @@
 
 namespace NextCloudScan.UI
 {
-    public class ConsoleUI : IHumanUI
+    internal class ConsoleUI : IHumanUI
     {
         public void Show(Message type, string message)
         {

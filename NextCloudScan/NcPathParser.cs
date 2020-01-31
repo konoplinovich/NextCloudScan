@@ -2,7 +2,7 @@
 
 namespace NextCloudScan
 {
-    public class NcPathParser : IPathParser
+    internal class NcPathParser : IPathParser
     {
         public string Parse(string path, List<string> rules)
         {

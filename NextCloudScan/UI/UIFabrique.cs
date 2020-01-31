@@ -1,6 +1,6 @@
 ﻿namespace NextCloudScan.UI
 {
-    public static class UIFabrique
+    internal static class UIFabrique
     {
         public static IHumanUI GetUI(SupportedUI type, string logFilePath = null)
         {

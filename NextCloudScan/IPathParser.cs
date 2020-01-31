@@ -2,7 +2,7 @@
 
 namespace NextCloudScan
 {
-    public interface IPathParser
+    internal interface IPathParser
     {
         string Parse(string path, List<string> rules);
     }

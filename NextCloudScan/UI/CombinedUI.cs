@@ -1,6 +1,6 @@
 ﻿namespace NextCloudScan.UI
 {
-    public class CombinedUI : IHumanUI
+    internal class CombinedUI : IHumanUI
     {
         ConsoleUI _console;
         LogfileUI _logfile;

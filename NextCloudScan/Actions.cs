@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace NextCloudScan
 {
-    class Actions
+    internal class Actions
     {
         private string _action;
         private string _actionOptions;

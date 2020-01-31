@@ -1,6 +1,6 @@
 ﻿namespace NextCloudScan.UI
 {
-    public interface IHumanUI
+    internal interface IHumanUI
     {
         void Show(Message type, string message);
     }

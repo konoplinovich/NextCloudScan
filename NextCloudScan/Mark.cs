@@ -1,6 +1,6 @@
 ﻿namespace NextCloudScan
 {
-    public enum Mark
+    internal enum Mark
     {
         Add,
         Remove,

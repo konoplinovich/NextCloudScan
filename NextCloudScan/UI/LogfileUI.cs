@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NextCloudScan.UI
 {
-    public class LogfileUI : IHumanUI
+    internal class LogfileUI : IHumanUI
     {
         string _logFilePath;
 

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace NextCloudScan
 {
-    class Ncs
+    internal class Ncs
     {
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
