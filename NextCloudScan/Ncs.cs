@@ -171,14 +171,26 @@ namespace NextCloudScan
         {
             _interface.Show(Message.None, "");
 
-            if (_fdb.Removed.Count != 0) _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
-            if (_fdb.Added.Count != 0) _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
-            if (_fdb.AffectedFoldersCount != 0) _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
-            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
-            if (_fdb.Errors.Count != 0)
+            if (_fdb.Removed.Count != 0) 
+                _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
+            if (_fdb.Added.Count != 0) 
+                _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
+            if (_fdb.AffectedFoldersCount != 0) 
+                _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
+            if (_fdb.ChangeFoldersToParent)
             {
-                _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folders unavailable during the last scan)");
+                _interface.Show(Message.Warning, $"{_fdb.FoldersReplacedWithParents.Count} folder(s) were replaced with parent folder(s) due to unavailability");
+
+                foreach (var item in _fdb.FoldersReplacedWithParents)
+                {
+                    _interface.Show(Message.Warning, $"{item.Item1} → {item.Item2}");
+                }
             }
+
+            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+
+            if (_fdb.Errors.Count != 0)
+                _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folder(s) unavailable during the last scan)");
             if (_fileActionsResult != null)
                 _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
             if (_folderActionsResult != null)
