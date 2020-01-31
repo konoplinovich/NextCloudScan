@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScan", "NextCloudScan\NextCloudScan.csproj", "{7E6EFAFE-8291-41BE-9427-52BC6570F120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileScanLibTests", "NextCloudScanTests\FileScanLibTests.csproj", "{4C993E70-A41C-448F-B899-2DF75769203B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileScanLib", "NextCloudScanLib\FileScanLib.csproj", "{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCSPerFilePayload", "NCSPerFilePayload\NCSPerFilePayload.csproj", "{19200FAF-6425-407C-BB2D-EDE0493C4A06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCSPerFolderPayload", "NCSPerFolderPayload\NCSPerFolderPayload.csproj", "{9B31A7B9-2244-4D9E-87A8-4AE6CE39AFA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanLib", "NextCloudScanLib\NextCloudScanLib.csproj", "{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanTests", "NextCloudScanTests\NextCloudScanTests.csproj", "{4C993E70-A41C-448F-B899-2DF75769203B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +23,6 @@ Global
 		{7E6EFAFE-8291-41BE-9427-52BC6570F120}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E6EFAFE-8291-41BE-9427-52BC6570F120}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E6EFAFE-8291-41BE-9427-52BC6570F120}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C993E70-A41C-448F-B899-2DF75769203B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C993E70-A41C-448F-B899-2DF75769203B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19200FAF-6425-407C-BB2D-EDE0493C4A06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19200FAF-6425-407C-BB2D-EDE0493C4A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19200FAF-6425-407C-BB2D-EDE0493C4A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +31,14 @@ Global
 		{9B31A7B9-2244-4D9E-87A8-4AE6CE39AFA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B31A7B9-2244-4D9E-87A8-4AE6CE39AFA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B31A7B9-2244-4D9E-87A8-4AE6CE39AFA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C993E70-A41C-448F-B899-2DF75769203B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C993E70-A41C-448F-B899-2DF75769203B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C993E70-A41C-448F-B899-2DF75769203B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

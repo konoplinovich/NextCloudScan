@@ -1,5 +1,5 @@
 ﻿using Extensions;
-using FileScanLib;
+using NextCloudScanLib;
 using System;
 using System.Collections.Generic;
 using NextCloudScan.UI;

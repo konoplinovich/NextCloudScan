@@ -68,9 +68,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NextCloudScanLib\FileScanLib.csproj">
+    <ProjectReference Include="..\NextCloudScanLib\NextCloudScanLib.csproj">
       <Project>{477cc46f-1db2-41d0-912d-b9e30dcdebe8}</Project>
-      <Name>FileScanLib</Name>
+      <Name>NextCloudScanLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

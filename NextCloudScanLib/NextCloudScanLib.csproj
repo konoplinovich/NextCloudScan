@@ -7,8 +7,8 @@
     <ProjectGuid>{477CC46F-1DB2-41D0-912D-B9E30DCDEBE8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FileScanLib</RootNamespace>
-    <AssemblyName>FileScanLib</AssemblyName>
+    <RootNamespace>NextCloudScanLib</RootNamespace>
+    <AssemblyName>NextCloudScanLib</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

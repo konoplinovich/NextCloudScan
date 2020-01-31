@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace FileScanLib.Tests
+namespace NextCloudScanLib.Tests
 {
     [TestClass()]
     public class ListComparatorTests

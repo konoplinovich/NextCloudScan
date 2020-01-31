@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Extensions;
 
-namespace FileScanLib
+namespace NextCloudScanLib
 {
     public class FileDataBase
     {
