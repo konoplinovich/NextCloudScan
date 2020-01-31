@@ -132,8 +132,7 @@ namespace NextCloudScan
 
             if (locker.IsLocked)
             {
-                _interface.Show(Message.Warning, "One process at a time, exited");
-                Environment.Exit(IS_LOCKED);
+                ShowFatalException("One process at a time, exited", IS_LOCKED);
             }
             else
             {
@@ -284,14 +283,14 @@ namespace NextCloudScan
             }
         }
 
-        private static void ShowFatalException(string message)
+        private static void ShowFatalException(string message, int errorCode = IS_FATAL_EXCEPTION)
         {
             IHumanUI defaultInterface = UIFactory.CreateUI(UI.SupportedUI.Screen);
 
             defaultInterface.Show(Message.Info, $"Config file: {_configFile}");
             defaultInterface.Show(Message.Error, message);
             defaultInterface.Show(Message.Error, "Exited");
-            Environment.Exit(IS_FATAL_EXCEPTION);
+            Environment.Exit(errorCode);
         }
 
         private static void ShowDefaultConfigBanner()
