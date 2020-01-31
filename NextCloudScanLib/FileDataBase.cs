@@ -23,7 +23,7 @@ namespace NextCloudScan.Lib
         public List<string> AddedPath { get; set; } = new List<string>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
         public List<string> AffectedFolders { get; private set; } = new List<string>();
-        public int AffectedFoldersCount { get { return _affectedFolders.Count; } }
+        public int AffectedFoldersCount { get { return AffectedFolders.Count; } }
         public List<string> Errors { get; private set; } = new List<string>();
         public bool ChangeFoldersToParent { get; private set; } = false;
         public List<Tuple<string, string>> FoldersReplacedWithParents { get; private set; } = new List<Tuple<string, string>>();
@@ -130,7 +130,7 @@ namespace NextCloudScan.Lib
                     }
                     while (!Directory.Exists(currentFolder));
 
-                    result.Add(currentFolder);
+                    if (!result.Contains(currentFolder)) result.Add(currentFolder);
                     ChangeFoldersToParent = true;
                     FoldersReplacedWithParents.Add(new Tuple<string, string>(folder, currentFolder));
                 }
