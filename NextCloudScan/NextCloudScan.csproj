@@ -53,7 +53,7 @@
     <Compile Include="UI\CombinedUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="UI\IHumanUI.cs" />
-    <Compile Include="UI\UIFabrique.cs" />
+    <Compile Include="UI\UIFactory.cs" />
     <Compile Include="UI\SupportedUI.cs" />
     <Compile Include="UI\LogfileUI.cs" />
     <Compile Include="UI\Message.cs" />

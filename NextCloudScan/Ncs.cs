@@ -33,7 +33,7 @@ namespace NextCloudScan
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
-                _interface = UIFabrique.GetUI(_config.Conf.Interface, _config.Conf.LogFile);
+                _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile);
                 ShowStartUpBanner();
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
@@ -212,7 +212,7 @@ namespace NextCloudScan
 
         private static void ShowFatalException(string message)
         {
-            IHumanUI defaultInterface = UIFabrique.GetUI(UI.SupportedUI.Screen);
+            IHumanUI defaultInterface = UIFactory.CreateUI(UI.SupportedUI.Screen);
 
             defaultInterface.Show(Message.Info, $"Config file: {_configFile}");
             defaultInterface.Show(Message.Error, message);
