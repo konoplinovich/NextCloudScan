@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-
-namespace NextCloudScanLib.Tests
+namespace NextCloudScan.Lib.Tests
 {
     [TestClass()]
     public class ListComparatorTests

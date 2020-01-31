@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace NextCloudScanLib.Tests
+namespace NextCloudScan.Lib.Tests
 {
     [TestClass()]
     public class FileDataBaseTests

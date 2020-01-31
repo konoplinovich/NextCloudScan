@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NextCloudScan
+namespace NextCloudScan.Parsers
 {
     internal class NcPathParser : IPathParser
     {

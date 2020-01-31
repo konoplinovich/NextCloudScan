@@ -1,8 +1,9 @@
 ﻿using Extensions;
-using NextCloudScanLib;
+using NextCloudScan.Lib;
+using NextCloudScan.Parsers;
+using NextCloudScan.UI;
 using System;
 using System.Collections.Generic;
-using NextCloudScan.UI;
 using System.Reflection;
 
 namespace NextCloudScan

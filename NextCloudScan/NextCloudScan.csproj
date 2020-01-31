@@ -57,9 +57,9 @@
     <Compile Include="UI\SupportedUI.cs" />
     <Compile Include="UI\LogfileUI.cs" />
     <Compile Include="UI\Message.cs" />
-    <Compile Include="IPathParser.cs" />
+    <Compile Include="Parsers\IPathParser.cs" />
     <Compile Include="Mark.cs" />
-    <Compile Include="NcPathParser.cs" />
+    <Compile Include="Parsers\NcPathParser.cs" />
     <Compile Include="Ncs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NcsConfig.cs" />
