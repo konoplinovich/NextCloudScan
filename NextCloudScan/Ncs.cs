@@ -67,7 +67,7 @@ namespace NextCloudScan
                     _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
 
                     ShowExternaMessages(_fileActionsResult.Log);
-                    ShowActionsErrors(_fileActionsResult);
+                    ShowActionsErrors(_fileActionsResult.Errors);
                 }
 
                 if (!string.IsNullOrEmpty(_config.Conf.FolderActionApp))
@@ -84,22 +84,31 @@ namespace NextCloudScan
                     }
 
                     ShowExternaMessages(_folderActionsResult.Log);
-                    ShowActionsErrors(_folderActionsResult);
+                    ShowActionsErrors(_folderActionsResult.Errors);
                 }
             }
 
             ShowSummary();
         }
 
-        private static void ShowExternaMessages(List<string> messages)
+        private static void ShowExternaMessages(Dictionary<string, List<string>> messages)
         {
-            foreach (string logLine in messages)
-            {
-                string[] lines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            if (messages == null) return;
+            if (messages.Values.Count == 0) return;
 
-                foreach (string line in lines)
+            foreach (var item in messages.Keys)
+            {
+                List<string> lines = messages[item];
+                _interface.Show(Message.Info, $"Item: {item}");
+
+                foreach (string logLine in lines)
                 {
-                    _interface.Show(Message.External, $"{line}");
+                    string[] separatelines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string line in separatelines)
+                    {
+                        _interface.Show(Message.External, $"{line}");
+                    }
                 }
             }
         }
@@ -185,14 +194,19 @@ namespace NextCloudScan
             }
         }
 
-        private static void ShowActionsErrors(ActionsResult result)
+        private static void ShowActionsErrors(Dictionary<string, List<string>> errors)
         {
-            if (result == null) return;
-            if (result.Errors.Count == 0) return;
+            if (errors == null) return;
 
-            foreach (string error in result.Errors)
+            foreach (var item in errors.Keys)
             {
-                _interface.Show(Message.Error, error);
+                List<string> currentErrors = errors[item];
+                _interface.Show(Message.Error, $"Item processed with error: {item}");
+
+                foreach (string error in currentErrors)
+                {
+                    _interface.Show(Message.Error, $"{error}");
+                }
             }
         }
 

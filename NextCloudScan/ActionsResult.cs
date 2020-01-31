@@ -7,7 +7,7 @@ namespace NextCloudScan
     {
         public int Completed { get; set; }
         public TimeSpan ElapsedTime { get; set; }
-        public List<string> Log { get; set; }
-        public List<string> Errors { get; set; }
+        public Dictionary<string, List<string>> Log { get; set; }
+        public Dictionary<string, List<string>> Errors { get; set; }
     }
 }

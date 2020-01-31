@@ -28,8 +28,8 @@ namespace NextCloudScan
         {
             DateTime start = DateTime.Now;
 
-            List<string> errors = new List<string>();
-            List<string> logs = new List<string>();
+            Dictionary<string, List<string>> log = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
             int completeCount = 0;
 
             foreach (string path in _paths)
@@ -38,30 +38,34 @@ namespace NextCloudScan
                 if (_parser != null) currentPath = _parser.Parse(path, _rules);
                 string arguments = _actionOptions.Replace("$f", currentPath);
 
+                if (!log.ContainsKey(currentPath)) log.Add(currentPath, new List<string>());
+
                 try
                 {
                     ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
 
-                    if (result.ExitCode != 0)
+                    if (result.ExitCode == 0)
                     {
-                        errors.Add($"Internal process error, exit code: {result.ExitCode}");
+                        log[currentPath].Add(result.Log);
+                        completeCount++;
                     }
                     else
                     {
-                        logs.Add(result.Log);
-                        completeCount++;
+                        if (!errors.ContainsKey(currentPath)) errors.Add(currentPath, new List<string>());
+                        errors[currentPath].Add($"External process error, process: {_action}, exit code: {result.ExitCode}");
                     }
                 }
                 catch (Exception e)
                 {
-                    errors.Add(e.Message);
+                    if (!errors.ContainsKey(currentPath)) errors.Add(currentPath, new List<string>());
+                    errors[currentPath].Add($"External process error, process: {_action}, message: {e.Message}");
                 }
             }
 
             DateTime stop = DateTime.Now;
             TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = new List<string>(errors), Log = logs };
+            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = errors, Log = log };
         }
 
         private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
