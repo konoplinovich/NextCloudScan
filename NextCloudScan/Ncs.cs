@@ -92,28 +92,6 @@ namespace NextCloudScan
             ShowSummary();
         }
 
-        private static void ShowExternaMessages(Dictionary<string, List<string>> messages)
-        {
-            if (messages == null) return;
-            if (messages.Values.Count == 0) return;
-
-            foreach (var item in messages.Keys)
-            {
-                List<string> lines = messages[item];
-                _interface.Show(Message.Info, $"Item: {item}");
-
-                foreach (string logLine in lines)
-                {
-                    string[] separatelines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (string line in separatelines)
-                    {
-                        _interface.Show(Message.External, $"{line}");
-                    }
-                }
-            }
-        }
-
         private static void Scan()
         {
             _interface.Show(Message.Start, "Start scan");
@@ -125,7 +103,7 @@ namespace NextCloudScan
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
 
-            _interface.Show(Message.Start, "Scan complete");
+            _interface.Show(Message.Info, "Scan complete");
         }
 
         private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
@@ -164,6 +142,28 @@ namespace NextCloudScan
             foreach (string path in _fdb.AffectedFolders)
             {
                 _interface.Show(Message.AffectedFolder, path);
+            }
+        }
+
+        private static void ShowExternaMessages(Dictionary<string, List<string>> messages)
+        {
+            if (messages == null) return;
+            if (messages.Values.Count == 0) return;
+
+            foreach (var item in messages.Keys)
+            {
+                List<string> lines = messages[item];
+                _interface.Show(Message.Info, $"Item: {item}");
+
+                foreach (string logLine in lines)
+                {
+                    string[] separatelines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string line in separatelines)
+                    {
+                        _interface.Show(Message.External, $"{line}");
+                    }
+                }
             }
         }
 
@@ -261,10 +261,10 @@ namespace NextCloudScan
             {
                 _interface.Show(Message.None, $"{componentVersion.Key}, version={componentVersion.Value}");
             }
-            
+
             _interface.Show(Message.None, $"");
         }
-        
+
         private static void GetVersions()
         {
             AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
