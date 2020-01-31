@@ -72,7 +72,7 @@ namespace NextCloudScanLib
                         if (!_affectedFolders.Contains(folder)) _affectedFolders.Add(folder);
                     }
 
-                    AffectedFolders = _affectedFolders;
+                    AffectedFolders = CheckAffectedFolders(_affectedFolders);
 
                     SaveAffectedFoldersAsPlainText();
                     SaveDiff(diff);
@@ -109,6 +109,30 @@ namespace NextCloudScanLib
             FileItem[] resultArray = new FileItem[result.Count];
             result.CopyTo(resultArray);
             return new List<FileItem>(resultArray);
+        }
+
+        private List<string> CheckAffectedFolders(List<string> unfiltered)
+        {
+            List<string> result = new List<string>();
+
+            foreach (string folder in unfiltered)
+            {
+                string currentFolder = folder;
+
+                if (Directory.Exists(currentFolder)) result.Add(currentFolder);
+                else
+                {
+                    do
+                    {
+                        currentFolder = Path.GetDirectoryName(currentFolder);
+                    }
+                    while (!Directory.Exists(currentFolder));
+
+                    result.Add(currentFolder);
+                }
+            }
+
+            return result;
         }
 
         void GetFiles(string path)
