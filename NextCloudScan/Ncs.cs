@@ -62,7 +62,7 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                if (!string.IsNullOrEmpty(_config.Conf.FileActionApp))
+                if (!string.IsNullOrEmpty(_config.Conf.FileActionApp) && _fdb.AddedPath.Count != 0)
                 {
                     _interface.Show(Message.Start, "Launch action for each new file");
                     _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
@@ -71,7 +71,7 @@ namespace NextCloudScan
                     ShowActionsErrors(_fileActionsResult.Errors);
                 }
 
-                if (!string.IsNullOrEmpty(_config.Conf.FolderActionApp))
+                if (!string.IsNullOrEmpty(_config.Conf.FolderActionApp) && _fdb.AffectedFoldersCount != 0)
                 {
                     if (_config.Conf.IsNextCloud)
                     {
@@ -171,11 +171,11 @@ namespace NextCloudScan
         {
             _interface.Show(Message.None, "");
 
-            if (_fdb.Removed.Count != 0) 
+            if (_fdb.Removed.Count != 0)
                 _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
-            if (_fdb.Added.Count != 0) 
+            if (_fdb.Added.Count != 0)
                 _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
-            if (_fdb.AffectedFoldersCount != 0) 
+            if (_fdb.AffectedFoldersCount != 0)
                 _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
             if (_fdb.ChangeFoldersToParent)
             {
@@ -183,7 +183,7 @@ namespace NextCloudScan
 
                 foreach (var item in _fdb.FoldersReplacedWithParents)
                 {
-                    _interface.Show(Message.Warning, $"{item.Item1} → {item.Item2}");
+                    _interface.Show(Message.Warning, $"\"{item.Item1}\" change to \"{item.Item2}\"");
                 }
             }
 
