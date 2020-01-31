@@ -14,14 +14,16 @@ namespace NextCloudScan
         private IPathParser _parser;
         private List<string> _rules;
         private List<string> _paths;
+        private IProgress<string> _progress;
 
-        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null)
+        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null, IProgress<string> progress = null)
         {
             _paths = paths;
             _action = action;
             _actionOptions = actionOptions;
             _parser = parser;
             _rules = rules;
+            _progress = progress;
         }
 
         public ActionsResult Run()
@@ -48,6 +50,7 @@ namespace NextCloudScan
                     {
                         log[currentPath].Add(result.Log);
                         completeCount++;
+                        _progress?.Report(completeCount.ToString());
                     }
                     else
                     {
@@ -134,6 +137,14 @@ namespace NextCloudScan
             }
 
             return new ExecuteExternalResult() { Log = log.ToString(), ExitCode = exitCode };
+        }
+    }
+
+    public class ConsoleProgress : IProgress<string>
+    {
+        public void Report(string value)
+        {
+            Console.WriteLine(value);
         }
     }
 
