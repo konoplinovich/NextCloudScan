@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
+    <Compile Include="OneProcessLocker.cs" />
     <Compile Include="UI\CombinedUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="UI\IHumanUI.cs" />

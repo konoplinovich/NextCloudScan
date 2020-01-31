@@ -10,6 +10,9 @@ namespace NextCloudScan
 {
     internal class Ncs
     {
+        private const int IS_LOCKED = 403;
+        private const int IS_FATAL_EXCEPTION = 404;
+
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
 
@@ -44,12 +47,17 @@ namespace NextCloudScan
                 }
 
                 ShowConfigParameters();
+
+                if (_config.Conf.OneProcessAtATime)
+                {
+                    SetLock();
+                }
+
                 Scan();
             }
             catch (Exception e)
             {
                 ShowFatalException(e.Message);
-                return;
             }
 
             if (!_fdb.IsNewBase)
@@ -62,34 +70,16 @@ namespace NextCloudScan
                 ShowFolderDetails();
                 ShowErrors();
 
-                if (!string.IsNullOrEmpty(_config.Conf.FileActionApp) && _fdb.AddedPath.Count != 0)
-                {
-                    _interface.Show(Message.Start, "Launch action for each new file");
-                    _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
-
-                    ShowExternaMessages(_fileActionsResult.Log);
-                    ShowActionsErrors(_fileActionsResult.Errors);
-                }
-
-                if (!string.IsNullOrEmpty(_config.Conf.FolderActionApp) && _fdb.AffectedFoldersCount != 0)
-                {
-                    if (_config.Conf.IsNextCloud)
-                    {
-                        _interface.Show(Message.Start, "Launch action for each affected NextCloud folder");
-                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
-                    }
-                    else
-                    {
-                        _interface.Show(Message.Start, "Launch action for each affected folder");
-                        _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
-                    }
-
-                    ShowExternaMessages(_folderActionsResult.Log);
-                    ShowActionsErrors(_folderActionsResult.Errors);
-                }
+                LaunchFileActions();
+                LaunchFolderAction();
             }
 
             ShowSummary();
+
+            if (_config.Conf.OneProcessAtATime)
+            {
+                RemoveLock();
+            }
         }
 
         private static void Scan()
@@ -104,6 +94,77 @@ namespace NextCloudScan
             _scanTime = stop - start;
 
             _interface.Show(Message.Info, "Scan complete");
+        }
+
+        private static void LaunchFolderAction()
+        {
+            if (string.IsNullOrEmpty(_config.Conf.FolderActionApp) || _fdb.AffectedFoldersCount == 0) return;
+
+            if (_config.Conf.IsNextCloud)
+            {
+                _interface.Show(Message.Start, "Launch action for each affected NextCloud folder");
+                _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
+            }
+            else
+            {
+                _interface.Show(Message.Start, "Launch action for each affected folder");
+                _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
+            }
+
+            ShowExternaMessages(_folderActionsResult.Log);
+            ShowActionsErrors(_folderActionsResult.Errors);
+        }
+
+        private static void LaunchFileActions()
+        {
+            if (string.IsNullOrEmpty(_config.Conf.FileActionApp) || _fdb.AddedPath.Count == 0) return;
+
+            _interface.Show(Message.Start, "Launch action for each new file");
+            _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
+
+            ShowExternaMessages(_fileActionsResult.Log);
+            ShowActionsErrors(_fileActionsResult.Errors);
+        }
+
+        private static void SetLock()
+        {
+            OneProcessLocker locker = new OneProcessLocker();
+
+            if (locker.IsLocked)
+            {
+                _interface.Show(Message.Warning, "One process at a time, exited");
+                Environment.Exit(IS_LOCKED);
+            }
+            else
+            {
+                Tuple<bool, string> result = locker.Lock();
+                if (string.IsNullOrEmpty(result.Item2))
+                {
+                    _interface.Show(Message.Info, "Work in single instance mode, the lock is set");
+                }
+                else
+                {
+                    ShowFatalException($"Unable to create a lock file \"{locker.Lockfile}\", error: {result.Item2}");
+                }
+            }
+        }
+
+        private static void RemoveLock()
+        {
+            OneProcessLocker locker = new OneProcessLocker();
+
+            if (locker.IsLocked)
+            {
+                Tuple<bool, string> result = locker.Unlock();
+                if (!string.IsNullOrEmpty(result.Item2))
+                {
+                    ShowFatalException($"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.Item2}");
+                }
+                else
+                {
+                    _interface.Show(Message.Info, "The lock was successfully removed");
+                }
+            }
         }
 
         private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
@@ -230,15 +291,16 @@ namespace NextCloudScan
             defaultInterface.Show(Message.Info, $"Config file: {_configFile}");
             defaultInterface.Show(Message.Error, message);
             defaultInterface.Show(Message.Error, "Exited");
+            Environment.Exit(IS_FATAL_EXCEPTION);
         }
 
         private static void ShowDefaultConfigBanner()
         {
-            _interface.Show(Message.Warning, $"The specified configuration file \"{_configFile}\" is missing.");
+            _interface.Show(Message.Warning, $"The specified configuration file \"{_configFile}\" is missing");
             _interface.Show(Message.Warning, $"A new file was created with this name and the following default settings:");
 
             ShowConfigParameters();
-            _interface.Show(Message.Warning, "[!] Check the configuration file before next run!");
+            _interface.Show(Message.Warning, "Check the configuration file before next run!");
         }
 
         private static void ShowConfigParameters()
@@ -258,6 +320,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Folder App: {_config.Conf.FolderActionApp}");
                 _interface.Show(Message.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
                 _interface.Show(Message.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
+                _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
                 _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
                 _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
