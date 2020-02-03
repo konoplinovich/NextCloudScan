@@ -7,10 +7,20 @@ namespace NextCloudScan.UI
     internal class LogfileUI : IHumanUI
     {
         string _logFilePath;
-
-        public LogfileUI(string logFilePath)
+        
+        public LogfileUI(string logFilePath, bool singleLogFile = true)
         {
-            _logFilePath = logFilePath;
+            if (singleLogFile) { _logFilePath = logFilePath; }
+            else
+            {
+                string directory = Path.GetDirectoryName(logFilePath);
+                string filename = Path.GetFileNameWithoutExtension(logFilePath);
+                string ext = Path.GetExtension(logFilePath);
+                
+                string time = DateTime.Now.ToString(" ddMMyyyy-HHmmss");
+                filename += time + ext;
+                _logFilePath = Path.Combine(directory, filename);
+            }
         }
 
         public void Show(Message type, string message)

@@ -5,9 +5,9 @@
         ConsoleUI _console;
         LogfileUI _logfile;
 
-        public CombinedUI(string logFilePath)
+        public CombinedUI(string logFilePath, bool singleLogFile = true)
         {
-            _logfile = new LogfileUI(logFilePath);
+            _logfile = new LogfileUI(logFilePath, singleLogFile);
             _console = new ConsoleUI();
         }
 

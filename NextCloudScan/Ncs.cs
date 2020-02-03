@@ -39,7 +39,7 @@ namespace NextCloudScan
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
-                _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile);
+                _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile, _config.Conf.SingleLogFile);
                 ShowStartUpBanner();
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
@@ -137,7 +137,7 @@ namespace NextCloudScan
             switch (result.Result)
             {
                 case LockResultType.AlreadyLocked:
-                    ShowErrorAndExit(Message.Warning, $"There is already a running process, lock file is \"{locker.Lockfile}\". Wait until it is finished.", IS_LOCKED);
+                    ShowErrorAndExit(Message.Warning, $"There is already a running process, lock file is \"{locker.Lockfile}\"", IS_LOCKED);
                     break;
                 case LockResultType.Successfull:
                     _interface.Show(Message.Info, "Work in single instance mode, the lock is set");
@@ -332,7 +332,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Base file: {_config.Conf.BaseFile}");
                 _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
                 _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
-                _interface.Show(Message.Config, $"LogFile: {_config.Conf.LogFile}");
+                _interface.Show(Message.Config, $"Log file: {_config.Conf.LogFile}");
                 _interface.Show(Message.Config, $"Interface: {_config.Conf.Interface}");
                 _interface.Show(Message.Config, $"Interface module: {_interface}");
                 _interface.Show(Message.Config, $"File App: {_config.Conf.FileActionApp}");
@@ -341,6 +341,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
                 _interface.Show(Message.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
                 _interface.Show(Message.Config, $"Reduce to parents: {_config.Conf.ReduceToParents}");
+                _interface.Show(Message.Config, $"Single log file: {_config.Conf.SingleLogFile}");
                 _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
                 _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} min");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");

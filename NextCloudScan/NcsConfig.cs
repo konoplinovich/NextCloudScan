@@ -19,6 +19,7 @@
         public int LockLifeTime { get; set; } = 10;
         public NextCloudScan.UI.SupportedUI Interface { get; set; } = NextCloudScan.UI.SupportedUI.Screen;
         public string LogFile { get; set; } = "[logFile]";
+        public bool SingleLogFile { get; set; } = true;
 
         public NcsConfig() { }
     }
