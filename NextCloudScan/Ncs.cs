@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using NextCloudScan.Lib;
+using NextCloudScan.Lock;
 using NextCloudScan.Parsers;
 using NextCloudScan.UI;
 using System;

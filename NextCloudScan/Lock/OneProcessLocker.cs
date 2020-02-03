@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace NextCloudScan
+namespace NextCloudScan.Lock
 {
     internal class OneProcessLocker
     {
@@ -57,19 +57,5 @@ namespace NextCloudScan
                 return new LockResult() { Result = LockResultType.Error, ErrorMessage = e.Message };
             }
         }
-    }
-
-    internal class LockResult
-    {
-        public LockResultType Result {get; set;}
-        public string ErrorMessage { get; set; }
-    }
-
-    internal enum LockResultType
-    {
-        AlreadyLocked,
-        DeleteOldLock,
-        Successfull,
-        Error
     }
 }
