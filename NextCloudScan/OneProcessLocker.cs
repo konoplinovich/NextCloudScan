@@ -13,10 +13,29 @@ namespace NextCloudScan
             Lockfile = lockFile;
         }
 
-        public LockResult Lock()
+        public LockResult Lock(int lockLifeTime = 10)
         {
             try
             {
+                if (File.Exists(Lockfile))
+                {
+                    FileInfo fi = new FileInfo(Lockfile);
+                    DateTime lwt = fi.LastWriteTime;
+
+                    TimeSpan age = DateTime.Now - lwt;
+
+                    if (age <= TimeSpan.FromMinutes(lockLifeTime))
+                    {
+                        return new LockResult() { Result = LockResultType.AlreadyLocked, ErrorMessage = null };
+                    }
+                    else
+                    {
+                        File.Delete(Lockfile);
+                        File.Create(Lockfile);
+                        return new LockResult() { Result = LockResultType.DeleteOldLock, ErrorMessage = null };
+                    }
+                }
+                
                 File.Create(Lockfile);
                 return new LockResult() { Result = LockResultType.Successfull, ErrorMessage = null };
             }
@@ -48,6 +67,8 @@ namespace NextCloudScan
 
     internal enum LockResultType
     {
+        AlreadyLocked,
+        DeleteOldLock,
         Successfull,
         Error
     }

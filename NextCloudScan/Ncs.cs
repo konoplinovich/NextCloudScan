@@ -129,40 +129,49 @@ namespace NextCloudScan
         private static void SetLock()
         {
             OneProcessLocker locker = new OneProcessLocker();
+            LockResult result = locker.Lock();
 
-            if (locker.IsLocked)
+            switch (result.Result)
             {
-                ShowFatalException("One process at a time, exited", IS_LOCKED);
-            }
-            else
-            {
-                LockResult result = locker.Lock();
-                if (string.IsNullOrEmpty(result.ErrorMessage))
-                {
+                case LockResultType.AlreadyLocked:
+                    _interface.Show(Message.Info, "One process at a time, exited");
+                    Environment.Exit(IS_LOCKED);
+                    break;
+                case LockResultType.Successfull:
                     _interface.Show(Message.Info, "Work in single instance mode, the lock is set");
-                }
-                else
-                {
-                    ShowFatalException($"Unable to create a lock file \"{locker.Lockfile}\", error: {result.ErrorMessage}");
-                }
+                    break;
+                case LockResultType.DeleteOldLock:
+                    _interface.Show(Message.Info, "Work in single instance mode, the lock is set (the outdated lock has been removed)");
+                    break;
+                case LockResultType.Error:
+                    _interface.Show(Message.Error, $"Unable to create a lock file \"{locker.Lockfile}\", error: {result.ErrorMessage}");
+                    Environment.Exit(IS_FATAL_EXCEPTION);
+                    break;
+                default:
+                    break;
             }
         }
 
         private static void RemoveLock()
         {
             OneProcessLocker locker = new OneProcessLocker();
+            LockResult result = locker.Unlock();
 
-            if (locker.IsLocked)
+            switch (result.Result)
             {
-                LockResult result = locker.Unlock();
-                if (!string.IsNullOrEmpty(result.ErrorMessage))
-                {
-                    ShowFatalException($"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.ErrorMessage}");
-                }
-                else
-                {
+                case LockResultType.AlreadyLocked:
+                    break;
+                case LockResultType.Successfull:
                     _interface.Show(Message.Info, "The lock was successfully removed");
-                }
+                    break;
+                case LockResultType.DeleteOldLock:
+                    break;
+                case LockResultType.Error:
+                    _interface.Show(Message.Error, $"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.ErrorMessage}");
+                    Environment.Exit(IS_FATAL_EXCEPTION);
+                    break;
+                default:
+                    break;
             }
         }
 
