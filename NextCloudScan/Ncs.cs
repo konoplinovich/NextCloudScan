@@ -136,14 +136,14 @@ namespace NextCloudScan
             }
             else
             {
-                Tuple<bool, string> result = locker.Lock();
-                if (string.IsNullOrEmpty(result.Item2))
+                LockResult result = locker.Lock();
+                if (string.IsNullOrEmpty(result.ErrorMessage))
                 {
                     _interface.Show(Message.Info, "Work in single instance mode, the lock is set");
                 }
                 else
                 {
-                    ShowFatalException($"Unable to create a lock file \"{locker.Lockfile}\", error: {result.Item2}");
+                    ShowFatalException($"Unable to create a lock file \"{locker.Lockfile}\", error: {result.ErrorMessage}");
                 }
             }
         }
@@ -154,10 +154,10 @@ namespace NextCloudScan
 
             if (locker.IsLocked)
             {
-                Tuple<bool, string> result = locker.Unlock();
-                if (!string.IsNullOrEmpty(result.Item2))
+                LockResult result = locker.Unlock();
+                if (!string.IsNullOrEmpty(result.ErrorMessage))
                 {
-                    ShowFatalException($"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.Item2}");
+                    ShowFatalException($"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.ErrorMessage}");
                 }
                 else
                 {
