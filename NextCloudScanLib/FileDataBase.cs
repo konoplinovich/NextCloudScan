@@ -94,6 +94,10 @@ namespace NextCloudScan.Lib
             {
                 bool goodfile =
                     path.IndexOf("files_external") == -1
+                    && path.IndexOf("files_trashbin") == -1
+                    && path.IndexOf("files_versions") == -1
+                    && path.IndexOf("uploads") == -1
+                    && path.IndexOf("cache") == -1
                     && path.IndexOf("appdata") == -1
                     && path.IndexOf(".htaccess") == -1
                     && path.IndexOf(".ocdata") == -1
