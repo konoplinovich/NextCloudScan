@@ -129,7 +129,7 @@ namespace NextCloudScan
         private static void SetLock()
         {
             OneProcessLocker locker = new OneProcessLocker();
-            LockResult result = locker.Lock();
+            LockResult result = locker.Lock(_config.Conf.LockLifeTime);
 
             switch (result.Result)
             {
@@ -329,6 +329,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
                 _interface.Show(Message.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
                 _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
+                _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} min");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
                 _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
                 _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
