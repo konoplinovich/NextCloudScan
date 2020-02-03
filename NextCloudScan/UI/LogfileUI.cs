@@ -17,7 +17,7 @@ namespace NextCloudScan.UI
                 string filename = Path.GetFileNameWithoutExtension(logFilePath);
                 string ext = Path.GetExtension(logFilePath);
                 
-                string time = DateTime.Now.ToString(" ddMMyyyy-HHmmss");
+                string time = DateTime.Now.ToString("_ddMMyyyy_HHmmss");
                 filename += time + ext;
                 _logFilePath = Path.Combine(directory, filename);
             }
