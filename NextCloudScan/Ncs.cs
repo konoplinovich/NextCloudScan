@@ -13,6 +13,7 @@ namespace NextCloudScan
     {
         private const int IS_LOCKED = 403;
         private const int IS_FATAL_EXCEPTION = 404;
+        private const int IS_LOCK_ERROR = 405;
 
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
@@ -58,7 +59,7 @@ namespace NextCloudScan
             }
             catch (Exception e)
             {
-                ShowFatalException(e.Message);
+                ShowErrorAndExit(Message.Error, e.Message, IS_FATAL_EXCEPTION);
             }
 
             if (!_fdb.IsNewBase)
@@ -136,8 +137,7 @@ namespace NextCloudScan
             switch (result.Result)
             {
                 case LockResultType.AlreadyLocked:
-                    _interface.Show(Message.Info, "One process at a time, exited");
-                    Environment.Exit(IS_LOCKED);
+                    ShowErrorAndExit(Message.Warning, $"There is already a running process, lock file is \"{locker.Lockfile}\". Wait until it is finished.", IS_LOCKED);
                     break;
                 case LockResultType.Successfull:
                     _interface.Show(Message.Info, "Work in single instance mode, the lock is set");
@@ -146,8 +146,7 @@ namespace NextCloudScan
                     _interface.Show(Message.Info, "Work in single instance mode, the lock is set (the outdated lock has been removed)");
                     break;
                 case LockResultType.Error:
-                    _interface.Show(Message.Error, $"Unable to create a lock file \"{locker.Lockfile}\", error: {result.ErrorMessage}");
-                    Environment.Exit(IS_FATAL_EXCEPTION);
+                    ShowErrorAndExit(Message.Error, $"Unable to create a lock file \"{locker.Lockfile}\", error: {result.ErrorMessage}", IS_LOCK_ERROR);
                     break;
                 default:
                     break;
@@ -169,8 +168,7 @@ namespace NextCloudScan
                 case LockResultType.DeleteOldLock:
                     break;
                 case LockResultType.Error:
-                    _interface.Show(Message.Error, $"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.ErrorMessage}");
-                    Environment.Exit(IS_FATAL_EXCEPTION);
+                    ShowErrorAndExit(Message.Error, $"Сannot delete lock \"{locker.Lockfile}\", you must delete the file manually, error: {result.ErrorMessage}", IS_LOCK_ERROR);
                     break;
                 default:
                     break;
@@ -303,13 +301,16 @@ namespace NextCloudScan
             }
         }
 
-        private static void ShowFatalException(string message, int errorCode = IS_FATAL_EXCEPTION)
+        private static void ShowErrorAndExit(Message type, string message, int errorCode)
         {
-            IHumanUI defaultInterface = UIFactory.CreateUI(UI.SupportedUI.Screen);
+            IHumanUI defaultInterface;
+
+            if (_interface == null) defaultInterface = UIFactory.CreateUI(SupportedUI.Screen);
+            else defaultInterface = _interface;
 
             defaultInterface.Show(Message.Info, $"Config file: {_configFile}");
-            defaultInterface.Show(Message.Error, message);
-            defaultInterface.Show(Message.Error, "Exited");
+            defaultInterface.Show(type, message);
+            defaultInterface.Show(type, "Exited");
             Environment.Exit(errorCode);
         }
 
