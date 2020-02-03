@@ -11,6 +11,7 @@ namespace NextCloudScan.Lib
         string _baseFile;
         string _diffFile;
         string _affectedFoldersFile;
+        bool _reduceToParents;
 
         List<FileItem> _base;
         List<FileItem> _newFiles;
@@ -27,13 +28,16 @@ namespace NextCloudScan.Lib
         public List<string> Errors { get; private set; } = new List<string>();
         public bool ChangeFoldersToParent { get; private set; } = false;
         public List<Tuple<string, string>> FoldersReplacedWithParents { get; private set; } = new List<Tuple<string, string>>();
+        public bool RemoveSubfolders { get; private set; } = false;
+        public List<Tuple<string, string>> FoldersRemovedAsSubolders { get; private set; } = new List<Tuple<string, string>>();
 
-        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false)
+        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false, bool reduceToParents = false)
         {
             _path = path;
             _baseFile = baseFile;
             _diffFile = diffFile;
             _affectedFoldersFile = affectedFoldersFile;
+            _reduceToParents = reduceToParents;
 
             _base = new List<FileItem>();
             _affectedFolders = new List<string>();
@@ -140,7 +144,35 @@ namespace NextCloudScan.Lib
                 }
             }
 
-            return result;
+            if (!_reduceToParents)
+            {
+                return result;
+            }
+            else
+            {
+                List<string> parentsOnly = new List<string>(result);
+
+                foreach (string folder in result)
+                {
+                    string currentFolder = folder;
+                    if (!currentFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) currentFolder += Path.DirectorySeparatorChar;
+
+
+                    foreach (string testFolder in result)
+                    {
+                        bool testFolderIsSubfolder = testFolder.IndexOf(currentFolder) != -1 && testFolder.Length > currentFolder.Length;
+
+                        if (testFolderIsSubfolder)
+                        {
+                            parentsOnly.Remove(testFolder);
+                            RemoveSubfolders = true;
+                            FoldersRemovedAsSubolders.Add(new Tuple<string, string>(testFolder, currentFolder));
+                        }
+                    }
+                }
+
+                return parentsOnly;
+            }
         }
 
         void GetFiles(string path)

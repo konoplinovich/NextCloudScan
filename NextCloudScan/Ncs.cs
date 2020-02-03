@@ -89,7 +89,8 @@ namespace NextCloudScan
 
             DateTime start = DateTime.Now;
 
-            _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile);
+            if (_config.Conf.ReduceToParents) _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile, reduceToParents: true);
+            else _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile);
 
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
@@ -256,6 +257,15 @@ namespace NextCloudScan
                     _interface.Show(Message.Warning, $"\"{item.Item1}\" change to \"{item.Item2}\"");
                 }
             }
+            if (_fdb.RemoveSubfolders)
+            {
+                _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubolders.Count} folder(s) have been removed because they are in subfolders");
+                
+                foreach (var item in _fdb.FoldersRemovedAsSubolders)
+                {
+                    _interface.Show(Message.Warning, $"\"{item.Item2}\" used instead \"{item.Item1}\"");
+                }
+            }
 
             _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
 
@@ -329,6 +339,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Folder App: {_config.Conf.FolderActionApp}");
                 _interface.Show(Message.Config, $"Folder App options: {_config.Conf.FolderActionAppOptions}");
                 _interface.Show(Message.Config, $"Is NextCloud: {_config.Conf.IsNextCloud}");
+                _interface.Show(Message.Config, $"Reduce to parents: {_config.Conf.ReduceToParents}");
                 _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
                 _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} min");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");

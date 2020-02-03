@@ -4,6 +4,7 @@
     {
         public string Path { get; set; } = "[root folder for scanning]";
         public bool IsNextCloud { get; set; } = false;
+        public bool ReduceToParents { get; set; } = false;
         public string BaseFile { get; set; } = "base.xml";
         public string DiffFile { get; set; } = "diff.xml";
         public string AffectedFoldersFile { get; set; } = "affected_folders";
