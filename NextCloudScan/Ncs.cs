@@ -239,13 +239,7 @@ namespace NextCloudScan
         private static void ShowSummary()
         {
             _interface.Show(Message.None, "");
-
-            if (_fdb.Removed.Count != 0)
-                _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
-            if (_fdb.Added.Count != 0)
-                _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
-            if (_fdb.AffectedFoldersCount != 0)
-                _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
+            
             if (_fdb.ChangeFoldersToParent)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersReplacedWithParents.Count} folder(s) were replaced with parent folder(s) due to unavailability");
@@ -255,6 +249,7 @@ namespace NextCloudScan
                     _interface.Show(Message.Warning, $"\"{item.Item1}\" change to \"{item.Item2}\"");
                 }
             }
+            
             if (_fdb.RemoveSubfolders)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubolders.Count} folder(s) have been removed because they are in subfolders");
@@ -264,6 +259,13 @@ namespace NextCloudScan
                     _interface.Show(Message.Warning, $"\"{item.Item2}\" used instead \"{item.Item1}\"");
                 }
             }
+
+            if (_fdb.Removed.Count != 0)
+                _interface.Show(Message.Info, $"Removed: {_fdb.Removed.Count}");
+            if (_fdb.Added.Count != 0)
+                _interface.Show(Message.Info, $"Added: {_fdb.Added.Count}");
+            if (_fdb.AffectedFoldersCount != 0)
+                _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
 
             _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
 
