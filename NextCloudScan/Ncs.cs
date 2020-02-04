@@ -39,7 +39,7 @@ namespace NextCloudScan
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
-                _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile, _config.Conf.SingleLogFile);
+                _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
                 ShowStartUpBanner();
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
@@ -333,6 +333,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
                 _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
                 _interface.Show(Message.Config, $"Log file: {_config.Conf.LogFile}");
+                _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} day(s)");
                 _interface.Show(Message.Config, $"Interface: {_config.Conf.Interface}");
                 _interface.Show(Message.Config, $"Interface module: {_interface}");
                 _interface.Show(Message.Config, $"File App: {_config.Conf.FileActionApp}");
@@ -343,7 +344,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Reduce to parents: {_config.Conf.ReduceToParents}");
                 _interface.Show(Message.Config, $"Single log file: {_config.Conf.SingleLogFile}");
                 _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
-                _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} min");
+                _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} minute(s)");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
                 _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
                 _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");

@@ -20,6 +20,7 @@
         public NextCloudScan.UI.SupportedUI Interface { get; set; } = NextCloudScan.UI.SupportedUI.Screen;
         public string LogFile { get; set; } = "[logFile]";
         public bool SingleLogFile { get; set; } = true;
+        public int LogFilesAgeLimit { get; set; } = 2;
 
         public NcsConfig() { }
     }

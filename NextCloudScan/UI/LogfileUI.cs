@@ -7,15 +7,20 @@ namespace NextCloudScan.UI
     internal class LogfileUI : IHumanUI
     {
         string _logFilePath;
+        int _ageLimit;
         
-        public LogfileUI(string logFilePath, bool singleLogFile = true)
+        public LogfileUI(string logFilePath, bool singleLogFile = true, int ageLimit = 1)
         {
+            _ageLimit = ageLimit;
+            
             if (singleLogFile) { _logFilePath = logFilePath; }
             else
             {
                 string directory = Path.GetDirectoryName(logFilePath);
                 string filename = Path.GetFileNameWithoutExtension(logFilePath);
                 string ext = Path.GetExtension(logFilePath);
+
+                ClearOldLogs(directory, ext);
                 
                 string time = DateTime.Now.ToString("_ddMMyyyy_HHmmss");
                 filename += time + ext;
@@ -27,6 +32,24 @@ namespace NextCloudScan.UI
         {
             if (string.IsNullOrEmpty(_logFilePath)) return;
             File.AppendAllText(_logFilePath, MakeLogString(type, message));
+        }
+
+        private void ClearOldLogs(string directory, string ext)
+        {
+            string[] files = Directory.GetFiles(directory, $"*{ext}");
+            DateTime now = DateTime.Now;
+
+            foreach (string file in files)
+            {
+                FileInfo fi = new FileInfo(file);
+                DateTime lwt = fi.LastWriteTime;
+
+                TimeSpan age = now - lwt;
+                if (age > TimeSpan.FromDays(_ageLimit))
+                {
+                    File.Delete(file);
+                }
+            }
         }
 
         private string MakeLogString(Message type, string message)
