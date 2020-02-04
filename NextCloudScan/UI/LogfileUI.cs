@@ -45,7 +45,7 @@ namespace NextCloudScan.UI
                 DateTime lwt = fi.LastWriteTime;
 
                 TimeSpan age = now - lwt;
-                if (age > TimeSpan.FromDays(_ageLimit))
+                if (age > TimeSpan.FromHours(_ageLimit))
                 {
                     File.Delete(file);
                 }

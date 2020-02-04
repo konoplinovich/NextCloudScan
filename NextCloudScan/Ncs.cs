@@ -333,7 +333,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
                 _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
                 _interface.Show(Message.Config, $"Log file: {_config.Conf.LogFile}");
-                _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} day(s)");
+                _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} hour(s)");
                 _interface.Show(Message.Config, $"Interface: {_config.Conf.Interface}");
                 _interface.Show(Message.Config, $"Interface module: {_interface}");
                 _interface.Show(Message.Config, $"File App: {_config.Conf.FileActionApp}");
