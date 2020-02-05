@@ -7,7 +7,7 @@
 
         public CombinedUI(string logFilePath, bool singleLogFile = true, int agelimit = 1)
         {
-            _logfile = new LogfileUI(logFilePath, singleLogFile);
+            _logfile = new LogfileUI(logFilePath, singleLogFile, agelimit);
             _console = new ConsoleUI();
         }
 
