@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using NextCloudScan.Parsers;
 
-namespace NextCloudScan
+namespace NextCloudScan.Activities
 {
     internal class Actions
     {
@@ -135,11 +135,5 @@ namespace NextCloudScan
 
             return new ExecuteExternalResult() { Log = log.ToString(), ExitCode = exitCode };
         }
-    }
-
-    internal class ExecuteExternalResult
-    {
-        public string Log { get; set; }
-        public int ExitCode { get; set; }
     }
 }

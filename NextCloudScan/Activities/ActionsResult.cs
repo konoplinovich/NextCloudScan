@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NextCloudScan
+namespace NextCloudScan.Activities
 {
     internal class ActionsResult
     {

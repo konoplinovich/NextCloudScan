@@ -48,8 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions.cs" />
-    <Compile Include="ActionsResult.cs" />
+    <Compile Include="Activities\Actions.cs" />
+    <Compile Include="Activities\ActionsResult.cs" />
+    <Compile Include="Activities\ExecuteExternalResult.cs" />
     <Compile Include="Lock\LockResult.cs" />
     <Compile Include="Lock\LockResultType.cs" />
     <Compile Include="Lock\OneProcessLocker.cs" />
