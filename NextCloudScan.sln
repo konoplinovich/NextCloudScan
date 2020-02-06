@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanLibTests", "Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanStatisticsLib", "NextCloudScanStatisticsLib\NextCloudScanStatisticsLib.csproj", "{48C92E1B-78BE-4FC1-A9A2-BD6AC0296DA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanStatsView", "NextCloudScanStatsView\NextCloudScanStatsView.csproj", "{8E828B8F-394B-4619-A23C-A1C64239CD74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{48C92E1B-78BE-4FC1-A9A2-BD6AC0296DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48C92E1B-78BE-4FC1-A9A2-BD6AC0296DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48C92E1B-78BE-4FC1-A9A2-BD6AC0296DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E828B8F-394B-4619-A23C-A1C64239CD74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E828B8F-394B-4619-A23C-A1C64239CD74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E828B8F-394B-4619-A23C-A1C64239CD74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E828B8F-394B-4619-A23C-A1C64239CD74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

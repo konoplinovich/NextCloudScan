@@ -6,8 +6,10 @@ namespace NextCloudScan.Statistics.Lib
 {
     public class StatisticsAgregator
     {
-        List<SessionStatistics> _stats = new List<SessionStatistics>();
         string _statsFile;
+
+        public List<SessionStatistics> Statistisc { get; private set; } = new List<SessionStatistics>();
+        public bool Successfully { get; private set; } = false;
 
         public StatisticsAgregator(string statsFile)
         {
@@ -16,23 +18,24 @@ namespace NextCloudScan.Statistics.Lib
             if (File.Exists(_statsFile))
             {
                 Load();
+                Successfully = true;
             }
         }
 
         public void Append(SessionStatistics session)
         {
-            _stats.Add(session);
+            Statistisc.Add(session);
             Save();
         }
 
         private void Save()
         {
-            XmlExtension.WriteToXmlFile<List<SessionStatistics>>(_statsFile, _stats);
+            XmlExtension.WriteToXmlFile<List<SessionStatistics>>(_statsFile, Statistisc);
         }
 
         private void Load()
         {
-            _stats = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
+            Statistisc = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
         }
     }
 }
