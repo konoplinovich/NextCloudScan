@@ -76,6 +76,10 @@
       <Project>{477cc46f-1db2-41d0-912d-b9e30dcdebe8}</Project>
       <Name>NextCloudScanLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NextCloudScanStatisticsLib\NextCloudScanStatisticsLib.csproj">
+      <Project>{48c92e1b-78be-4fc1-a9a2-bd6ac0296da9}</Project>
+      <Name>NextCloudScanStatisticsLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
