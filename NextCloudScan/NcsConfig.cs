@@ -7,6 +7,7 @@
         public bool ReduceToParents { get; set; } = false;
         public string BaseFile { get; set; } = "base.xml";
         public string DiffFile { get; set; } = "diff.xml";
+        public string StatisticsFile { get; set; } = "statistics.xml";
         public string AffectedFoldersFile { get; set; } = "affected_folders";
         public string FileActionApp { get; set; } = "[application for scanning files]";
         public string FolderActionApp { get; set; } = "[application for scanning folders]";

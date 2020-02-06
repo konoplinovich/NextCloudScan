@@ -4,6 +4,7 @@ using NextCloudScan.Lib;
 using NextCloudScan.Lock;
 using NextCloudScan.Parsers;
 using NextCloudScan.UI;
+using NextCloudScan.Statistics.Lib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace NextCloudScan
 
         private static FileDataBase _fdb;
         private static TimeSpan _scanTime;
+        private static DateTime _startTime;
         private static ActionsResult _fileActionsResult;
         private static ActionsResult _folderActionsResult;
         private static Version _version;
@@ -42,6 +44,8 @@ namespace NextCloudScan
 
                 _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
                 ShowStartUpBanner();
+
+                _startTime = DateTime.Now;
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
                 {
@@ -78,6 +82,7 @@ namespace NextCloudScan
             }
 
             ShowSummary();
+            AgregateStatistics();
 
             if (_config.Conf.OneProcessAtATime)
             {
@@ -240,7 +245,7 @@ namespace NextCloudScan
         private static void ShowSummary()
         {
             _interface.Show(Message.None, "");
-            
+
             if (_fdb.ChangeFoldersToParent)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersReplacedWithParents.Count} folder(s) were replaced with parent folder(s) due to unavailability");
@@ -250,11 +255,11 @@ namespace NextCloudScan
                     _interface.Show(Message.Warning, $"\"{item.Item1}\" change to \"{item.Item2}\"");
                 }
             }
-            
+
             if (_fdb.RemoveSubfolders)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubolders.Count} folder(s) have been removed because they are in subfolders");
-                
+
                 foreach (var item in _fdb.FoldersRemovedAsSubolders)
                 {
                     _interface.Show(Message.Warning, $"\"{item.Item2}\" used instead \"{item.Item1}\"");
@@ -276,6 +281,28 @@ namespace NextCloudScan
                 _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
             if (_folderActionsResult != null)
                 _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
+        }
+
+        private static void AgregateStatistics()
+        {
+            SessionStatistics ss = new SessionStatistics()
+            {
+                Id = Guid.NewGuid(),
+                StartTime = _startTime,
+                AddedFiles = _fdb.Added.Count,
+                RemovedFiles = _fdb.Removed.Count,
+                AffectedFolders = _fdb.AffectedFolders.Count,
+                TotalFiles = _fdb.Count,
+                ScanElapsedTime = _scanTime.Ticks,
+                FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
+                FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks
+            };
+
+            if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
+            if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
+
+            StatisticsAgregator agregator = new StatisticsAgregator(_config.Conf.StatisticsFile);
+            agregator.Append(ss);
         }
 
         private static void ShowErrors()
@@ -334,6 +361,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Path: {_config.Conf.Path}");
                 _interface.Show(Message.Config, $"Base file: {_config.Conf.BaseFile}");
                 _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
+                _interface.Show(Message.Config, $"Statistics file: {_config.Conf.StatisticsFile}");
                 _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
                 _interface.Show(Message.Config, $"Log file: {_config.Conf.LogFile}");
                 _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} hour(s)");
