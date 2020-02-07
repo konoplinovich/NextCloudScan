@@ -97,7 +97,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Sessions count:         {statistics.Count} (average interval {(period.TotalMinutes / statistics.Count):0.000} min)");
             Console.WriteLine("");
             Console.WriteLine($"Files added/removed:    {_added}/{_removed}");
-            Console.WriteLine($"Processed folders:      {_affected}");
+            Console.WriteLine($"Processed folders:      {_affected} (average {((double)_affected/ statistics.Count):0.000} folders/session)");
             Console.WriteLine("");
             Console.WriteLine($"Scan time:              {ToReadableString(TimeSpan.FromTicks(_scanTime))}");
             Console.WriteLine($"File processing time:   {ToReadableString(TimeSpan.FromTicks(_fileScanTime))}");
@@ -105,7 +105,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Total work time:        {ToReadableString(TimeSpan.FromTicks(_scanTime) + TimeSpan.FromTicks(_fileScanTime) + TimeSpan.FromTicks(_folderScanTime))}");
             Console.WriteLine($"Ratio (work/period):    {ratio:0.0000}");
             Console.WriteLine("---");
-            Console.WriteLine($"Statistics file size:   {agregator.Size} bytes");
+            Console.WriteLine($"Statistics file size:   {agregator.Size:0.00} Kb (average {(agregator.Size / period.TotalDays):0.00} Kb/day)");
             Console.WriteLine("");
         }
 

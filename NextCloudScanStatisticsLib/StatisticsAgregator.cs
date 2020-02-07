@@ -11,7 +11,7 @@ namespace NextCloudScan.Statistics.Lib
 
         public List<SessionStatistics> Statistisc { get; private set; } = new List<SessionStatistics>();
         public bool Successfully { get; private set; } = false;
-        public long Size { get; }
+        public double Size { get; }
 
         public StatisticsAgregator(string statsFile)
         {
@@ -19,7 +19,7 @@ namespace NextCloudScan.Statistics.Lib
 
             if (File.Exists(_statsFile))
             {
-                Size = new FileInfo(_statsFile).Length;
+                Size = (double)new FileInfo(_statsFile).Length / 1024;
                 Load();
                 Successfully = true;
             }
