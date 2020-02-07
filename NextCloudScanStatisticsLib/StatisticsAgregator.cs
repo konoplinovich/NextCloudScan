@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -10,6 +11,7 @@ namespace NextCloudScan.Statistics.Lib
 
         public List<SessionStatistics> Statistisc { get; private set; } = new List<SessionStatistics>();
         public bool Successfully { get; private set; } = false;
+        public long Size { get; }
 
         public StatisticsAgregator(string statsFile)
         {
@@ -17,6 +19,7 @@ namespace NextCloudScan.Statistics.Lib
 
             if (File.Exists(_statsFile))
             {
+                Size = new FileInfo(_statsFile).Length;
                 Load();
                 Successfully = true;
             }
