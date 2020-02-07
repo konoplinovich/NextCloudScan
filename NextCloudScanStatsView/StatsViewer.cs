@@ -8,9 +8,11 @@ namespace NextCloudScanStatsView
 {
     partial class StatsViewer
     {
-        private static string _statsFile;
         private static int _lines;
+        private static string _statsFile;
         private static bool _summaryOnly;
+        private static bool _showAll = false;
+
         private static long _added = 0;
         private static long _removed = 0;
         private static long _affected = 0;
@@ -33,8 +35,49 @@ namespace NextCloudScanStatsView
             if (agregator.Successfully) statistics = agregator.Statistisc;
 
             CalculateSummary(statistics);
-            if (!_summaryOnly) ShowSessions(statistics, _lines);
+            if (!_summaryOnly) 
+            {
+                if (_showAll) ShowSessions(statistics, statistics.Count);
+                else ShowSessions(statistics, _lines); 
+            }
+            
             ShowSummary(agregator, statistics);
+        }
+
+        private static void CalculateSummary(List<SessionStatistics> statistics)
+        {
+            foreach (SessionStatistics stat in statistics)
+            {
+                _added += stat.AddedFiles;
+                _removed += stat.RemovedFiles;
+                _affected += stat.AffectedFolders;
+
+                _scanTime += stat.ScanElapsedTime;
+                _fileScanTime += stat.FileProcessingElapsedTime;
+                _folderScanTime += stat.FolderProcessingElapsedTime;
+            }
+        }
+
+        private static void ShowSessions(List<SessionStatistics> statistics, int lines)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Show last {lines} sessions:");
+
+            Console.WriteLine("──────┬─────────────────────────────────────┬──────────────────────┬──────────┬───────────┬───────────┬───────┬───────┬───────────┬───────────────");
+            Console.WriteLine("     #│                                   Id│            Start Time│     Total│       Scan│        [+]│    [-]│    [A]│      Files│        Folders");
+            Console.WriteLine("──────┼─────────────────────────────────────┼──────────────────────┼──────────┼───────────┼───────────┼───────┼───────┼───────────┼───────────────");
+
+            for (int index = (statistics.Count - lines); index < statistics.Count; index++)
+            {
+                SessionStatistics stat = statistics[index];
+                TimeSpan scanElapsedTime = TimeSpan.FromTicks(stat.ScanElapsedTime);
+                TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
+                TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
+
+                Console.WriteLine($"{(index + 1),6}│\t{stat.Id}│\t{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}│\t{stat.TotalFiles,6}│\t{scanElapsedTime.TotalSeconds,10:0.0000}│\t{stat.AddedFiles,6}│\t{stat.RemovedFiles,6}│\t{stat.AffectedFolders,6}│\t{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│\t{folderProcessingElapsedTime.TotalSeconds,10:0.0000}");
+            }
+
+            Console.WriteLine("────────────────────────────────────────────┴──────────────────────┴──────────┴───────────┴───────────┴───────┴───────┴───────────┴───────────────");
         }
 
         private static void ShowSummary(StatisticsAgregator agregator, List<SessionStatistics> statistics)
@@ -66,46 +109,6 @@ namespace NextCloudScanStatsView
             Console.WriteLine("");
         }
 
-        private static void CalculateSummary(List<SessionStatistics> statistics)
-        {
-            foreach (SessionStatistics stat in statistics)
-            {
-                TimeSpan scanElapsedTime = TimeSpan.FromTicks(stat.ScanElapsedTime);
-                TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
-                TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
-
-                _added += stat.AddedFiles;
-                _removed += stat.RemovedFiles;
-                _affected += stat.AffectedFolders;
-
-                _scanTime += stat.ScanElapsedTime;
-                _fileScanTime += stat.FileProcessingElapsedTime;
-                _folderScanTime += stat.FolderProcessingElapsedTime;
-            }
-        }
-
-        private static void ShowSessions(List<SessionStatistics> statistics, int lines)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"Show last {lines} sessions:");
-
-            Console.WriteLine("────────────────────────────────────┬──────────────────────┬──────────┬───────────┬───────────┬───────┬───────┬───────────┬───────────────");
-            Console.WriteLine("Id                                  │            Start Time│     Total│       Scan│        [+]│    [-]│    [A]│      Files│        Folders");
-            Console.WriteLine("────────────────────────────────────┼──────────────────────┼──────────┼───────────┼───────────┼───────┼───────┼───────────┼───────────────");
-
-            for (int index = (statistics.Count - lines); index < statistics.Count; index++)
-            {
-                SessionStatistics stat = statistics[index];
-                TimeSpan scanElapsedTime = TimeSpan.FromTicks(stat.ScanElapsedTime);
-                TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
-                TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
-
-                Console.WriteLine($"{stat.Id}│\t{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}│\t{stat.TotalFiles,6}│\t{scanElapsedTime.TotalSeconds,10:0.0000}│\t{stat.AddedFiles,6}│\t{stat.RemovedFiles,6}│\t{stat.AffectedFolders,6}│\t{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│\t{folderProcessingElapsedTime.TotalSeconds,10:0.0000}");
-            }
-
-            Console.WriteLine("────────────────────────────────────┴──────────────────────┴──────────┴───────────┴───────────┴───────┴───────┴───────────┴───────────────");
-        }
-
         private static void DisplayHelp(ParserResult<Options> parserResult, IEnumerable<Error> errs)
         {
             HelpText helpText = null;
@@ -120,19 +123,21 @@ namespace NextCloudScanStatsView
                 helpText = HelpText.AutoBuild(parserResult, h =>
                 {
                     h.AdditionalNewLineAfterOption = false;
-                    h.Heading = "NextCloudScan Statistics Viewer 1.0.0.0"; 
-                    h.Copyright = ""; 
+                    h.Heading = "NextCloudScan Statistics Viewer 1.0.0.0";
+                    h.Copyright = "";
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                 }, e => e);
                 Console.WriteLine($"{Environment.NewLine}{helpText}");
             }
         }
 
-        private static void RunOptions(Options obj)
+        private static void RunOptions(Options options)
         {
-            _statsFile = obj.InputFile;
-            _lines = obj.Lines;
-            _summaryOnly = obj.SummaryOnly;
+            _statsFile = options.InputFile;
+            _lines = options.Lines;
+            _summaryOnly = options.SummaryOnly;
+
+            if (_lines == 0) _showAll = true;
         }
 
         public static string ToReadableString(TimeSpan span)
