@@ -185,12 +185,14 @@ namespace NextCloudScanStatsView
                 helpText = HelpText.AutoBuild(parserResult, h =>
                 {
                     h.AdditionalNewLineAfterOption = false;
-                    h.Heading = "NextCloudScan Statistics Viewer 1.1.0.0";
+                    h.Heading = "NextCloudScan Statistics Viewer 1.2.0.0";
                     h.Copyright = "";
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                 }, e => e);
                 Console.WriteLine($"{Environment.NewLine}{helpText}");
             }
+
+            Environment.Exit(102);
         }
 
         private static void RunOptions(Options options)
