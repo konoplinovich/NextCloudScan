@@ -39,21 +39,19 @@ namespace NextCloudScanStatsView
                 return;
             }
 
-            List<SessionStatistics> statistics = agregator.Statistisc;
-
-            CalculateSummary(statistics);
+            CalculateSummary(agregator.Statistisc);
 
             if (!_summaryOnly)
             {
-                if (_showAll) ShowSessions(statistics, statistics.Count);
-                else ShowSessions(statistics, _lines);
+                if (_showAll) ShowSessions(agregator.Statistisc, agregator.Statistisc.Count);
+                else ShowSessions(agregator.Statistisc, _lines);
             }
 
-            ShowSummary(agregator, statistics);
+            ShowSummary(agregator);
 
             if (!string.IsNullOrEmpty(_csvFile))
             {
-                ExportCsv(statistics, _csvFile);
+                ExportCsv(agregator.Statistisc, _csvFile);
             }
         }
 
@@ -107,8 +105,10 @@ namespace NextCloudScanStatsView
             Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────");
         }
 
-        private static void ShowSummary(StatisticsAgregator agregator, List<SessionStatistics> statistics)
+        private static void ShowSummary(StatisticsAgregator agregator)
         {
+            List<SessionStatistics> statistics = agregator.Statistisc;
+
             DateTime first = statistics[0].StartTime;
             DateTime last = statistics[statistics.Count - 1].StartTime;
             TimeSpan period = last - first;
