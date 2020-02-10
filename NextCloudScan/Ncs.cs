@@ -7,6 +7,7 @@ using NextCloudScan.Statistics.Lib;
 using NextCloudScan.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace NextCloudScan
@@ -16,6 +17,7 @@ namespace NextCloudScan
         private const int IS_LOCKED = 403;
         private const int IS_FATAL_EXCEPTION = 404;
         private const int IS_LOCK_ERROR = 405;
+        private const int IS_CONFIG_PATHS_IS_WRONG = 406;
 
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
@@ -54,6 +56,7 @@ namespace NextCloudScan
                 }
 
                 ShowConfigParameters();
+                CheckFilesAndFolders();
 
                 if (_config.Conf.OneProcessAtATime)
                 {
@@ -88,6 +91,44 @@ namespace NextCloudScan
             {
                 RemoveLock();
             }
+        }
+
+        private static void CheckFilesAndFolders()
+        {
+            int noError = 0;
+
+            if (!Directory.Exists(_config.Conf.Path))
+            {
+                _interface.Show(Message.Error, $"The root folder does not exist: {_config.Conf.Path}");
+                noError += 1;
+            }
+
+            noError += CheckFile(_config.Conf.BaseFile, "base");
+            noError += CheckFile(_config.Conf.DiffFile, "diff");
+            noError += CheckFile(_config.Conf.StatisticsFile, "statistics");
+            noError += CheckFile(_config.Conf.AffectedFoldersFile, "affected folders");
+
+            if (noError != 0) ShowErrorAndExit(Message.Error, $"{noError} files or folders specified in the config are not available", IS_CONFIG_PATHS_IS_WRONG);
+        }
+
+        private static int CheckFile(string file, string logicName)
+        {
+            if (!File.Exists(file))
+            {
+                try
+                {
+                    File.Create(file);
+                }
+                catch (Exception e)
+                {
+                    _interface.Show(Message.Error, $"Unable to create a {logicName} file {file}: {e.Message}");
+                    return 1;
+                }
+
+                File.Delete(file);
+            }
+            
+            return 0;
         }
 
         private static void Scan()
