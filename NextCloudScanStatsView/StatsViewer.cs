@@ -77,7 +77,7 @@ namespace NextCloudScanStatsView
                 Console.WriteLine($"{(index + 1),6}│\t{stat.Id}│\t{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}│\t{stat.TotalFiles,6}│\t{scanElapsedTime.TotalSeconds,10:0.0000}│\t{stat.AddedFiles,6}│\t{stat.RemovedFiles,6}│\t{stat.AffectedFolders,6}│\t{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│\t{folderProcessingElapsedTime.TotalSeconds,10:0.0000}");
             }
 
-            Console.WriteLine("────────────────────────────────────────────┴──────────────────────┴──────────┴───────────┴───────────┴───────┴───────┴───────────┴───────────────");
+            Console.WriteLine("──────┴─────────────────────────────────────┴──────────────────────┴──────────┴───────────┴───────────┴───────┴───────┴───────────┴───────────────");
         }
 
         private static void ShowSummary(StatisticsAgregator agregator, List<SessionStatistics> statistics)
