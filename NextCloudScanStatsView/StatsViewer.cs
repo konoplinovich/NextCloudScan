@@ -81,9 +81,10 @@ namespace NextCloudScanStatsView
                 Console.WriteLine($"Show last {displayedlines} sessions:");
             }
 
-            Console.WriteLine("──────┬─────────────────────────────────────┬──────────────────────┬──────────┬───────────┬───────────┬───────┬───────┬───────────┬───────────────");
-            Console.WriteLine("     #│                                   Id│            Start Time│     Total│       Scan│        [+]│    [-]│    [A]│      Files│        Folders");
-            Console.WriteLine("──────┼─────────────────────────────────────┼──────────────────────┼──────────┼───────────┼───────────┼───────┼───────┼───────────┼───────────────");
+            Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────");
+            Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders");
+            Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────");
+            
 
             for (int index = (statistics.Count - displayedlines); index < statistics.Count; index++)
             {
@@ -92,10 +93,10 @@ namespace NextCloudScanStatsView
                 TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
                 TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
 
-                Console.WriteLine($"{(index + 1),6}│\t{stat.Id}│\t{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}│\t{stat.TotalFiles,6}│\t{scanElapsedTime.TotalSeconds,10:0.0000}│\t{stat.AddedFiles,6}│\t{stat.RemovedFiles,6}│\t{stat.AffectedFolders,6}│\t{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│\t{folderProcessingElapsedTime.TotalSeconds,10:0.0000}");
+                Console.WriteLine($"{(index + 1),7}│{stat.Id,38}│{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│{stat.TotalFiles,8}│{scanElapsedTime.TotalSeconds,10:0.0000}│{stat.AddedFiles,8}│{stat.RemovedFiles,8}│{stat.AffectedFolders,8}│{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│{folderProcessingElapsedTime.TotalSeconds,10:0.0000}");
             }
 
-            Console.WriteLine("──────┴─────────────────────────────────────┴──────────────────────┴──────────┴───────────┴───────────┴───────┴───────┴───────────┴───────────────");
+            Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────");
         }
 
         private static void ShowSummary(StatisticsAgregator agregator, List<SessionStatistics> statistics)
