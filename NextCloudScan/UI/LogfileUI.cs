@@ -16,7 +16,7 @@ namespace NextCloudScan.UI
             if (singleLogFile) { _logFilePath = logFilePath; }
             else
             {
-                string directory = Path.GetDirectoryName(logFilePath);
+                string directory = (new FileInfo(logFilePath)).DirectoryName;
                 string filename = Path.GetFileNameWithoutExtension(logFilePath);
                 string ext = Path.GetExtension(logFilePath);
 
