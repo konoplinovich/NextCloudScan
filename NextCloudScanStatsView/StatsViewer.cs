@@ -3,6 +3,8 @@ using CommandLine.Text;
 using NextCloudScan.Statistics.Lib;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace NextCloudScanStatsView
 {
@@ -10,6 +12,7 @@ namespace NextCloudScanStatsView
     {
         private static int _lines;
         private static string _statsFile;
+        private static string _csvFile;
         private static bool _summaryOnly;
         private static bool _showAll = false;
 
@@ -47,6 +50,11 @@ namespace NextCloudScanStatsView
             }
 
             ShowSummary(agregator, statistics);
+
+            if (!string.IsNullOrEmpty(_csvFile))
+            {
+                ExportCsv(statistics, _csvFile);
+            }
         }
 
         private static void CalculateSummary(List<SessionStatistics> statistics)
@@ -84,7 +92,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────");
             Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders");
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────");
-            
+
 
             for (int index = (statistics.Count - displayedlines); index < statistics.Count; index++)
             {
@@ -138,6 +146,31 @@ namespace NextCloudScanStatsView
             Console.WriteLine("");
         }
 
+        private static void ExportCsv(List<SessionStatistics> statistics, string csvFile)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"Number,Start Time,Total Files (pc.),Scan Elapsed Time (s),Added Files (pc.),Removed Files (pc.),Affected Folders (pc.),File Processing (s),Folder Processing (s)");
+            sb.Append(Environment.NewLine);
+
+            for (int i = 0; i < statistics.Count; i++)
+            {
+                SessionStatistics stat = statistics[i];
+                sb.Append($"{i + 1}," +
+                    $"{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}," +
+                    $"{stat.TotalFiles}," +
+                    $"{TimeSpan.FromTicks(stat.ScanElapsedTime).TotalSeconds}," +
+                    $"{stat.AddedFiles}," +
+                    $"{stat.RemovedFiles}," +
+                    $"{stat.AffectedFolders}," +
+                    $"{TimeSpan.FromTicks(stat.FileProcessingElapsedTime).TotalSeconds}," +
+                    $"{TimeSpan.FromTicks(stat.FolderProcessingElapsedTime).TotalSeconds}");
+                sb.Append(Environment.NewLine);
+            }
+
+            File.WriteAllText(csvFile, sb.ToString());
+        }
+
         private static void DisplayHelp(ParserResult<Options> parserResult, IEnumerable<Error> errs)
         {
             HelpText helpText = null;
@@ -165,6 +198,7 @@ namespace NextCloudScanStatsView
             _statsFile = options.InputFile;
             _lines = options.Lines;
             _summaryOnly = options.SummaryOnly;
+            _csvFile = options.Export;
 
             if (_lines == 0) _showAll = true;
         }

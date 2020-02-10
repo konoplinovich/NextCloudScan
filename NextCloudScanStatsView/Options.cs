@@ -14,6 +14,9 @@ namespace NextCloudScanStatsView
 
             [Option('t', "total", Required = false, HelpText = "Summary only")]
             public bool SummaryOnly { get; set; }
+
+            [Option('e', "export", Required = false, HelpText = "Export .CSV file")]
+            public string Export { get; set; }
         }
     }
 }
