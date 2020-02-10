@@ -106,6 +106,7 @@ namespace NextCloudScanStatsView
             double ratio = hoursWork / hoursAll;
             double averageInterval = period.TotalMinutes / statistics.Count;
             double averageRealInterval = period.TotalMinutes / _notZeroSessions;
+            double workSessionPercent = (double)_notZeroSessions * 100 / statistics.Count;
             double averagefoldersPerSession = (double)_affected / statistics.Count;
             double scanPercentFromPeriod = TimeSpan.FromTicks(_scanTime).TotalSeconds * 100 / period.TotalSeconds;
             double filePercentFromPeriod = TimeSpan.FromTicks(_fileScanTime).TotalSeconds * 100 / period.TotalSeconds;
@@ -117,7 +118,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"First session:           {statistics[0].StartTime}");
             Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime}");
             Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0.000} min interval)");
-            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} (~{averageRealInterval:0.000} min interval)");
+            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0.000}% of all sessions, ~{averageRealInterval:0.000} min interval)");
             Console.WriteLine("");
             Console.WriteLine($"Files added/removed:     {_added}/{_removed}");
             Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0.000} folders/session)");
