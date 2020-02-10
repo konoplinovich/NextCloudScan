@@ -128,21 +128,21 @@ namespace NextCloudScanStatsView
 
             Console.WriteLine("");
             Console.WriteLine($"Statistics period:       {ToReadableString(period)}");
-            Console.WriteLine($"First session:           {statistics[0].StartTime}");
-            Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime}");
-            Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0.000} min interval)");
-            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0}% of all sessions, ~{averageRealInterval:0.000} min interval)");
+            Console.WriteLine($"First session:           {statistics[0].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
+            Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
+            Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0} min interval)");
+            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0}% of all sessions, ~{averageRealInterval:0} min interval)");
             Console.WriteLine("");
             Console.WriteLine($"Files added/removed:     {_added}/{_removed}");
-            Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0.000} folders/session)");
+            Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0} folders/session)");
             Console.WriteLine("");
-            Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_scanTime))} ({scanPercentFromPeriod:0.000}%)");
-            Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_fileScanTime))} ({filePercentFromPeriod:0.000}%)");
-            Console.WriteLine($"Folder processing time:  {ToReadableString(TimeSpan.FromTicks(_folderScanTime))} ({folderPercentFromPeriod:0.000}%)");
-            Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.000}%)");
+            Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_scanTime))} ({scanPercentFromPeriod:0.0}%)");
+            Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_fileScanTime))} ({filePercentFromPeriod:0.0}%)");
+            Console.WriteLine($"Folder processing time:  {ToReadableString(TimeSpan.FromTicks(_folderScanTime))} ({folderPercentFromPeriod:0.0}%)");
+            Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
-            Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0.00} Kb/day)");
+            Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0} Kb/day)");
             Console.WriteLine("");
         }
 
