@@ -131,7 +131,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"First session:           {statistics[0].StartTime}");
             Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime}");
             Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0.000} min interval)");
-            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0.000}% of all sessions, ~{averageRealInterval:0.000} min interval)");
+            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0}% of all sessions, ~{averageRealInterval:0.000} min interval)");
             Console.WriteLine("");
             Console.WriteLine($"Files added/removed:     {_added}/{_removed}");
             Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0.000} folders/session)");
