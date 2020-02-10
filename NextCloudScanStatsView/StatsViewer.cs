@@ -169,6 +169,7 @@ namespace NextCloudScanStatsView
             }
 
             File.WriteAllText(csvFile, sb.ToString());
+            Console.WriteLine($"CSV File exported: {csvFile}");
         }
 
         private static void DisplayHelp(ParserResult<Options> parserResult, IEnumerable<Error> errs)
