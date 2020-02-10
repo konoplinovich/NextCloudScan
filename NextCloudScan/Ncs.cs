@@ -388,7 +388,6 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"One process at a time: {_config.Conf.OneProcessAtATime}");
                 _interface.Show(Message.Config, $"One process at a time (lock lifetime): {_config.Conf.LockLifeTime} minute(s)");
                 _interface.Show(Message.Config, $"Show config on start: {_config.Conf.ShowConfigParametersOnStart}");
-                _interface.Show(Message.Config, $"Wait on exit: {_config.Conf.WaitOnExit}");
                 _interface.Show(Message.Config, $"Show file details: {_config.Conf.ShowFileDetails}");
             }
         }

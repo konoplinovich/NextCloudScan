@@ -13,7 +13,6 @@
         public string FolderActionApp { get; set; } = "[application for scanning folders]";
         public string FileActionAppOptions { get; set; } = "[application arguments ($f will be replaced with the file name)]";
         public string FolderActionAppOptions { get; set; } = "[application arguments ($f will be replaced with the folder name)]";
-        public bool WaitOnExit { get; set; } = false;
         public bool ShowFileDetails { get; set; } = false;
         public bool ShowConfigParametersOnStart { get; set; } = true;
         public bool OneProcessAtATime { get; set; } = true;
