@@ -30,12 +30,16 @@ namespace NextCloudScanStatsView
             parserResult.WithParsed<Options>(options => RunOptions(options)).WithNotParsed(errs => DisplayHelp(parserResult, errs));
 
             StatisticsAgregator agregator = new StatisticsAgregator(_statsFile);
-            if (!agregator.Successfully) return;
+            if (!agregator.Successfully)
+            {
+                Console.WriteLine(agregator.ErrorMessage);
+                return;
+            }
 
-            List<SessionStatistics> statistics = new List<SessionStatistics>();
-            if (agregator.Successfully) statistics = agregator.Statistisc;
+            List<SessionStatistics> statistics = agregator.Statistisc;
 
             CalculateSummary(statistics);
+
             if (!_summaryOnly)
             {
                 if (_showAll) ShowSessions(statistics, statistics.Count);

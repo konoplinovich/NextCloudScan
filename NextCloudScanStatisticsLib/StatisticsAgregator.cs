@@ -12,6 +12,7 @@ namespace NextCloudScan.Statistics.Lib
         public List<SessionStatistics> Statistisc { get; private set; } = new List<SessionStatistics>();
         public bool Successfully { get; private set; } = false;
         public double Size { get; }
+        public string ErrorMessage { get; private set; }
 
         public StatisticsAgregator(string statsFile)
         {
@@ -22,6 +23,10 @@ namespace NextCloudScan.Statistics.Lib
                 Size = (double)new FileInfo(_statsFile).Length / 1024;
                 Load();
                 Successfully = true;
+            }
+            else
+            {
+                ErrorMessage = $"Statistics file not found: { statsFile}";
             }
         }
 
