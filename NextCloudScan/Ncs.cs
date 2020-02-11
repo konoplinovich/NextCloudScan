@@ -93,14 +93,6 @@ namespace NextCloudScan
             }
         }
 
-        private static void CheckRootFolder()
-        {
-            if (!Directory.Exists(_config.Conf.Path))
-            {
-                ShowErrorAndExit(Message.Error, $"The root folder does not exist: {_config.Conf.Path}", IS_CONFIG_PATHS_IS_WRONG);
-            }
-        }
-
         private static void Scan()
         {
             _interface.Show(Message.Start, "Start scan");
@@ -114,6 +106,24 @@ namespace NextCloudScan
             _scanTime = stop - start;
 
             _interface.Show(Message.Info, "Scan complete");
+        }
+
+        private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
+        {
+            ActionsResult result;
+
+            if (isNextCloud)
+            {
+                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path }, new ProgressExternal(_interface));
+                result = fa.Run();
+            }
+            else
+            {
+                Actions fa = new Actions(paths, action, actionOptions, progress: new ProgressExternal(_interface));
+                result = fa.Run();
+            }
+
+            return result;
         }
 
         private static void LaunchFolderAction()
@@ -138,6 +148,14 @@ namespace NextCloudScan
 
             _interface.Show(Message.Start, "Launch action for each new file");
             _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
+        }
+
+        private static void CheckRootFolder()
+        {
+            if (!Directory.Exists(_config.Conf.Path))
+            {
+                ShowErrorAndExit(Message.Error, $"The root folder does not exist: {_config.Conf.Path}", IS_CONFIG_PATHS_IS_WRONG);
+            }
         }
 
         private static void SetLock()
@@ -186,22 +204,39 @@ namespace NextCloudScan
             }
         }
 
-        private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
+        private static void AgregateStatistics()
         {
-            ActionsResult result;
-
-            if (isNextCloud)
+            SessionStatistics ss = new SessionStatistics()
             {
-                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path }, new ProgressExternal(_interface));
-                result = fa.Run();
-            }
-            else
-            {
-                Actions fa = new Actions(paths, action, actionOptions, progress: new ProgressExternal(_interface));
-                result = fa.Run();
-            }
+                Id = Guid.NewGuid(),
+                StartTime = _startTime,
+                AddedFiles = _fdb.Added.Count,
+                RemovedFiles = _fdb.Removed.Count,
+                AffectedFolders = _fdb.AffectedFolders.Count,
+                TotalFiles = _fdb.Count,
+                ScanElapsedTime = _scanTime.Ticks,
+                FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
+                FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks
+            };
 
-            return result;
+            if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
+            if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
+
+            StatisticsAgregator agregator = new StatisticsAgregator(_config.Conf.StatisticsFile);
+            agregator.Append(ss);
+        }
+
+        private static void GetVersions()
+        {
+            AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
+
+            _version = anBase.Version;
+            _componentsVersions = new Dictionary<string, Version>();
+
+            foreach (AssemblyName an in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+            {
+                _componentsVersions[an.Name] = an.Version;
+            }
         }
 
         private static void ShowFileDetails()
@@ -266,28 +301,6 @@ namespace NextCloudScan
                 _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Failed} error, elapsed time: {_folderActionsResult.ElapsedTime}");
         }
 
-        private static void AgregateStatistics()
-        {
-            SessionStatistics ss = new SessionStatistics()
-            {
-                Id = Guid.NewGuid(),
-                StartTime = _startTime,
-                AddedFiles = _fdb.Added.Count,
-                RemovedFiles = _fdb.Removed.Count,
-                AffectedFolders = _fdb.AffectedFolders.Count,
-                TotalFiles = _fdb.Count,
-                ScanElapsedTime = _scanTime.Ticks,
-                FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
-                FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks
-            };
-
-            if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
-            if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
-
-            StatisticsAgregator agregator = new StatisticsAgregator(_config.Conf.StatisticsFile);
-            agregator.Append(ss);
-        }
-
         private static void ShowErrors()
         {
             if (_fdb.Errors.Count == 0) return;
@@ -295,22 +308,6 @@ namespace NextCloudScan
             foreach (string error in _fdb.Errors)
             {
                 _interface.Show(Message.Error, error);
-            }
-        }
-
-        private static void ShowActionsErrors(Dictionary<string, List<string>> errors)
-        {
-            if (errors == null) return;
-
-            foreach (var item in errors.Keys)
-            {
-                List<string> currentErrors = errors[item];
-                _interface.Show(Message.Error, $"Item processed with error: {item}");
-
-                foreach (string error in currentErrors)
-                {
-                    _interface.Show(Message.Error, $"{error}");
-                }
             }
         }
 
@@ -375,19 +372,6 @@ namespace NextCloudScan
             }
 
             _interface.Show(Message.None, $"");
-        }
-
-        private static void GetVersions()
-        {
-            AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
-
-            _version = anBase.Version;
-            _componentsVersions = new Dictionary<string, Version>();
-
-            foreach (AssemblyName an in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
-            {
-                _componentsVersions[an.Name] = an.Version;
-            }
         }
     }
 }
