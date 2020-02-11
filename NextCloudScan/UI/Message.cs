@@ -1,6 +1,6 @@
 ﻿namespace NextCloudScan.UI
 {
-    internal enum Message
+    public enum Message
     {
         None,
         NewFile,

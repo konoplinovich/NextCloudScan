@@ -50,7 +50,10 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="ActionsResult.cs" />
+    <Compile Include="ConsoleProgress.cs" />
+    <Compile Include="ExecuteExternalResult.cs" />
     <Compile Include="OneProcessLocker.cs" />
+    <Compile Include="ProgressResult.cs" />
     <Compile Include="UI\CombinedUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="UI\IHumanUI.cs" />
