@@ -4,6 +4,7 @@ using NextCloudScan.Statistics.Lib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NextCloudScanStatsView
@@ -16,6 +17,7 @@ namespace NextCloudScanStatsView
         private static bool _onlyWorking;
         private static bool _summaryOnly;
         private static bool _showAll = false;
+        private static ShowOption _showOption;
 
         private static long _added = 0;
         private static long _removed = 0;
@@ -24,6 +26,8 @@ namespace NextCloudScanStatsView
         private static long _fileScanTime = 0;
         private static long _folderScanTime = 0;
         private static int _notZeroSessions = 0;
+
+        private static List<SessionStatistics> _workingSessions = new List<SessionStatistics>();
 
         static void Main(string[] args)
         {
@@ -40,15 +44,47 @@ namespace NextCloudScanStatsView
                 return;
             }
 
+            if (_summaryOnly) _showOption = ShowOption.SummaryOnly;
+            else if (_onlyWorking && _lines < agregator.Statistisc.Count && _lines != 0) _showOption = ShowOption.LastNWorkingSessions;
+            else if (_onlyWorking) _showOption = ShowOption.WorkingOnly;
+            else if (_showAll || _lines >= agregator.Statistisc.Count) _showOption = ShowOption.AllSessions;
+            else _showOption = ShowOption.LastNSessions;
+
             CalculateSummary(agregator.Statistisc);
 
-            if (!_summaryOnly)
+            switch (_showOption)
             {
-                if (_showAll) ShowSessions(agregator.Statistisc, agregator.Statistisc.Count);
-                else ShowSessions(agregator.Statistisc, _lines);
+                case ShowOption.SummaryOnly:
+                    ShowSummary(agregator);
+                    break;
+                case ShowOption.WorkingOnly:
+                    Console.WriteLine();
+                    Console.WriteLine($"Show all {_workingSessions.Count} working sessions:");
+                    ShowSessions(_workingSessions, _workingSessions.Count);
+                    ShowSummary(agregator);
+                    break;
+                case ShowOption.LastNSessions:
+                    Console.WriteLine();
+                    Console.WriteLine($"Show last {_lines} sessions:");
+                    ShowSessions(agregator.Statistisc, _lines);
+                    ShowSummary(agregator);
+                    break;
+                case ShowOption.AllSessions:
+                    Console.WriteLine();
+                    Console.WriteLine($"Show all {agregator.Statistisc.Count} sessions:");
+                    ShowSessions(agregator.Statistisc, agregator.Statistisc.Count);
+                    ShowSummary(agregator);
+                    break;
+                case ShowOption.LastNWorkingSessions:
+                    var list = agregator.Statistisc.Skip(Math.Max(0, agregator.Statistisc.Count() - _lines)).Where(s => s.AffectedFolders != 0).Select(s => s).ToList<SessionStatistics>();
+                    Console.WriteLine();
+                    Console.WriteLine($"Show last {_lines} sessions, working only ({list.Count}):");
+                    ShowSessions(list, list.Count);
+                    ShowSummary(agregator);
+                    break;
+                default:
+                    break;
             }
-
-            ShowSummary(agregator);
 
             if (!string.IsNullOrEmpty(_csvFile))
             {
@@ -64,7 +100,13 @@ namespace NextCloudScanStatsView
                 _removed += stat.RemovedFiles;
                 _affected += stat.AffectedFolders;
 
-                if (stat.AffectedFolders != 0) _notZeroSessions += 1;
+                bool notZeroAffectedFolders = stat.AffectedFolders != 0;
+                
+                if (notZeroAffectedFolders)
+                {
+                    _notZeroSessions += 1;
+                    _workingSessions.Add(stat);
+                }
 
                 _scanTime += stat.ScanElapsedTime;
                 _fileScanTime += stat.FileProcessingElapsedTime;
@@ -74,34 +116,21 @@ namespace NextCloudScanStatsView
 
         private static void ShowSessions(List<SessionStatistics> statistics, int lines)
         {
-            Console.WriteLine();
-
-            int displayedlines = 0;
-            if (lines >= statistics.Count)
-            {
-                displayedlines = statistics.Count;
-                Console.WriteLine($"Show all {displayedlines} sessions:");
-            }
-            else
-            {
-                displayedlines = lines;
-                Console.WriteLine($"Show last {displayedlines} sessions:");
-            }
+            //Console.WriteLine();
 
             Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
             Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time");
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
 
 
-            for (int index = (statistics.Count - displayedlines); index < statistics.Count; index++)
+            for (int index = (statistics.Count - lines); index < statistics.Count; index++)
             {
                 SessionStatistics stat = statistics[index];
+
                 TimeSpan scanElapsedTime = TimeSpan.FromTicks(stat.ScanElapsedTime);
                 TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
                 TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
                 TimeSpan workTime = scanElapsedTime + fileProcessingElapsedTime + folderProcessingElapsedTime;
-
-                if (_onlyWorking && (stat.FileProcessingElapsedTime == 0 || stat.FolderProcessingElapsedTime == 0)) continue;
 
                 Console.WriteLine($"{(index + 1),7}│{stat.Id,38}│{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│{stat.TotalFiles,8}│{scanElapsedTime.TotalSeconds,10:0.0000}│{stat.AddedFiles,8}│{stat.RemovedFiles,8}│{stat.AffectedFolders,8}│{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│{folderProcessingElapsedTime.TotalSeconds,10:0.0000}│{workTime.TotalSeconds,10:0.0000}");
             }
@@ -146,6 +175,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
+            Console.WriteLine($"Mode:                    {_showOption}");
             Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0.00} Kb/day)");
             Console.WriteLine("");
         }
@@ -224,6 +254,15 @@ namespace NextCloudScanStatsView
             if (string.IsNullOrEmpty(formatted)) formatted = "0 seconds";
 
             return formatted;
+        }
+
+        private enum ShowOption
+        {
+            SummaryOnly,
+            WorkingOnly,
+            LastNSessions,
+            LastNWorkingSessions,
+            AllSessions
         }
     }
 }
