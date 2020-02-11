@@ -17,6 +17,9 @@ namespace NextCloudScanStatsView
 
             [Option('e', "export", Required = false, HelpText = "Export .CSV file")]
             public string Export { get; set; }
+
+            [Option('w', "working", Required = false, HelpText = "Show only working sessions")]
+            public bool OnlyWorking { get; set; }
         }
     }
 }

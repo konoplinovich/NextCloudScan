@@ -13,6 +13,7 @@ namespace NextCloudScanStatsView
         private static int _lines;
         private static string _statsFile;
         private static string _csvFile;
+        private static bool _onlyWorking;
         private static bool _summaryOnly;
         private static bool _showAll = false;
 
@@ -99,6 +100,8 @@ namespace NextCloudScanStatsView
                 TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
                 TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
                 TimeSpan workTime = scanElapsedTime + fileProcessingElapsedTime + folderProcessingElapsedTime;
+
+                if (_onlyWorking && (stat.FileProcessingElapsedTime == 0 || stat.FolderProcessingElapsedTime == 0)) continue;
 
                 Console.WriteLine($"{(index + 1),7}│{stat.Id,38}│{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│{stat.TotalFiles,8}│{scanElapsedTime.TotalSeconds,10:0.0000}│{stat.AddedFiles,8}│{stat.RemovedFiles,8}│{stat.AffectedFolders,8}│{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│{folderProcessingElapsedTime.TotalSeconds,10:0.0000}│{workTime.TotalSeconds,10:0.0000}");
             }
@@ -203,6 +206,7 @@ namespace NextCloudScanStatsView
             _lines = options.Lines;
             _summaryOnly = options.SummaryOnly;
             _csvFile = options.Export;
+            _onlyWorking = options.OnlyWorking;
 
             if (_lines == 0) _showAll = true;
         }
