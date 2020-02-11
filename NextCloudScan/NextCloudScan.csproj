@@ -51,9 +51,11 @@
     <Compile Include="Activities\Actions.cs" />
     <Compile Include="Activities\ActionsResult.cs" />
     <Compile Include="Activities\ExecuteExternalResult.cs" />
+    <Compile Include="ConsoleProgress.cs" />
     <Compile Include="Lock\LockResult.cs" />
     <Compile Include="Lock\LockResultType.cs" />
     <Compile Include="Lock\OneProcessLocker.cs" />
+    <Compile Include="ProgressResult.cs" />
     <Compile Include="UI\CombinedUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="UI\IHumanUI.cs" />

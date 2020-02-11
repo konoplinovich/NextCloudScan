@@ -31,7 +31,7 @@ namespace NextCloudScan.Activities
             DateTime start = DateTime.Now;
 
             int completeCount = 0;
-            int errrorCount = 0;
+            int errorCount = 0;
 
             foreach (string path in _paths)
             {
@@ -41,7 +41,7 @@ namespace NextCloudScan.Activities
 
                 try
                 {
-                    ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
+                    ExecuteExternalResult result = ExecuteExternal(_action, $"\"{arguments}\"", int.MaxValue);
 
                     if (result.ExitCode == 0)
                     {
@@ -56,7 +56,7 @@ namespace NextCloudScan.Activities
                     }
                     else
                     {
-                        errrorCount++;
+                        errorCount++;
                         _progress?.Report(new ProgressResult()
                         {
                             Path = currentPath,
@@ -68,7 +68,7 @@ namespace NextCloudScan.Activities
                 }
                 catch (Exception e)
                 {
-                    errrorCount++;
+                    errorCount++;
                     _progress?.Report(new ProgressResult()
                     {
                         Path = currentPath,
@@ -82,7 +82,7 @@ namespace NextCloudScan.Activities
             DateTime stop = DateTime.Now;
             TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = completeCount, Failed = errrorCount, ElapsedTime = actionsTime };
+            return new ActionsResult() { Completed = completeCount, Failed = errorCount, ElapsedTime = actionsTime };
         }
         private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
         {
