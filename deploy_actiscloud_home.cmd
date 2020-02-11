@@ -1,0 +1,1 @@
+C:\Windows\Sysnative\wsl /home/ko/scripts/deploy_nextcloudscan.sh
