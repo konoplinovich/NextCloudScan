@@ -15,7 +15,7 @@ namespace NextCloudScan.Activities
         public void Report(СompletingProgressResult value)
         {
             if (value.HasError) { _ui.Show(Message.Error, value.Message); }
-            else { _ui.Show(Message.Info, value.Message); }
+            else { _ui.Show(Message.Stop, value.Message); }
         }
     }
 }

@@ -105,7 +105,7 @@ namespace NextCloudScan
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
 
-            _interface.Show(Message.Info, "Scan complete");
+            _interface.Show(Message.Stop, "Scan complete");
         }
 
         private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)

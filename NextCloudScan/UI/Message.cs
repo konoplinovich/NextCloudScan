@@ -7,6 +7,7 @@
         RemovedFile,
         AffectedFolder,
         Start,
+        Stop,
         Config,
         Info,
         Error,

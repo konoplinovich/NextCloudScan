@@ -73,6 +73,9 @@ namespace NextCloudScan.UI
                 case Message.Start:
                     result.Append("[=>] ");
                     break;
+                case Message.Stop:
+                    result.Append("[x] ");
+                    break;
                 case Message.Config:
                     result.Append("[Config] ");
                     break;

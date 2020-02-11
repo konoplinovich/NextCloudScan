@@ -34,6 +34,10 @@ namespace NextCloudScan.UI
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("[>] ");
                     break;
+                case Message.Stop:
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.Write("[x] ");
+                    break;
                 case Message.Error:
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("[E] ");
