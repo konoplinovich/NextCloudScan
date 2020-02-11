@@ -53,7 +53,7 @@ namespace NextCloudScan.Activities
                         _progress.СompletingProgress.Report(new СompletingProgressResult()
                         {
                             HasError = false,
-                            Message = $"Successful, exit code: {result.ExitCode}"
+                            Message = $"Action complete, exit code: {result.ExitCode}"
                         });
                     }
                     else
@@ -63,7 +63,7 @@ namespace NextCloudScan.Activities
                         _progress.СompletingProgress.Report(new СompletingProgressResult()
                         {
                             HasError = true,
-                            Message = $"External process error, process: \"{executed}\", exit code: {result.ExitCode}"
+                            Message = $"External process error, running: \"{executed}\", exit code: {result.ExitCode}"
                         });
                     }
                 }
