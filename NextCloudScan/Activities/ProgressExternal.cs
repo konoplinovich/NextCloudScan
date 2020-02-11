@@ -14,11 +14,11 @@ namespace NextCloudScan.Activities
 
         public void Report(ProgressExternalResult value)
         {
-            _ui.Show(Message.Info, value.Path);
+            _ui.Show(Message.Info, $"Item: {value.Path}");
 
             string[] separatelines = value.Log.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string line in separatelines) { _ui.Show(Message.External, $"{line}"); }
+            foreach (string line in separatelines) { _ui.Show(Message.External, line); }
             if (value.HasError) { _ui.Show(Message.Error, value.ErrorMessage); }
         }
     }
