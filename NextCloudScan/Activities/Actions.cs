@@ -1,9 +1,9 @@
-﻿using System;
+﻿using NextCloudScan.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using NextCloudScan.Parsers;
 
 namespace NextCloudScan.Activities
 {
@@ -14,23 +14,24 @@ namespace NextCloudScan.Activities
         private IPathParser _parser;
         private List<string> _rules;
         private List<string> _paths;
+        private IProgress<ProgressResult> _progress;
 
-        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null)
+        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null, IProgress<ProgressResult> progress = null)
         {
             _paths = paths;
             _action = action;
             _actionOptions = actionOptions;
             _parser = parser;
             _rules = rules;
+            _progress = progress;
         }
 
         public ActionsResult Run()
         {
             DateTime start = DateTime.Now;
 
-            Dictionary<string, List<string>> log = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
             int completeCount = 0;
+            int errrorCount = 0;
 
             foreach (string path in _paths)
             {
@@ -38,36 +39,51 @@ namespace NextCloudScan.Activities
                 if (_parser != null) currentPath = _parser.Parse(path, _rules);
                 string arguments = _actionOptions.Replace("$f", currentPath);
 
-                if (!log.ContainsKey(currentPath)) log.Add(currentPath, new List<string>());
-
                 try
                 {
                     ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
 
                     if (result.ExitCode == 0)
                     {
-                        log[currentPath].Add(result.Log);
                         completeCount++;
+                        _progress?.Report(new ProgressResult()
+                        {
+                            Path = currentPath,
+                            Log = result.Log,
+                            ErrorMessage = string.Empty,
+                            HasError = false
+                        });
                     }
                     else
                     {
-                        if (!errors.ContainsKey(currentPath)) errors.Add(currentPath, new List<string>());
-                        errors[currentPath].Add($"External process error, process: {_action}, exit code: {result.ExitCode}");
+                        errrorCount++;
+                        _progress?.Report(new ProgressResult()
+                        {
+                            Path = currentPath,
+                            Log = result.Log,
+                            ErrorMessage = $"External process error, process: {_action}, exit code: {result.ExitCode}",
+                            HasError = true
+                        });
                     }
                 }
                 catch (Exception e)
                 {
-                    if (!errors.ContainsKey(currentPath)) errors.Add(currentPath, new List<string>());
-                    errors[currentPath].Add($"External process error, process: {_action}, message: {e.Message}");
+                    errrorCount++;
+                    _progress?.Report(new ProgressResult()
+                    {
+                        Path = currentPath,
+                        Log = string.Empty,
+                        ErrorMessage = $"External process error, process: {_action}, message: {e.Message}",
+                        HasError = true
+                    });
                 }
             }
 
             DateTime stop = DateTime.Now;
             TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = completeCount, ElapsedTime = actionsTime, Errors = errors, Log = log };
+            return new ActionsResult() { Completed = completeCount, Failed = errrorCount, ElapsedTime = actionsTime };
         }
-
         private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
         {
             StringBuilder log = new StringBuilder();

@@ -130,9 +130,6 @@ namespace NextCloudScan
                 _interface.Show(Message.Start, "Launch action for each affected folder");
                 _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
             }
-
-            ShowExternaMessages(_folderActionsResult.Log);
-            ShowActionsErrors(_folderActionsResult.Errors);
         }
 
         private static void LaunchFileActions()
@@ -141,9 +138,6 @@ namespace NextCloudScan
 
             _interface.Show(Message.Start, "Launch action for each new file");
             _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
-
-            ShowExternaMessages(_fileActionsResult.Log);
-            ShowActionsErrors(_fileActionsResult.Errors);
         }
 
         private static void SetLock()
@@ -198,12 +192,12 @@ namespace NextCloudScan
 
             if (isNextCloud)
             {
-                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path });
+                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path }, new ConsoleProgress(_interface));
                 result = fa.Run();
             }
             else
             {
-                Actions fa = new Actions(paths, action, actionOptions);
+                Actions fa = new Actions(paths, action, actionOptions, progress: new ConsoleProgress(_interface));
                 result = fa.Run();
             }
 
@@ -228,28 +222,6 @@ namespace NextCloudScan
             foreach (string path in _fdb.AffectedFolders)
             {
                 _interface.Show(Message.AffectedFolder, path);
-            }
-        }
-
-        private static void ShowExternaMessages(Dictionary<string, List<string>> messages)
-        {
-            if (messages == null) return;
-            if (messages.Values.Count == 0) return;
-
-            foreach (var item in messages.Keys)
-            {
-                List<string> lines = messages[item];
-                _interface.Show(Message.Info, $"Item: {item}");
-
-                foreach (string logLine in lines)
-                {
-                    string[] separatelines = logLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (string line in separatelines)
-                    {
-                        _interface.Show(Message.External, $"{line}");
-                    }
-                }
             }
         }
 
@@ -289,9 +261,9 @@ namespace NextCloudScan
             if (_fdb.Errors.Count != 0)
                 _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folder(s) unavailable during the last scan)");
             if (_fileActionsResult != null)
-                _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Errors.Count} error, elapsed time: {_fileActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Failed} error, elapsed time: {_fileActionsResult.ElapsedTime}");
             if (_folderActionsResult != null)
-                _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Errors.Count} error, elapsed time: {_folderActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Failed} error, elapsed time: {_folderActionsResult.ElapsedTime}");
         }
 
         private static void AgregateStatistics()
