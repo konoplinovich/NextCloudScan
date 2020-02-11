@@ -291,14 +291,14 @@ namespace NextCloudScan
             if (_fdb.AffectedFoldersCount != 0)
                 _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
 
-            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds}");
+            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds:0.000} seconds");
 
             if (_fdb.Errors.Count != 0)
                 _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folder(s) unavailable during the last scan)");
             if (_fileActionsResult != null)
-                _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Failed} error, elapsed time: {_fileActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"File actions result: {_fileActionsResult.Completed} ok, {_fileActionsResult.Failed} error, elapsed time: {_fileActionsResult.ElapsedTime.TotalSeconds:0.000} seconds");
             if (_folderActionsResult != null)
-                _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Failed} error, elapsed time: {_folderActionsResult.ElapsedTime}");
+                _interface.Show(Message.Info, $"Folder action result: {_folderActionsResult.Completed} ok, {_folderActionsResult.Failed} error, elapsed time: {_folderActionsResult.ElapsedTime.TotalSeconds:0.000} seconds");
         }
 
         private static void ShowErrors()
