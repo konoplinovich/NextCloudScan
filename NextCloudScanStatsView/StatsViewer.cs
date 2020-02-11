@@ -60,8 +60,8 @@ namespace NextCloudScanStatsView
                     break;
                 case SessionFilters.AllSessions:
                     Console.WriteLine();
-                    Console.WriteLine($"Show all {_sessions.Count} sessions:");
                     ShowSessions(_sessions);
+                    Console.WriteLine($"all {_sessions.Count} sessions are shown");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.WorkingOnly:
@@ -70,8 +70,8 @@ namespace NextCloudScanStatsView
                         .Select(s => s)
                         .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show all {working.Count} working sessions:");
                     ShowSessions(working);
+                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNSessions:
@@ -79,8 +79,8 @@ namespace NextCloudScanStatsView
                         .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
                         .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show last {lastN.Count} sessions:");
                     ShowSessions(lastN);
+                    Console.WriteLine($"{lastN.Count} last sessions are shown");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNWorkingSessions:
@@ -90,8 +90,8 @@ namespace NextCloudScanStatsView
                         .Select(s => s)
                         .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show last {_lines} sessions, working only ({lastNWorking.Count}):");
                     ShowSessions(lastNWorking);
+                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown");
                     ShowSummary(agregator);
                     break;
                 default:
