@@ -13,8 +13,8 @@ namespace NextCloudScan.Activities
 
         public void Report(StartupProgressResult value)
         {
-            _ui.Show(Message.Start, $"Running: {value.Running}");
             _ui.Show(Message.Info, $"Item: {value.Path}");
+            _ui.Show(Message.Start, $"Running: {value.Running}");
         }
     }
 }
