@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanStatisticsLib"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudScanStatsView", "NextCloudScanStatsView\NextCloudScanStatsView.csproj", "{8E828B8F-394B-4619-A23C-A1C64239CD74}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Payloads", "Payloads", "{659DB88F-BC91-4DFB-B4ED-5A94F44CF101}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{19200FAF-6425-407C-BB2D-EDE0493C4A06} = {659DB88F-BC91-4DFB-B4ED-5A94F44CF101}
+		{9B31A7B9-2244-4D9E-87A8-4AE6CE39AFA1} = {659DB88F-BC91-4DFB-B4ED-5A94F44CF101}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD0B464A-BBC5-4561-ACD8-CCEEBC9E77E4}
