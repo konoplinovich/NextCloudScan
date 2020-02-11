@@ -31,7 +31,7 @@ namespace NextCloudScan.Activities
             DateTime start = DateTime.Now;
 
             int completeCount = 0;
-            int errorCount = 0;
+            int failedCount = 0;
 
             foreach (string path in _paths)
             {
@@ -40,7 +40,7 @@ namespace NextCloudScan.Activities
                 string arguments = _actionOptions.Replace("$f", currentPath);
                 string executed = $"{_action} {arguments}";
 
-                _progress?.StartProgress.Report(new ProgressStartResult() { Path = currentPath, Running = executed });
+                _progress?.StartupProgress.Report(new StartupProgressResult() { Path = currentPath, Running = executed });
 
                 try
                 {
@@ -49,28 +49,41 @@ namespace NextCloudScan.Activities
                     if (result.ExitCode == 0)
                     {
                         completeCount++;
-                        _progress.LogProgress.Report(new ProgressLogResult() { Log = result.Log });
+                        _progress.LogProgress.Report(new LogProgressResult() { Log = result.Log });
+                        _progress.СompletingProgress.Report(new СompletingProgressResult()
+                        {
+                            HasError = false,
+                            Message = $"Successful, exit code: {result.ExitCode}"
+                        });
                     }
                     else
                     {
-                        errorCount++;
-                        _progress.LogProgress.Report(new ProgressLogResult() { Log = result.Log });
-                        _progress.Stopprogress.Report(new ProgressErrorResult() { HasError = true, ErrorMessage = $"External process error, process: {_action}, exit code: {result.ExitCode}" });
+                        failedCount++;
+                        _progress.LogProgress.Report(new LogProgressResult() { Log = result.Log });
+                        _progress.СompletingProgress.Report(new СompletingProgressResult()
+                        {
+                            HasError = true,
+                            Message = $"External process error, process: \"{executed}\", exit code: {result.ExitCode}"
+                        });
                     }
                 }
                 catch (Exception e)
                 {
-                    errorCount++;
-                    _progress.Stopprogress.Report(new ProgressErrorResult() { HasError = true, ErrorMessage = $"External process error, process: {_action}, message: {e.Message}" });
+                    failedCount++;
+                    _progress.СompletingProgress.Report(new СompletingProgressResult()
+                    {
+                        HasError = true,
+                        Message = $"Error starting the process \"{executed}\", message: {e.Message}"
+                    });
                 }
             }
 
             DateTime stop = DateTime.Now;
             TimeSpan actionsTime = stop - start;
 
-            return new ActionsResult() { Completed = completeCount, Failed = errorCount, ElapsedTime = actionsTime };
+            return new ActionsResult() { Completed = completeCount, Failed = failedCount, ElapsedTime = actionsTime };
         }
-        
+
         private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
         {
             StringBuilder log = new StringBuilder();

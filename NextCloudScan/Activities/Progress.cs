@@ -7,17 +7,17 @@ namespace NextCloudScan.Activities
     {
         private IHumanUI _ui;
 
-        public IProgress<ProgressStartResult> StartProgress { get; set; }
-        public IProgress<ProgressLogResult> LogProgress { get; set; }
-        public IProgress<ProgressErrorResult> Stopprogress { get; set; }
+        public IProgress<StartupProgressResult> StartupProgress { get; private set; }
+        public IProgress<LogProgressResult> LogProgress { get; private set; }
+        public IProgress<СompletingProgressResult> СompletingProgress { get; private set; }
 
         public Progress(IHumanUI ui)
         {
             _ui = ui;
 
-            StartProgress = new ProgressStart(_ui);
-            LogProgress = new ProgressLog(_ui);
-            Stopprogress = new ProgressError(_ui);
+            StartupProgress = new StartupProgress(_ui);
+            LogProgress = new LogProgress(_ui);
+            СompletingProgress = new СompletingProgress(_ui);
         }
     }
 }

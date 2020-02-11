@@ -1,8 +1,8 @@
 ﻿namespace NextCloudScan.Activities
 {
-    public class ProgressErrorResult
+    public class СompletingProgressResult
     {
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
         public bool HasError { get; set; }
     }
 }

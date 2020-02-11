@@ -3,16 +3,16 @@ using System;
 
 namespace NextCloudScan.Activities
 {
-    internal class ProgressLog : IProgress<ProgressLogResult>
+    internal class LogProgress : IProgress<LogProgressResult>
     {
         private IHumanUI _ui;
 
-        public ProgressLog(IHumanUI ui)
+        public LogProgress(IHumanUI ui)
         {
             _ui = ui;
         }
 
-        public void Report(ProgressLogResult value)
+        public void Report(LogProgressResult value)
         {
             string[] separatelines = value.Log.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in separatelines) { _ui.Show(Message.External, line); }
