@@ -14,9 +14,9 @@ namespace NextCloudScan.Activities
         private IPathParser _parser;
         private List<string> _rules;
         private List<string> _paths;
-        private IProgress<ProgressExternalResult> _progress;
+        private Progress _progress;
 
-        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null, IProgress<ProgressExternalResult> progress = null)
+        public Actions(List<string> paths, string action, string actionOptions, IPathParser parser = null, List<string> rules = null, Progress progress = null)
         {
             _paths = paths;
             _action = action;
@@ -40,6 +40,8 @@ namespace NextCloudScan.Activities
                 string arguments = _actionOptions.Replace("$f", currentPath);
                 string executed = $"{_action} {arguments}";
 
+                _progress?.StartProgress.Report(new ProgressStartResult() { Path = currentPath, Running = executed });
+
                 try
                 {
                     ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
@@ -47,39 +49,19 @@ namespace NextCloudScan.Activities
                     if (result.ExitCode == 0)
                     {
                         completeCount++;
-                        _progress?.Report(new ProgressExternalResult()
-                        {
-                            Path = currentPath,
-                            Running = executed,
-                            Log = result.Log,
-                            ErrorMessage = string.Empty,
-                            HasError = false
-                        });
+                        _progress.LogProgress.Report(new ProgressLogResult() { Log = result.Log });
                     }
                     else
                     {
                         errorCount++;
-                        _progress?.Report(new ProgressExternalResult()
-                        {
-                            Path = currentPath,
-                            Running = executed,
-                            Log = result.Log,
-                            ErrorMessage = $"External process error, process: {_action}, exit code: {result.ExitCode}",
-                            HasError = true
-                        });
+                        _progress.LogProgress.Report(new ProgressLogResult() { Log = result.Log });
+                        _progress.Stopprogress.Report(new ProgressErrorResult() { HasError = true, ErrorMessage = $"External process error, process: {_action}, exit code: {result.ExitCode}" });
                     }
                 }
                 catch (Exception e)
                 {
                     errorCount++;
-                    _progress?.Report(new ProgressExternalResult()
-                    {
-                        Path = currentPath,
-                        Running = executed,
-                        Log = string.Empty,
-                        ErrorMessage = $"External process error, process: {_action}, message: {e.Message}",
-                        HasError = true
-                    });
+                    _progress.Stopprogress.Report(new ProgressErrorResult() { HasError = true, ErrorMessage = $"External process error, process: {_action}, message: {e.Message}" });
                 }
             }
 
@@ -88,6 +70,7 @@ namespace NextCloudScan.Activities
 
             return new ActionsResult() { Completed = completeCount, Failed = errorCount, ElapsedTime = actionsTime };
         }
+        
         private static ExecuteExternalResult ExecuteExternal(string fileName, string args, int timeout)
         {
             StringBuilder log = new StringBuilder();
