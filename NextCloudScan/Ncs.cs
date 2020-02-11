@@ -192,12 +192,12 @@ namespace NextCloudScan
 
             if (isNextCloud)
             {
-                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path }, new ConsoleProgress(_interface));
+                Actions fa = new Actions(paths, action, actionOptions, new NcPathParser(), new List<string>() { _config.Conf.Path }, new ProgressExternal(_interface));
                 result = fa.Run();
             }
             else
             {
-                Actions fa = new Actions(paths, action, actionOptions, progress: new ConsoleProgress(_interface));
+                Actions fa = new Actions(paths, action, actionOptions, progress: new ProgressExternal(_interface));
                 result = fa.Run();
             }
 

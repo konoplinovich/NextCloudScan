@@ -1,6 +1,6 @@
-﻿namespace NextCloudScan
+﻿namespace NextCloudScan.Activities
 {
-    public class ProgressResult
+    public class ProgressExternalResult
     {
         public string Path { get; set; }
         public string Log { get; set; }

@@ -1,18 +1,18 @@
 ﻿using NextCloudScan.UI;
 using System;
 
-namespace NextCloudScan
+namespace NextCloudScan.Activities
 {
-    public class ConsoleProgress : IProgress<ProgressResult>
+    public class ProgressExternal : IProgress<ProgressExternalResult>
     {
         IHumanUI _ui;
 
-        public ConsoleProgress(IHumanUI ui)
+        public ProgressExternal(IHumanUI ui)
         {
             _ui = ui;
         }
 
-        public void Report(ProgressResult value)
+        public void Report(ProgressExternalResult value)
         {
             _ui.Show(Message.Info, value.Path);
 
