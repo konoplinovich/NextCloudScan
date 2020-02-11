@@ -8,7 +8,7 @@ namespace NextCloudScan.Statistics.Lib
     {
         string _statsFile;
 
-        public List<SessionStatistics> Statistisc { get; private set; } = new List<SessionStatistics>();
+        public List<SessionStatistics> Statistics { get; private set; } = new List<SessionStatistics>();
         public bool Successfully { get; private set; } = false;
         public double Size { get; }
         public string ErrorMessage { get; private set; }
@@ -31,18 +31,18 @@ namespace NextCloudScan.Statistics.Lib
 
         public void Append(SessionStatistics session)
         {
-            Statistisc.Add(session);
+            Statistics.Add(session);
             Save();
         }
 
         private void Save()
         {
-            XmlExtension.WriteToXmlFile<List<SessionStatistics>>(_statsFile, Statistisc);
+            XmlExtension.WriteToXmlFile<List<SessionStatistics>>(_statsFile, Statistics);
         }
 
         private void Load()
         {
-            Statistisc = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
+            Statistics = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
         }
     }
 }

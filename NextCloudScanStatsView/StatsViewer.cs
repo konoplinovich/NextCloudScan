@@ -45,12 +45,12 @@ namespace NextCloudScanStatsView
             }
 
             if (_summaryOnly) _showOption = ShowOption.SummaryOnly;
-            else if (_onlyWorking && _lines < agregator.Statistisc.Count && _lines != 0) _showOption = ShowOption.LastNWorkingSessions;
+            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) _showOption = ShowOption.LastNWorkingSessions;
             else if (_onlyWorking) _showOption = ShowOption.WorkingOnly;
-            else if (_showAll || _lines >= agregator.Statistisc.Count) _showOption = ShowOption.AllSessions;
+            else if (_showAll || _lines >= agregator.Statistics.Count) _showOption = ShowOption.AllSessions;
             else _showOption = ShowOption.LastNSessions;
 
-            CalculateSummary(agregator.Statistisc);
+            CalculateSummary(agregator.Statistics);
 
             switch (_showOption)
             {
@@ -66,17 +66,17 @@ namespace NextCloudScanStatsView
                 case ShowOption.LastNSessions:
                     Console.WriteLine();
                     Console.WriteLine($"Show last {_lines} sessions:");
-                    ShowSessions(agregator.Statistisc, _lines);
+                    ShowSessions(agregator.Statistics, _lines);
                     ShowSummary(agregator);
                     break;
                 case ShowOption.AllSessions:
                     Console.WriteLine();
-                    Console.WriteLine($"Show all {agregator.Statistisc.Count} sessions:");
-                    ShowSessions(agregator.Statistisc, agregator.Statistisc.Count);
+                    Console.WriteLine($"Show all {agregator.Statistics.Count} sessions:");
+                    ShowSessions(agregator.Statistics, agregator.Statistics.Count);
                     ShowSummary(agregator);
                     break;
                 case ShowOption.LastNWorkingSessions:
-                    var list = agregator.Statistisc.Skip(Math.Max(0, agregator.Statistisc.Count() - _lines)).Where(s => s.AffectedFolders != 0).Select(s => s).ToList<SessionStatistics>();
+                    var list = agregator.Statistics.Skip(Math.Max(0, agregator.Statistics.Count() - _lines)).Where(s => s.AffectedFolders != 0).Select(s => s).ToList<SessionStatistics>();
                     Console.WriteLine();
                     Console.WriteLine($"Show last {_lines} sessions, working only ({list.Count}):");
                     ShowSessions(list, list.Count);
@@ -88,7 +88,7 @@ namespace NextCloudScanStatsView
 
             if (!string.IsNullOrEmpty(_csvFile))
             {
-                ExportCsv(agregator.Statistisc, _csvFile);
+                ExportCsv(agregator.Statistics, _csvFile);
             }
         }
 
@@ -140,7 +140,7 @@ namespace NextCloudScanStatsView
 
         private static void ShowSummary(StatisticsAgregator agregator)
         {
-            List<SessionStatistics> statistics = agregator.Statistisc;
+            List<SessionStatistics> statistics = agregator.Statistics;
 
             DateTime first = statistics[0].StartTime;
             DateTime last = statistics[statistics.Count - 1].StartTime;
