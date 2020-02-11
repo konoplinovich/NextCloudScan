@@ -17,7 +17,6 @@ namespace NextCloudScanStatsView
         private static bool _onlyWorking;
         private static bool _summaryOnly;
         private static bool _showAll = false;
-        private static ShowOption _showOption;
 
         private static long _added = 0;
         private static long _removed = 0;
@@ -27,7 +26,7 @@ namespace NextCloudScanStatsView
         private static long _folderScanTime = 0;
         private static int _notZeroSessions = 0;
 
-        private static List<SessionStatistics> _workingSessions = new List<SessionStatistics>();
+        private static List<Session> _sessions = new List<Session>();
 
         static void Main(string[] args)
         {
@@ -44,42 +43,55 @@ namespace NextCloudScanStatsView
                 return;
             }
 
-            if (_summaryOnly) _showOption = ShowOption.SummaryOnly;
-            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) _showOption = ShowOption.LastNWorkingSessions;
-            else if (_onlyWorking) _showOption = ShowOption.WorkingOnly;
-            else if (_showAll || _lines >= agregator.Statistics.Count) _showOption = ShowOption.AllSessions;
-            else _showOption = ShowOption.LastNSessions;
+            ParseStatistics(agregator.Statistics);
 
-            CalculateSummary(agregator.Statistics);
+            SessionFilters filter;
 
-            switch (_showOption)
+            if (_summaryOnly) filter = SessionFilters.SummaryOnly;
+            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
+            else if (_onlyWorking) filter = SessionFilters.WorkingOnly;
+            else if (_showAll || _lines >= agregator.Statistics.Count) filter = SessionFilters.AllSessions;
+            else filter = SessionFilters.LastNSessions;
+
+            switch (filter)
             {
-                case ShowOption.SummaryOnly:
+                case SessionFilters.SummaryOnly:
                     ShowSummary(agregator);
                     break;
-                case ShowOption.WorkingOnly:
+                case SessionFilters.AllSessions:
                     Console.WriteLine();
-                    Console.WriteLine($"Show all {_workingSessions.Count} working sessions:");
-                    ShowSessions(_workingSessions, _workingSessions.Count);
+                    Console.WriteLine($"Show all {_sessions.Count} sessions:");
+                    ShowSessions(_sessions);
                     ShowSummary(agregator);
                     break;
-                case ShowOption.LastNSessions:
+                case SessionFilters.WorkingOnly:
+                    var working = _sessions
+                        .Where(s => s.IsWorking)
+                        .Select(s => s)
+                        .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show last {_lines} sessions:");
-                    ShowSessions(agregator.Statistics, _lines);
+                    Console.WriteLine($"Show all {working.Count} working sessions:");
+                    ShowSessions(working);
                     ShowSummary(agregator);
                     break;
-                case ShowOption.AllSessions:
+                case SessionFilters.LastNSessions:
+                    var lastN = _sessions
+                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                        .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show all {agregator.Statistics.Count} sessions:");
-                    ShowSessions(agregator.Statistics, agregator.Statistics.Count);
+                    Console.WriteLine($"Show last {lastN.Count} sessions:");
+                    ShowSessions(lastN);
                     ShowSummary(agregator);
                     break;
-                case ShowOption.LastNWorkingSessions:
-                    var list = agregator.Statistics.Skip(Math.Max(0, agregator.Statistics.Count() - _lines)).Where(s => s.AffectedFolders != 0).Select(s => s).ToList<SessionStatistics>();
+                case SessionFilters.LastNWorkingSessions:
+                    var lastNWorking = _sessions
+                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                        .Where(s => s.IsWorking)
+                        .Select(s => s)
+                        .ToList<Session>();
                     Console.WriteLine();
-                    Console.WriteLine($"Show last {_lines} sessions, working only ({list.Count}):");
-                    ShowSessions(list, list.Count);
+                    Console.WriteLine($"Show last {_lines} sessions, working only ({lastNWorking.Count}):");
+                    ShowSessions(lastNWorking);
                     ShowSummary(agregator);
                     break;
                 default:
@@ -92,47 +104,51 @@ namespace NextCloudScanStatsView
             }
         }
 
-        private static void CalculateSummary(List<SessionStatistics> statistics)
+        private static void ParseStatistics(List<SessionStatistics> statistics)
         {
+            int number = 0;
+
             foreach (SessionStatistics stat in statistics)
             {
-                _added += stat.AddedFiles;
-                _removed += stat.RemovedFiles;
-                _affected += stat.AffectedFolders;
+                AddValuesToSummary(stat);
 
-                bool notZeroAffectedFolders = stat.AffectedFolders != 0;
-                
-                if (notZeroAffectedFolders)
-                {
-                    _notZeroSessions += 1;
-                    _workingSessions.Add(stat);
-                }
+                Session session = new Session(++number, stat);
+                _sessions.Add(session);
 
-                _scanTime += stat.ScanElapsedTime;
-                _fileScanTime += stat.FileProcessingElapsedTime;
-                _folderScanTime += stat.FolderProcessingElapsedTime;
+                if (session.IsWorking) _notZeroSessions += 1;
             }
         }
 
-        private static void ShowSessions(List<SessionStatistics> statistics, int lines)
+        private static void AddValuesToSummary(SessionStatistics stat)
         {
-            //Console.WriteLine();
+            _added += stat.AddedFiles;
+            _removed += stat.RemovedFiles;
+            _affected += stat.AffectedFolders;
+            _scanTime += stat.ScanElapsedTime;
+            _fileScanTime += stat.FileProcessingElapsedTime;
+            _folderScanTime += stat.FolderProcessingElapsedTime;
+        }
 
+        private static void ShowSessions(List<Session> sessions)
+        {
             Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
             Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time");
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
 
 
-            for (int index = (statistics.Count - lines); index < statistics.Count; index++)
+            foreach (Session session in sessions)
             {
-                SessionStatistics stat = statistics[index];
-
-                TimeSpan scanElapsedTime = TimeSpan.FromTicks(stat.ScanElapsedTime);
-                TimeSpan fileProcessingElapsedTime = TimeSpan.FromTicks(stat.FileProcessingElapsedTime);
-                TimeSpan folderProcessingElapsedTime = TimeSpan.FromTicks(stat.FolderProcessingElapsedTime);
-                TimeSpan workTime = scanElapsedTime + fileProcessingElapsedTime + folderProcessingElapsedTime;
-
-                Console.WriteLine($"{(index + 1),7}│{stat.Id,38}│{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│{stat.TotalFiles,8}│{scanElapsedTime.TotalSeconds,10:0.0000}│{stat.AddedFiles,8}│{stat.RemovedFiles,8}│{stat.AffectedFolders,8}│{fileProcessingElapsedTime.TotalSeconds,10:0.0000}│{folderProcessingElapsedTime.TotalSeconds,10:0.0000}│{workTime.TotalSeconds,10:0.0000}");
+                SessionStatistics statistics = session.Statistics;
+                Console.WriteLine($"{(session.Number),7}│" +
+                    $"{statistics.Id,38}│" +
+                    $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│" +
+                    $"{statistics.TotalFiles,8}│{session.ScanElapsedTime.TotalSeconds,10:0.0000}│" +
+                    $"{statistics.AddedFiles,8}│" +
+                    $"{statistics.RemovedFiles,8}│" +
+                    $"{statistics.AffectedFolders,8}│" +
+                    $"{session.FileProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
+                    $"{session.FolderProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
+                    $"{session.WorkTime.TotalSeconds,10:0.0000}");
             }
 
             Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
@@ -175,7 +191,6 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
-            Console.WriteLine($"Mode:                    {_showOption}");
             Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0.00} Kb/day)");
             Console.WriteLine("");
         }
@@ -254,15 +269,6 @@ namespace NextCloudScanStatsView
             if (string.IsNullOrEmpty(formatted)) formatted = "0 seconds";
 
             return formatted;
-        }
-
-        private enum ShowOption
-        {
-            SummaryOnly,
-            WorkingOnly,
-            LastNSessions,
-            LastNWorkingSessions,
-            AllSessions
         }
     }
 }
