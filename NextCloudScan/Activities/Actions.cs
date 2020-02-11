@@ -41,7 +41,7 @@ namespace NextCloudScan.Activities
 
                 try
                 {
-                    ExecuteExternalResult result = ExecuteExternal(_action, $"\"{arguments}\"", int.MaxValue);
+                    ExecuteExternalResult result = ExecuteExternal(_action, $"{arguments}", int.MaxValue);
 
                     if (result.ExitCode == 0)
                     {
