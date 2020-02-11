@@ -38,10 +38,11 @@ namespace NextCloudScan.Activities
                 string currentPath = path;
                 if (_parser != null) currentPath = _parser.Parse(path, _rules);
                 string arguments = _actionOptions.Replace("$f", currentPath);
+                string executed = $"{_action} {arguments}";
 
                 try
                 {
-                    ExecuteExternalResult result = ExecuteExternal(_action, $"{arguments}", int.MaxValue);
+                    ExecuteExternalResult result = ExecuteExternal(_action, arguments, int.MaxValue);
 
                     if (result.ExitCode == 0)
                     {
@@ -49,6 +50,7 @@ namespace NextCloudScan.Activities
                         _progress?.Report(new ProgressExternalResult()
                         {
                             Path = currentPath,
+                            Running = executed,
                             Log = result.Log,
                             ErrorMessage = string.Empty,
                             HasError = false
@@ -60,6 +62,7 @@ namespace NextCloudScan.Activities
                         _progress?.Report(new ProgressExternalResult()
                         {
                             Path = currentPath,
+                            Running = executed,
                             Log = result.Log,
                             ErrorMessage = $"External process error, process: {_action}, exit code: {result.ExitCode}",
                             HasError = true
@@ -72,6 +75,7 @@ namespace NextCloudScan.Activities
                     _progress?.Report(new ProgressExternalResult()
                     {
                         Path = currentPath,
+                        Running = executed,
                         Log = string.Empty,
                         ErrorMessage = $"External process error, process: {_action}, message: {e.Message}",
                         HasError = true

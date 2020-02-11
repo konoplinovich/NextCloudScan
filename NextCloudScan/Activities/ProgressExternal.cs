@@ -15,6 +15,7 @@ namespace NextCloudScan.Activities
         public void Report(ProgressExternalResult value)
         {
             _ui.Show(Message.Info, $"Item: {value.Path}");
+            _ui.Show(Message.Info, $"Running: {value.Running}");
 
             string[] separatelines = value.Log.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
