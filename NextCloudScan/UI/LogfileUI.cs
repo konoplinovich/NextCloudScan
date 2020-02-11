@@ -8,11 +8,11 @@ namespace NextCloudScan.UI
     {
         string _logFilePath;
         int _ageLimit;
-        
+
         public LogfileUI(string logFilePath, bool singleLogFile = true, int ageLimit = 1)
         {
             _ageLimit = ageLimit;
-            
+
             if (singleLogFile) { _logFilePath = logFilePath; }
             else
             {
@@ -21,7 +21,7 @@ namespace NextCloudScan.UI
                 string ext = Path.GetExtension(logFilePath);
 
                 ClearOldLogs(directory, ext);
-                
+
                 string time = DateTime.Now.ToString("_ddMMyyyy_HHmmss");
                 filename += time + ext;
                 _logFilePath = Path.Combine(directory, filename);
@@ -56,7 +56,7 @@ namespace NextCloudScan.UI
         {
             StringBuilder result = new StringBuilder();
             result.Append($"[{DateTime.Now}] ");
-            
+
             switch (type)
             {
                 case Message.None:

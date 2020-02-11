@@ -6,7 +6,7 @@ namespace NCSPerFilePayload
     class NCSPerFilePayload
     {
         private static string _fileName;
-        
+
         static void Main(string[] args)
         {
             if (args.Length == 0)

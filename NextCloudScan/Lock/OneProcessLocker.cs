@@ -35,7 +35,7 @@ namespace NextCloudScan.Lock
                         return new LockResult() { Result = LockResultType.DeleteOldLock, ErrorMessage = null };
                     }
                 }
-                
+
                 File.Create(Lockfile);
                 return new LockResult() { Result = LockResultType.Successfull, ErrorMessage = null };
             }

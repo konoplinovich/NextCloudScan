@@ -8,8 +8,8 @@ namespace NextCloudScan.Parsers
         {
             string ncDataRoot = rules[0];
 
-            if (ncDataRoot.EndsWith(@"\") || ncDataRoot.EndsWith(@"/")) 
-            { 
+            if (ncDataRoot.EndsWith(@"\") || ncDataRoot.EndsWith(@"/"))
+            {
                 ncDataRoot = ncDataRoot.TrimEnd(new char[] { '\\', '/' });
             };
 

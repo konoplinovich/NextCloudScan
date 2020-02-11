@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Extensions;
 
 namespace NextCloudScan.Lib
 {

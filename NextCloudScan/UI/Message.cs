@@ -11,6 +11,6 @@
         Info,
         Error,
         Warning,
-        External       
+        External
     }
 }

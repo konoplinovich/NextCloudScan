@@ -19,7 +19,7 @@ namespace NextCloudScan.Lib
         {
             HashSet<T> oldH = new HashSet<T>(oldList);
             HashSet<T> newH = new HashSet<T>(newList);
-            
+
             foreach (T newItem in newH)
             {
                 if (!oldH.Contains(newItem))
