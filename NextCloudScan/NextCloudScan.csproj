@@ -53,7 +53,7 @@
     <Compile Include="Activities\ExecuteExternalResult.cs" />
     <Compile Include="Activities\Progress.cs" />
     <Compile Include="Activities\СompletingProgress.cs" />
-    <Compile Include="Activities\LogResultProgress.cs" />
+    <Compile Include="Activities\LogProgressResult.cs" />
     <Compile Include="Activities\StartupProgress.cs" />
     <Compile Include="Activities\LogProgress.cs" />
     <Compile Include="Activities\StartupProgressResult.cs" />
