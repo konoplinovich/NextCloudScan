@@ -132,12 +132,12 @@ namespace NextCloudScan
 
             if (_config.Conf.IsNextCloud)
             {
-                _interface.Show(Message.Start, "Launch action for each affected NextCloud folder");
+                _interface.Show(Message.Start, "Launch actions for each affected NextCloud folder");
                 _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
             }
             else
             {
-                _interface.Show(Message.Start, "Launch action for each affected folder");
+                _interface.Show(Message.Start, "Launch actions for each affected folder");
                 _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
             }
         }
@@ -146,7 +146,7 @@ namespace NextCloudScan
         {
             if (string.IsNullOrEmpty(_config.Conf.FileActionApp) || _fdb.AddedPath.Count == 0) return;
 
-            _interface.Show(Message.Start, "Launch action for each new file");
+            _interface.Show(Message.Start, "Launch actions for each new file");
             _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
         }
 
