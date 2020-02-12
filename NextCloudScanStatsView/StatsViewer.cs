@@ -136,8 +136,9 @@ namespace NextCloudScanStatsView
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
 
 
-            foreach (Session session in sessions)
+            for (int i = 0; i < sessions.Count; i++)
             {
+                Session session = sessions[i];
                 SessionStatistics statistics = session.Statistics;
                 Console.WriteLine($"{(session.Number),7}│" +
                     $"{statistics.Id,38}│" +
@@ -149,6 +150,18 @@ namespace NextCloudScanStatsView
                     $"{session.FileProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
                     $"{session.FolderProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
                     $"{session.WorkTime.TotalSeconds,10:0.0000}");
+
+                if (statistics.ProcessedFolders.Count != 0)
+                {
+                    Console.WriteLine("───────┼──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
+                    for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
+                    {
+                        string item = statistics.ProcessedFolders[i1];
+                        Console.WriteLine($"{(i1 + 1),7}│  {item}");
+                    }
+                    if (i != sessions.Count)
+                        Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
+                }
             }
 
             Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
