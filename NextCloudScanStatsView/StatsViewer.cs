@@ -109,17 +109,17 @@ namespace NextCloudScanStatsView
         {
             _sessionTable = new Table(new List<Column>
             {
-                new Column(5,"#"),
-                new Column(38,"Id"),
-                new Column(21,"Start Time"),
-                new Column(8,"Total"),
-                new Column(10,"Scan"),
-                new Column(8,"[+]"),
-                new Column(8,"[-]"),
-                new Column(8,"[A]"),
-                new Column(10,"Files"),
-                new Column(10,"Folders"),
-                new Column(10,"Work time"),
+                new Column(5,"#", Alignment.Left),
+                new Column(38,"Id", Alignment.Left),
+                new Column(21,"Start Time", Alignment.Left),
+                new Column(8,"Total", Alignment.Left),
+                new Column(10,"Scan", Alignment.Left),
+                new Column(8,"[+]", Alignment.Left),
+                new Column(8,"[-]", Alignment.Left),
+                new Column(8,"[A]", Alignment.Left),
+                new Column(10,"Files", Alignment.Left),
+                new Column(10,"Folders", Alignment.Left),
+                new Column(10,"Work time", Alignment.Left),
                 new Column(25,"Log", Alignment.Left),
             });
         }
