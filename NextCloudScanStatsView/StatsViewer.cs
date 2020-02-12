@@ -162,7 +162,7 @@ namespace NextCloudScanStatsView
 
         private static void ShowSessions(List<Session> sessions)
         {
-            _sessionTable.DrawHeader();
+            _sessionTable.Header();
 
             for (int currentSession = 0; currentSession < sessions.Count; currentSession++)
             {
@@ -188,27 +188,23 @@ namespace NextCloudScanStatsView
                     $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.WorkTime.TotalSeconds:0.0000}",
                     $"{logFileName}"
-                });
+                }, currentSession >= sessions.Count - 1);
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
-                    _sessionTable.StartRowsWithSpan(LAST_COLUMN_SPAN);
-
                     for (int currentFolder = 0; currentFolder < statistics.ProcessedFolders.Count; currentFolder++)
                     {
                         string item = statistics.ProcessedFolders[currentFolder];
-                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {item}" }, LAST_COLUMN_SPAN);
+                        
+                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {item}" },
+                            LAST_COLUMN_SPAN,
+                            currentFolder >= statistics.ProcessedFolders.Count - 1,
+                            currentSession >= sessions.Count - 1);
                     }
-
-                    if (currentSession < sessions.Count - 1)
-                        _sessionTable.EndRowsWithSpan(LAST_COLUMN_SPAN);
                 }
             }
 
-            if (_showFolders && sessions[sessions.Count - 1].IsWorking)
-                _sessionTable.LastRowWithSpan(LAST_COLUMN_SPAN);
-            else 
-                _sessionTable.Close();
+            _sessionTable.CloseTable();
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)

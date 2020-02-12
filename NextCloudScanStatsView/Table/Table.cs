@@ -7,6 +7,9 @@ namespace NextCloudScanStatsView.Interface
     public class Table
     {
         private int _columnsCount;
+        private int _lastColumnsSpan = 0;
+        private bool _isFirstSpannedRow = true;
+        private bool _isClosed = false;
 
         public List<Column> Columns { get; private set; }
         public List<string> Headers { get; private set; } = new List<string>();
@@ -44,44 +47,56 @@ namespace NextCloudScanStatsView.Interface
             };
         }
 
-        public void DrawHeader()
+        public void Header()
         {
             Console.WriteLine(DrawLine(Borders.UpperLeft, Borders.UpperRight, Borders.UpperCenter));
             Console.WriteLine(DrawRow(Headers));
             Console.WriteLine(DrawLine(Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter));
         }
 
-        public void AddRow(List<string> values)
+        public void AddRow(List<string> values, bool isLastRow)
         {
             Console.WriteLine(DrawRow(values));
         }
 
-        public void AddRow(List<string> values, int lastColumnsSpan)
+        public void AddRow(List<string> values, int lastColumnsSpan, bool isLastSpanedRow, bool isLastRow)
         {
-            Console.WriteLine(DrawRowWithSpan(values, lastColumnsSpan));
+            _lastColumnsSpan = lastColumnsSpan;
+            
+            if (_isFirstSpannedRow) DrawStartLine();
+            Console.WriteLine(DrawRow(_lastColumnsSpan, values));
+
+            if (isLastSpanedRow && !isLastRow) CloseSpanSection();
+            if (isLastSpanedRow && isLastRow) CloseTableWithSpanSection();
         }
 
-        public void StartRowsWithSpan(int lastColumnsSpan)
+        public void CloseTable()
         {
-            Console.WriteLine(DrawLineWithSpan(lastColumnsSpan, Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter, Borders.BottomCenter));
+            if (!_isClosed) Console.WriteLine(DrawLine(Borders.BottomLeft, Borders.BottomRight, Borders.BottomCenter));
+        }
+        
+        private void CloseSpanSection()
+        {
+            Console.WriteLine(DrawLine(_lastColumnsSpan, Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter, Borders.UpperCenter));
+            _isFirstSpannedRow = true;
+            _lastColumnsSpan = 0;
         }
 
-        public void EndRowsWithSpan(int lastColumnsSpan)
+        private void CloseTableWithSpanSection()
         {
-            Console.WriteLine(DrawLineWithSpan(lastColumnsSpan, Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter, Borders.UpperCenter));
+            Console.WriteLine(DrawLine(_lastColumnsSpan, Borders.BottomLeft, Borders.BottomRight, Borders.BottomCenter, Borders.HorizontalLine));
+            _isFirstSpannedRow = true;
+            _lastColumnsSpan = 0;
+            _isClosed = true;
         }
 
-        public void LastRowWithSpan(int lastColumnsSpan)
+        private void DrawStartLine()
         {
-            Console.WriteLine(DrawLineWithSpan(lastColumnsSpan, Borders.BottomLeft, Borders.BottomRight, Borders.BottomCenter, Borders.HorizontalLine));
+            Console.WriteLine(DrawLine(_lastColumnsSpan, Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter, Borders.BottomCenter));
+            _isFirstSpannedRow = false;
         }
 
-        public void Close()
-        {
-            Console.WriteLine(DrawLine(Borders.BottomLeft, Borders.BottomRight, Borders.BottomCenter));
-        }
-
-        private string DrawLineWithSpan(int lastColumnsSpan, string left, string right, string center, string bottomCenter)
+        private string DrawLine(int lastColumnsSpan, string left, string right, string center, string bottomCenter)
         {
             StringBuilder row = new StringBuilder();
 
@@ -104,48 +119,7 @@ namespace NextCloudScanStatsView.Interface
 
             return row.ToString();
         }
-
-        private string DrawRowWithSpan(List<string> values, int lastColumnsSpan)
-        {
-            StringBuilder row = new StringBuilder();
-
-            for (int column = 0; column < _columnsCount - lastColumnsSpan; column++)
-            {
-                int width = Columns[column].Width;
-                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
-                row.Append(start);
-
-                string content = values[column];
-                content = NormalizeCell(content, width, Columns[column].Alignment);
-
-                row.Append(content);
-                row.Append(Borders.VerticalLine);
-            }
-
-            row.Append(values[values.Count - 1]);
-            return row.ToString().PadRight(Width - 1, Borders.WhiteSpacePlaceholder) + Borders.VerticalLine;
-        }
-
-        private string DrawRow(List<string> values)
-        {
-            StringBuilder row = new StringBuilder();
-
-            for (int column = 0; column < _columnsCount; column++)
-            {
-                int width = Columns[column].Width;
-                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
-                row.Append(start);
-
-                string content = values[column];
-                content = NormalizeCell(content, width, Columns[column].Alignment);
-
-                row.Append(content);
-                row.Append(Borders.VerticalLine);
-            }
-
-            return row.ToString(); ;
-        }
-
+        
         private string DrawLine(string left, string right, string center)
         {
             StringBuilder row = new StringBuilder();
@@ -169,7 +143,48 @@ namespace NextCloudScanStatsView.Interface
             return row.ToString();
         }
 
-        private static string NormalizeCell(string content, int width, Alignment alignment)
+        private string DrawRow(int lastColumnsSpan, List<string> values)
+        {
+            StringBuilder row = new StringBuilder();
+
+            for (int column = 0; column < _columnsCount - lastColumnsSpan; column++)
+            {
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
+                row.Append(start);
+
+                string content = values[column];
+                content = NormalizeContent(content, width, Columns[column].Alignment);
+
+                row.Append(content);
+                row.Append(Borders.VerticalLine);
+            }
+
+            row.Append(values[values.Count - 1]);
+            return row.ToString().PadRight(Width - 1, Borders.WhiteSpacePlaceholder) + Borders.VerticalLine;
+        }
+
+        private string DrawRow(List<string> values)
+        {
+            StringBuilder row = new StringBuilder();
+
+            for (int column = 0; column < _columnsCount; column++)
+            {
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
+                row.Append(start);
+
+                string content = values[column];
+                content = NormalizeContent(content, width, Columns[column].Alignment);
+
+                row.Append(content);
+                row.Append(Borders.VerticalLine);
+            }
+
+            return row.ToString(); ;
+        }
+
+        private static string NormalizeContent(string content, int width, Alignment alignment)
         {
             if (content.Length < width)
             {
