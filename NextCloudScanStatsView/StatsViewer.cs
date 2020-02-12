@@ -170,13 +170,11 @@ namespace NextCloudScanStatsView
                 SessionStatistics statistics = session.Statistics;
 
                 Tuple<bool, string> result = SearchLog(statistics);
-                string logFile = result.Item2;
-
-                string logFileName = result.Item1 ? logFile : string.Empty;
+                string logFileName = result.Item1 ? result.Item2 : string.Empty;
 
                 _sessionTable.AddRow(new List<string>()
                 {
-                    $"{(session.Number)}",
+                    $"{session.Number}",
                     $"{statistics.Id}",
                     $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}",
                     $"{statistics.TotalFiles}",
@@ -194,9 +192,9 @@ namespace NextCloudScanStatsView
                 {
                     for (int currentFolder = 0; currentFolder < statistics.ProcessedFolders.Count; currentFolder++)
                     {
-                        string item = statistics.ProcessedFolders[currentFolder];
+                        string folder = statistics.ProcessedFolders[currentFolder];
                         
-                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {item}" },
+                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {folder}" },
                             LAST_COLUMN_SPAN,
                             currentFolder >= statistics.ProcessedFolders.Count - 1,
                             currentSession >= sessions.Count - 1);
