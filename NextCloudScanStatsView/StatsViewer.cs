@@ -13,6 +13,8 @@ namespace NextCloudScanStatsView
 {
     partial class StatsViewer
     {
+        private static int LAST_COLUMN_SPAN = 11;
+
         private static int _lines;
         private static string _statsFile;
         private static string _csvFile;
@@ -162,9 +164,9 @@ namespace NextCloudScanStatsView
         {
             _sessionTable.DrawHeader();
 
-            for (int i = 0; i < sessions.Count; i++)
+            for (int s = 0; s < sessions.Count; s++)
             {
-                Session session = sessions[i];
+                Session session = sessions[s];
                 SessionStatistics statistics = session.Statistics;
 
                 Tuple<bool, string> result = SearchLog(statistics);
@@ -190,24 +192,24 @@ namespace NextCloudScanStatsView
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
-                    _sessionTable.StartRowsWithSpan(11);
+                    _sessionTable.StartRowsWithSpan(LAST_COLUMN_SPAN);
 
-                    for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
+                    for (int f = 0; f < statistics.ProcessedFolders.Count; f++)
                     {
-                        string item = statistics.ProcessedFolders[i1];
-                        _sessionTable.AddRow(new List<string>() { "", $"  [{(i1 + 1)}] {item}" }, 11);
+                        string item = statistics.ProcessedFolders[f];
+                        _sessionTable.AddRow(new List<string>() { "", $"  [{(f + 1)}] {item}" }, LAST_COLUMN_SPAN);
                     }
 
-                    if (i < sessions.Count - 1)
+                    if (s < sessions.Count - 1)
                     {
-                        _sessionTable.EndRowsWithSpan(11);
+                        _sessionTable.EndRowsWithSpan(LAST_COLUMN_SPAN);
                     }
                 }
             }
 
             if (_showFolders && sessions[sessions.Count - 1].IsWorking)
             {
-                _sessionTable.LastRowWithSpan(11);
+                _sessionTable.LastRowWithSpan(LAST_COLUMN_SPAN);
             }
             else _sessionTable.Close();
         }
