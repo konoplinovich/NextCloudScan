@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NextCloudScan.Statistics.Lib
 {
@@ -13,6 +14,7 @@ namespace NextCloudScan.Statistics.Lib
         public long ScanElapsedTime { get; set; }
         public long FileProcessingElapsedTime { get; set; }
         public long FolderProcessingElapsedTime { get; set; }
+        public List<string> ProcessedFolders { get; set; }
 
         public SessionStatistics() { }
     }

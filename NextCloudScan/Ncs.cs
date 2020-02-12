@@ -216,7 +216,8 @@ namespace NextCloudScan
                 TotalFiles = _fdb.Count,
                 ScanElapsedTime = _scanTime.Ticks,
                 FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
-                FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks
+                FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
+                ProcessedFolders = _fdb.AffectedFolders
             };
 
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
