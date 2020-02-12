@@ -96,15 +96,12 @@ namespace NextCloudScan
         private static void Scan()
         {
             _interface.Show(Message.Start, "Start scan");
-
             DateTime start = DateTime.Now;
 
-            if (_config.Conf.ReduceToParents) _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile, reduceToParents: true);
-            else _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile);
+            _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile, reduceToParents: _config.Conf.ReduceToParents);
 
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
-
             _interface.Show(Message.Stop, "Scan complete");
         }
 
