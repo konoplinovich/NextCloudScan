@@ -224,16 +224,16 @@ namespace NextCloudScanStatsView
             double folderPercentFromPeriod = TimeSpan.FromTicks(_folderScanTime).TotalSeconds * 100 / period.TotalSeconds;
             double workPercentFromPeriod = workTime.TotalSeconds * 100 / period.TotalSeconds;
 
-            Console.WriteLine("");
+            Console.WriteLine();
             Console.WriteLine($"Statistics period:       {ToReadableString(period)}");
             Console.WriteLine($"First session:           {statistics[0].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
             Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
             Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0} min interval)");
             Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0}% of all sessions, ~{averageRealInterval:0} min interval)");
-            Console.WriteLine("");
+            Console.WriteLine();
             Console.WriteLine($"Files added/removed:     {_added}/{_removed}");
             Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0.00} folders/session)");
-            Console.WriteLine("");
+            Console.WriteLine();
             Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_scanTime))} ({scanPercentFromPeriod:0.0}%)");
             Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_fileScanTime))} ({filePercentFromPeriod:0.0}%)");
             Console.WriteLine($"Folder processing time:  {ToReadableString(TimeSpan.FromTicks(_folderScanTime))} ({folderPercentFromPeriod:0.0}%)");
@@ -241,7 +241,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
             Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0.00} Kb/day)");
-            Console.WriteLine("");
+            Console.WriteLine();
         }
 
         private static void ExportCsv(List<SessionStatistics> statistics, string csvFile)
@@ -287,7 +287,7 @@ namespace NextCloudScanStatsView
                 {
                     h.AdditionalNewLineAfterOption = false;
                     h.Heading = $"NextCloudScan Statistics Viewer {assembly.Version.ToString()}";
-                    h.Copyright = "";
+                    h.Copyright = string.Empty;
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                 }, e => e);
                 Console.WriteLine($"{Environment.NewLine}{helpText}");

@@ -13,7 +13,7 @@ namespace NextCloudScan.Parsers
                 ncDataRoot = ncDataRoot.TrimEnd(new char[] { '\\', '/' });
             };
 
-            string userPath = path.Replace(ncDataRoot, "");
+            string userPath = path.Replace(ncDataRoot, string.Empty);
             return userPath;
         }
     }

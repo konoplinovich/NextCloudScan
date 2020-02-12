@@ -263,7 +263,7 @@ namespace NextCloudScan
 
         private static void ShowSummary()
         {
-            _interface.Show(Message.None, "");
+            _interface.Show(Message.None, string.Empty);
 
             if (_fdb.ChangeFoldersToParent)
             {
@@ -364,7 +364,7 @@ namespace NextCloudScan
 
         private static void ShowStartUpBanner()
         {
-            _interface.Show(Message.None, $"");
+            _interface.Show(Message.None, string.Empty);
             _interface.Show(Message.None, $"NextClouScan started. Version {_version}");
 
             foreach (var componentVersion in _componentsVersions)
@@ -372,7 +372,7 @@ namespace NextCloudScan
                 _interface.Show(Message.None, $"{componentVersion.Key}, version={componentVersion.Value}");
             }
 
-            _interface.Show(Message.None, $"");
+            _interface.Show(Message.None, string.Empty);
         }
     }
 }

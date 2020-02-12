@@ -16,7 +16,7 @@ namespace NextCloudScan.UI
             {
                 case Message.None:
                     Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write("");
+                    Console.Write(string.Empty);
                     break;
                 case Message.NewFile:
                     Console.ForegroundColor = ConsoleColor.Green;
