@@ -50,11 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Table\Borders.cs" />
+    <Compile Include="Table\Column.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionFilters.cs" />
     <Compile Include="StatsViewer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Table\Table.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -66,5 +69,6 @@
       <Name>NextCloudScanStatisticsLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

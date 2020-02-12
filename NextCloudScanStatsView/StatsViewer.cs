@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NextCloudScanStatsView.Interface;
 
 namespace NextCloudScanStatsView
 {
@@ -30,6 +31,7 @@ namespace NextCloudScanStatsView
         private static int _notZeroSessions = 0;
 
         private static List<Session> _sessions = new List<Session>();
+        private static Table _sessionTable;
 
         static void Main(string[] args)
         {
@@ -48,6 +50,7 @@ namespace NextCloudScanStatsView
 
             ParseStatistics(agregator.Statistics);
             SessionFilters filter = SelectFIlter(agregator);
+            CreateSessionTable();
 
             switch (filter)
             {
@@ -100,6 +103,25 @@ namespace NextCloudScanStatsView
             }
         }
 
+        private static void CreateSessionTable()
+        {
+            _sessionTable = new Table(new List<Column>
+            {
+                new Column(5,"#"),
+                new Column(38,"Id"),
+                new Column(21,"Start Time"),
+                new Column(8,"Total"),
+                new Column(10,"Scan"),
+                new Column(8,"[+]"),
+                new Column(8,"[-]"),
+                new Column(8,"[A]"),
+                new Column(10,"Files"),
+                new Column(10,"Folders"),
+                new Column(10,"Work time"),
+                new Column(23,"Log"),
+            });
+        }
+        
         private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
         {
             SessionFilters filter;
@@ -138,9 +160,7 @@ namespace NextCloudScanStatsView
 
         private static void ShowSessions(List<Session> sessions)
         {
-            Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────┬───────────────────────");
-            Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time│Log");
-            Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────┼───────────────────────");
+            _sessionTable.DrawHeader();
 
             for (int i = 0; i < sessions.Count; i++)
             {
@@ -148,43 +168,48 @@ namespace NextCloudScanStatsView
                 SessionStatistics statistics = session.Statistics;
 
                 Tuple<bool, string> result = SearchLog(statistics);
-                string logFile = result.Item2; 
+                string logFile = result.Item2;
 
-                string hasLogMarker = result.Item1 ? logFile : "-";
+                string hasLogMarker = result.Item1 ? logFile : string.Empty;
 
-                Console.WriteLine($"{(session.Number),7}│" +
-                    $"{statistics.Id,38}│" +
-                    $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│" +
-                    $"{statistics.TotalFiles,8}│{session.ScanElapsedTime.TotalSeconds,10:0.0000}│" +
-                    $"{statistics.AddedFiles,8}│" +
-                    $"{statistics.RemovedFiles,8}│" +
-                    $"{statistics.AffectedFolders,8}│" +
-                    $"{session.FileProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
-                    $"{session.FolderProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
-                    $"{session.WorkTime.TotalSeconds,10:0.0000}│" +
-                    $"{hasLogMarker}");
+                _sessionTable.AddRow(new List<string>()
+                {
+                    $"{(session.Number)}",
+                    $"{statistics.Id}",
+                    $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}",
+                    $"{statistics.TotalFiles}",
+                    $"{session.ScanElapsedTime.TotalSeconds:0.0000}",
+                    $"{statistics.AddedFiles}",
+                    $"{statistics.RemovedFiles}",
+                    $"{statistics.AffectedFolders}",
+                    $"{session.FileProcessingElapsedTime.TotalSeconds:0.0000}",
+                    $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
+                    $"{session.WorkTime.TotalSeconds:0.0000}",
+                    $"{hasLogMarker}"
+                });
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
-                    Console.WriteLine("───────┼──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────┴───────────────────────");
+                    _sessionTable.StartRowsWithSpan(11);
+
                     for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
                     {
                         string item = statistics.ProcessedFolders[i1];
-                        Console.WriteLine($"       │  [{(i1 + 1)}] {item}");
+                        _sessionTable.AddRow(new List<string>() { "", $"  [{(i1 + 1)}] {item}" }, 11);
                     }
 
                     if (i < sessions.Count - 1)
                     {
-                        Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────┬───────────────────────");
+                        _sessionTable.EndRowsWithSpan(11);
                     }
                 }
             }
 
             if (_showFolders && sessions[sessions.Count - 1].IsWorking)
             {
-                Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
+                _sessionTable.LastRowWithSpan(11);
             }
-            else Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────┴───────────────────────");
+            else _sessionTable.Close();
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
