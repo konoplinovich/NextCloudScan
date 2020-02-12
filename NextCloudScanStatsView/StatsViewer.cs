@@ -140,8 +140,6 @@ namespace NextCloudScanStatsView
             Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time");
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
 
-            bool foldersLast = false;
-
             for (int i = 0; i < sessions.Count; i++)
             {
                 Session session = sessions[i];
@@ -163,18 +161,20 @@ namespace NextCloudScanStatsView
                     for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
                     {
                         string item = statistics.ProcessedFolders[i1];
-                        Console.WriteLine($"       │ [{(i1 + 1)}] {item}");
+                        Console.WriteLine($"       │  [{(i1 + 1)}] {item}");
                     }
 
                     if (i < sessions.Count - 1)
                     {
                         Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
-                        foldersLast = true;
                     }
                 }
             }
 
-            if (foldersLast) Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
+            if (_showFolders && sessions[sessions.Count - 1].IsWorking)
+            {
+                Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
+            }
             else Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
         }
 
