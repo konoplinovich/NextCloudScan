@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace NextCloudScanStatsView
@@ -16,6 +17,7 @@ namespace NextCloudScanStatsView
         private static string _csvFile;
         private static bool _onlyWorking;
         private static bool _showFolders;
+        private static string _logsPath;
         private static bool _summaryOnly;
         private static bool _showAll = false;
 
@@ -136,14 +138,20 @@ namespace NextCloudScanStatsView
 
         private static void ShowSessions(List<Session> sessions)
         {
-            Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
-            Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time");
-            Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
+            Console.WriteLine("───────┬──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────┬───────────────────────");
+            Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time│Log");
+            Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────┼───────────────────────");
 
             for (int i = 0; i < sessions.Count; i++)
             {
                 Session session = sessions[i];
                 SessionStatistics statistics = session.Statistics;
+
+                Tuple<bool, string> result = SearchLog(statistics);
+                string logFile = result.Item2; 
+
+                string hasLogMarker = result.Item1 ? logFile : "-";
+
                 Console.WriteLine($"{(session.Number),7}│" +
                     $"{statistics.Id,38}│" +
                     $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss"),21}│" +
@@ -153,11 +161,12 @@ namespace NextCloudScanStatsView
                     $"{statistics.AffectedFolders,8}│" +
                     $"{session.FileProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
                     $"{session.FolderProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
-                    $"{session.WorkTime.TotalSeconds,10:0.0000}");
+                    $"{session.WorkTime.TotalSeconds,10:0.0000}│" +
+                    $"{hasLogMarker}");
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
-                    Console.WriteLine("───────┼──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
+                    Console.WriteLine("───────┼──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────┴───────────────────────");
                     for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
                     {
                         string item = statistics.ProcessedFolders[i1];
@@ -166,16 +175,32 @@ namespace NextCloudScanStatsView
 
                     if (i < sessions.Count - 1)
                     {
-                        Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
+                        Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────┬───────────────────────");
                     }
                 }
             }
 
             if (_showFolders && sessions[sessions.Count - 1].IsWorking)
             {
-                Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
+                Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
             }
-            else Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
+            else Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────┴───────────────────────");
+        }
+
+        private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
+        {
+            if (string.IsNullOrEmpty(_logsPath)) return new Tuple<bool, string>(false, string.Empty);
+
+            string pattern = statistics.StartTime.ToString("_ddMMyyyy_HHmmss");
+            pattern = pattern.Remove(pattern.Length - 1);
+            string[] files = Directory.GetFiles(_logsPath);
+
+            foreach (string file in files)
+            {
+                if (file.IndexOf(pattern) != -1) return new Tuple<bool, string>(true, Path.GetFileName(file));
+            }
+
+            return new Tuple<bool, string>(false, string.Empty);
         }
 
         private static void ShowSummary(StatisticsAgregator agregator)
@@ -247,6 +272,8 @@ namespace NextCloudScanStatsView
 
         private static void DisplayHelp(ParserResult<Options> parserResult, IEnumerable<Error> errs)
         {
+            AssemblyName assembly = Assembly.GetExecutingAssembly().GetName();
+
             HelpText helpText = null;
             if (errs.IsVersion())
             {
@@ -259,7 +286,7 @@ namespace NextCloudScanStatsView
                 helpText = HelpText.AutoBuild(parserResult, h =>
                 {
                     h.AdditionalNewLineAfterOption = false;
-                    h.Heading = "NextCloudScan Statistics Viewer 1.2.2.0";
+                    h.Heading = $"NextCloudScan Statistics Viewer {assembly.Version.ToString()}";
                     h.Copyright = "";
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                 }, e => e);
@@ -277,6 +304,7 @@ namespace NextCloudScanStatsView
             _csvFile = options.Export;
             _onlyWorking = options.OnlyWorking;
             _showFolders = options.ShowFolders;
+            _logsPath = string.IsNullOrEmpty(options.LogsPath) ? string.Empty : options.LogsPath;
 
             if (_lines == 0) _showAll = true;
         }

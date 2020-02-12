@@ -23,6 +23,9 @@ namespace NextCloudScanStatsView
             
             [Option('a', "affected", Required = false, HelpText = "Show affected folders (of avialable)")]
             public bool ShowFolders { get; set; }
+
+            [Option('p', "path", Required = true, HelpText = "Path to NextCloudScan log files")]
+            public string LogsPath { get; set; }
         }
     }
 }

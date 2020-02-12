@@ -45,9 +45,9 @@ namespace NextCloudScan
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
                 _interface = UIFactory.CreateUI(_config.Conf.Interface, _config.Conf.LogFile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
-                ShowStartUpBanner();
-
                 _startTime = DateTime.Now;
+
+                ShowStartUpBanner();
 
                 if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
                 {
