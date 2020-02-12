@@ -114,7 +114,7 @@ namespace NextCloudScanStatsView.Interface
                 row.Append(start);
 
                 string cell = values[index];
-                cell = NormalizeCell(cell, width);
+                cell = NormalizeCell(cell, width, Columns[index].Alignment);
 
                 row.Append(cell);
                 row.Append(Borders.VerticalLine);
@@ -135,7 +135,7 @@ namespace NextCloudScanStatsView.Interface
                 row.Append(start);
 
                 string cell = values[index];
-                cell = NormalizeCell(cell, width);
+                cell = NormalizeCell(cell, width, Columns[index].Alignment);
 
                 row.Append(cell);
                 row.Append(Borders.VerticalLine);
@@ -169,11 +169,21 @@ namespace NextCloudScanStatsView.Interface
             return row.ToString();
         }
 
-        private static string NormalizeCell(string cell, int column)
+        private static string NormalizeCell(string cell, int column, Alignment alignment)
         {
             if (cell.Length < column)
             {
-                cell = cell.PadLeft(column, Borders.Placeholder);
+                switch (alignment)
+                {
+                    case Alignment.Left:
+                        cell = cell.PadRight(column, Borders.Placeholder);
+                        break;
+                    case Alignment.Right:
+                        cell = cell.PadLeft(column, Borders.Placeholder);
+                        break;
+                    default:
+                        break;
+                }
             }
             else if (cell.Length > column && column > 3)
             {
@@ -182,7 +192,17 @@ namespace NextCloudScanStatsView.Interface
             }
             else
             {
-                cell.PadLeft(column);
+                switch (alignment)
+                {
+                    case Alignment.Left:
+                        cell.PadRight(column);
+                        break;
+                    case Alignment.Right:
+                        cell.PadLeft(column);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             cell = cell.Length > column ? string.Empty.PadLeft(column) : cell;

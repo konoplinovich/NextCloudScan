@@ -120,7 +120,7 @@ namespace NextCloudScanStatsView
                 new Column(10,"Files"),
                 new Column(10,"Folders"),
                 new Column(10,"Work time"),
-                new Column(23,"Log"),
+                new Column(25,"Log", Alignment.Left),
             });
         }
         

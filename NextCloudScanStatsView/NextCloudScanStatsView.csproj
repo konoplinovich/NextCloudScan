@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Table\Alignment.cs" />
     <Compile Include="Table\Borders.cs" />
     <Compile Include="Table\Column.cs" />
     <Compile Include="Options.cs" />
