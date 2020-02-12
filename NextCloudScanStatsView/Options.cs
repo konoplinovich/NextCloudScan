@@ -20,6 +20,9 @@ namespace NextCloudScanStatsView
 
             [Option('w', "working", Required = false, HelpText = "Show only working sessions")]
             public bool OnlyWorking { get; set; }
+            
+            [Option('a', "affected", Required = false, HelpText = "Show affected folders (of avialable)")]
+            public bool ShowFolders { get; set; }
         }
     }
 }

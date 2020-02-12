@@ -15,6 +15,7 @@ namespace NextCloudScanStatsView
         private static string _statsFile;
         private static string _csvFile;
         private static bool _onlyWorking;
+        private static bool _showFolders;
         private static bool _summaryOnly;
         private static bool _showAll = false;
 
@@ -44,14 +45,7 @@ namespace NextCloudScanStatsView
             }
 
             ParseStatistics(agregator.Statistics);
-
-            SessionFilters filter;
-
-            if (_summaryOnly) filter = SessionFilters.SummaryOnly;
-            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
-            else if (_onlyWorking) filter = SessionFilters.WorkingOnly;
-            else if (_showAll || _lines >= agregator.Statistics.Count) filter = SessionFilters.AllSessions;
-            else filter = SessionFilters.LastNSessions;
+            SessionFilters filter = SelectFIlter(agregator);
 
             switch (filter)
             {
@@ -104,6 +98,17 @@ namespace NextCloudScanStatsView
             }
         }
 
+        private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
+        {
+            SessionFilters filter;
+            if (_summaryOnly) filter = SessionFilters.SummaryOnly;
+            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
+            else if (_onlyWorking) filter = SessionFilters.WorkingOnly;
+            else if (_showAll || _lines >= agregator.Statistics.Count) filter = SessionFilters.AllSessions;
+            else filter = SessionFilters.LastNSessions;
+            return filter;
+        }
+
         private static void ParseStatistics(List<SessionStatistics> statistics)
         {
             int number = 0;
@@ -135,6 +140,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine("      #│                                    Id│           Start Time│   Total│      Scan│     [+]│     [-]│     [A]│     Files│   Folders│ Work time");
             Console.WriteLine("───────┼──────────────────────────────────────┼─────────────────────┼────────┼──────────┼────────┼────────┼────────┼──────────┼──────────┼──────────");
 
+            bool foldersLast = false;
 
             for (int i = 0; i < sessions.Count; i++)
             {
@@ -151,20 +157,25 @@ namespace NextCloudScanStatsView
                     $"{session.FolderProcessingElapsedTime.TotalSeconds,10:0.0000}│" +
                     $"{session.WorkTime.TotalSeconds,10:0.0000}");
 
-                if (statistics.ProcessedFolders.Count != 0)
+                if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
                     Console.WriteLine("───────┼──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
                     for (int i1 = 0; i1 < statistics.ProcessedFolders.Count; i1++)
                     {
                         string item = statistics.ProcessedFolders[i1];
-                        Console.WriteLine($"{(i1 + 1),7}│  {item}");
+                        Console.WriteLine($"       │ [{(i1 + 1)}] {item}");
                     }
-                    if (i != sessions.Count)
+
+                    if (i < sessions.Count - 1)
+                    {
                         Console.WriteLine("───────┼──────────────────────────────────────┬─────────────────────┬────────┬──────────┬────────┬────────┬────────┬──────────┬──────────┬──────────");
+                        foldersLast = true;
+                    }
                 }
             }
 
-            Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
+            if (foldersLast) Console.WriteLine("───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────");
+            else Console.WriteLine("───────┴──────────────────────────────────────┴─────────────────────┴────────┴──────────┴────────┴────────┴────────┴──────────┴──────────┴──────────");
         }
 
         private static void ShowSummary(StatisticsAgregator agregator)
@@ -265,6 +276,7 @@ namespace NextCloudScanStatsView
             _summaryOnly = options.SummaryOnly;
             _csvFile = options.Export;
             _onlyWorking = options.OnlyWorking;
+            _showFolders = options.ShowFolders;
 
             if (_lines == 0) _showAll = true;
         }
