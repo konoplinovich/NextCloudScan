@@ -6,6 +6,8 @@ namespace NextCloudScanStatsView.Interface
 {
     public class Table
     {
+        private int _columnsCount;
+
         public List<Column> Columns { get; private set; }
         public List<string> Headers { get; private set; } = new List<string>();
         public static Borders Borders { get; private set; }
@@ -14,6 +16,7 @@ namespace NextCloudScanStatsView.Interface
         public Table(List<Column> columns)
         {
             Columns = columns;
+            _columnsCount = columns.Count;
 
             foreach (Column column in Columns)
             {
@@ -21,7 +24,7 @@ namespace NextCloudScanStatsView.Interface
                 Width += column.Width;
             }
 
-            Width += Columns.Count + 1;
+            Width += _columnsCount + 1;
 
             Borders = new Borders()
             {
@@ -36,7 +39,8 @@ namespace NextCloudScanStatsView.Interface
                 BottomCenter = "┴",
                 VerticalLine = "│",
                 HorizontalLine = "─",
-                Placeholder = ' '
+                WhiteSpacePlaceholder = ' ',
+                LongLinePlaceholder = "..."
             };
         }
 
@@ -81,22 +85,20 @@ namespace NextCloudScanStatsView.Interface
         {
             StringBuilder row = new StringBuilder();
 
-            row = new StringBuilder();
-
-            for (int index = 0; index < Columns.Count; index++)
+            for (int column = 0; column < _columnsCount; column++)
             {
-                int width = Columns[index].Width;
-                string start = index >= 1 ? string.Empty : left;
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : left;
 
                 row.Append(start);
 
-                for (int i = 0; i < width; i++)
+                for (int index = 0; index < width; index++)
                 {
                     row.Append(Borders.HorizontalLine);
                 }
 
-                if (index < Columns.Count - lastColumnsSpan) row.Append(center);
-                else if (index == Columns.Count - 1) row.Append(right);
+                if (column < _columnsCount - lastColumnsSpan) row.Append(center);
+                else if (column == _columnsCount - 1) row.Append(right);
                 else row.Append(bottomCenter);
             }
 
@@ -107,37 +109,37 @@ namespace NextCloudScanStatsView.Interface
         {
             StringBuilder row = new StringBuilder();
 
-            for (int index = 0; index < Columns.Count - lastColumnsSpan; index++)
+            for (int column = 0; column < _columnsCount - lastColumnsSpan; column++)
             {
-                int width = Columns[index].Width;
-                string start = index >= 1 ? string.Empty : Borders.VerticalLine;
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
                 row.Append(start);
 
-                string cell = values[index];
-                cell = NormalizeCell(cell, width, Columns[index].Alignment);
+                string content = values[column];
+                content = NormalizeCell(content, width, Columns[column].Alignment);
 
-                row.Append(cell);
+                row.Append(content);
                 row.Append(Borders.VerticalLine);
             }
 
             row.Append(values[values.Count - 1]);
-            return row.ToString().PadRight(Width - 1, Borders.Placeholder) + Borders.VerticalLine;
+            return row.ToString().PadRight(Width - 1, Borders.WhiteSpacePlaceholder) + Borders.VerticalLine;
         }
 
         private string DrawRow(List<string> values)
         {
             StringBuilder row = new StringBuilder();
 
-            for (int index = 0; index < Columns.Count; index++)
+            for (int column = 0; column < _columnsCount; column++)
             {
-                int width = Columns[index].Width;
-                string start = index >= 1 ? string.Empty : Borders.VerticalLine;
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : Borders.VerticalLine;
                 row.Append(start);
 
-                string cell = values[index];
-                cell = NormalizeCell(cell, width, Columns[index].Alignment);
+                string content = values[column];
+                content = NormalizeCell(content, width, Columns[column].Alignment);
 
-                row.Append(cell);
+                row.Append(content);
                 row.Append(Borders.VerticalLine);
             }
 
@@ -148,66 +150,64 @@ namespace NextCloudScanStatsView.Interface
         {
             StringBuilder row = new StringBuilder();
 
-            row = new StringBuilder();
-
-            for (int index = 0; index < Columns.Count; index++)
+            for (int column = 0; column < _columnsCount; column++)
             {
-                int column = Columns[index].Width;
-                string start = index >= 1 ? string.Empty : left;
+                int width = Columns[column].Width;
+                string start = column >= 1 ? string.Empty : left;
 
                 row.Append(start);
 
-                for (int i = 0; i < column; i++)
+                for (int index = 0; index < width; index++)
                 {
                     row.Append(Borders.HorizontalLine);
                 }
 
-                string end = index == Columns.Count - 1 ? right : center;
+                string end = column != _columnsCount - 1 ? center : right;
                 row.Append(end);
             }
 
             return row.ToString();
         }
 
-        private static string NormalizeCell(string cell, int column, Alignment alignment)
+        private static string NormalizeCell(string content, int width, Alignment alignment)
         {
-            if (cell.Length < column)
+            if (content.Length < width)
             {
                 switch (alignment)
                 {
                     case Alignment.Left:
-                        cell = cell.PadRight(column, Borders.Placeholder);
+                        content = content.PadRight(width, Borders.WhiteSpacePlaceholder);
                         break;
                     case Alignment.Right:
-                        cell = cell.PadLeft(column, Borders.Placeholder);
+                        content = content.PadLeft(width, Borders.WhiteSpacePlaceholder);
                         break;
                     default:
                         break;
                 }
             }
-            else if (cell.Length > column && column > 3)
+            else if (content.Length > width && width > Borders.LongLinePlaceholder.Length)
             {
-                cell = cell.Substring(0, column - 3);
-                cell += "...";
+                content = content.Substring(0, width - Borders.LongLinePlaceholder.Length);
+                content += Borders.LongLinePlaceholder;
             }
             else
             {
                 switch (alignment)
                 {
                     case Alignment.Left:
-                        cell.PadRight(column);
+                        content.PadRight(width);
                         break;
                     case Alignment.Right:
-                        cell.PadLeft(column);
+                        content.PadLeft(width);
                         break;
                     default:
                         break;
                 }
             }
 
-            cell = cell.Length > column ? string.Empty.PadLeft(column) : cell;
+            content = content.Length > width ? string.Empty.PadLeft(width) : content;
 
-            return cell;
+            return content;
         }
     }
 }

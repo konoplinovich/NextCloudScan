@@ -13,6 +13,7 @@
         public string BottomCenter { get; set; }
         public string VerticalLine { get; set; }
         public string HorizontalLine { get; set; }
-        public char Placeholder { get; set; }
+        public string LongLinePlaceholder { get; internal set; }
+        public char WhiteSpacePlaceholder { get; set; }
     }
 }

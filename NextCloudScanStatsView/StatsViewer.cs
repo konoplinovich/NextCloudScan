@@ -123,7 +123,7 @@ namespace NextCloudScanStatsView
                 new Column(25,"Log", Alignment.Left),
             });
         }
-        
+
         private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
         {
             SessionFilters filter;
@@ -164,15 +164,15 @@ namespace NextCloudScanStatsView
         {
             _sessionTable.DrawHeader();
 
-            for (int s = 0; s < sessions.Count; s++)
+            for (int currentSession = 0; currentSession < sessions.Count; currentSession++)
             {
-                Session session = sessions[s];
+                Session session = sessions[currentSession];
                 SessionStatistics statistics = session.Statistics;
 
                 Tuple<bool, string> result = SearchLog(statistics);
                 string logFile = result.Item2;
 
-                string hasLogMarker = result.Item1 ? logFile : string.Empty;
+                string logFileName = result.Item1 ? logFile : string.Empty;
 
                 _sessionTable.AddRow(new List<string>()
                 {
@@ -187,31 +187,28 @@ namespace NextCloudScanStatsView
                     $"{session.FileProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.WorkTime.TotalSeconds:0.0000}",
-                    $"{hasLogMarker}"
+                    $"{logFileName}"
                 });
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
                     _sessionTable.StartRowsWithSpan(LAST_COLUMN_SPAN);
 
-                    for (int f = 0; f < statistics.ProcessedFolders.Count; f++)
+                    for (int currentFolder = 0; currentFolder < statistics.ProcessedFolders.Count; currentFolder++)
                     {
-                        string item = statistics.ProcessedFolders[f];
-                        _sessionTable.AddRow(new List<string>() { "", $"  [{(f + 1)}] {item}" }, LAST_COLUMN_SPAN);
+                        string item = statistics.ProcessedFolders[currentFolder];
+                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {item}" }, LAST_COLUMN_SPAN);
                     }
 
-                    if (s < sessions.Count - 1)
-                    {
+                    if (currentSession < sessions.Count - 1)
                         _sessionTable.EndRowsWithSpan(LAST_COLUMN_SPAN);
-                    }
                 }
             }
 
             if (_showFolders && sessions[sessions.Count - 1].IsWorking)
-            {
                 _sessionTable.LastRowWithSpan(LAST_COLUMN_SPAN);
-            }
-            else _sessionTable.Close();
+            else 
+                _sessionTable.Close();
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
