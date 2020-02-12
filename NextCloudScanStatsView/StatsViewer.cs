@@ -259,7 +259,7 @@ namespace NextCloudScanStatsView
                 helpText = HelpText.AutoBuild(parserResult, h =>
                 {
                     h.AdditionalNewLineAfterOption = false;
-                    h.Heading = "NextCloudScan Statistics Viewer 1.2.1.0";
+                    h.Heading = "NextCloudScan Statistics Viewer 1.2.2.0";
                     h.Copyright = "";
                     return HelpText.DefaultParsingErrorsHandler(parserResult, h);
                 }, e => e);
