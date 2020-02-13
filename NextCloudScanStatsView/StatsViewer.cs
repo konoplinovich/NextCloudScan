@@ -23,18 +23,11 @@ namespace NextCloudScanStatsView
         private static string _logsPath;
         private static bool _summaryOnly;
         private static bool _showAll = false;
-        private static DateTime _startTime;
 
-        private static long _added = 0;
-        private static long _removed = 0;
-        private static long _affected = 0;
-        private static long _scanTime = 0;
-        private static long _fileScanTime = 0;
-        private static long _folderScanTime = 0;
         private static int _notZeroSessions = 0;
 
+        private static Summary _summary = new Summary();
         private static List<Session> _sessions = new List<Session>();
-        private static Table _sessionTable;
 
         static void Main(string[] args)
         {
@@ -51,13 +44,8 @@ namespace NextCloudScanStatsView
                 return;
             }
 
-            _startTime = DateTime.Now;
-
             ParseStatistics(agregator.Statistics);
             SessionFilters filter = SelectFIlter(agregator);
-            CreateSessionTable();
-
-            TimeSpan interval = DateTime.Now - _startTime;
 
             switch (filter)
             {
@@ -108,27 +96,6 @@ namespace NextCloudScanStatsView
             {
                 ExportCsv(agregator.Statistics, _csvFile);
             }
-
-            Console.WriteLine($"Drawing: {(DateTime.Now - _startTime).TotalSeconds}");
-        }
-
-        private static void CreateSessionTable()
-        {
-            _sessionTable = new Table(new List<Column>
-            {
-                new Column(5,"#", Alignment.Left),
-                new Column(38,"Id", Alignment.Left),
-                new Column(21,"Start Time", Alignment.Left),
-                new Column(8,"Total", Alignment.Left),
-                new Column(10,"Scan", Alignment.Left),
-                new Column(8,"[+]", Alignment.Left),
-                new Column(8,"[-]", Alignment.Left),
-                new Column(8,"[A]", Alignment.Left),
-                new Column(10,"Files", Alignment.Left),
-                new Column(10,"Folders", Alignment.Left),
-                new Column(10,"Work time", Alignment.Left),
-                new Column(25,"Log", Alignment.Left),
-            });
         }
 
         private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
@@ -159,17 +126,19 @@ namespace NextCloudScanStatsView
 
         private static void AddValuesToSummary(SessionStatistics stat)
         {
-            _added += stat.AddedFiles;
-            _removed += stat.RemovedFiles;
-            _affected += stat.AffectedFolders;
-            _scanTime += stat.ScanElapsedTime;
-            _fileScanTime += stat.FileProcessingElapsedTime;
-            _folderScanTime += stat.FolderProcessingElapsedTime;
+            _summary.Added += stat.AddedFiles;
+            _summary.Removed += stat.RemovedFiles;
+            _summary.Affected += stat.AffectedFolders;
+            _summary.ScanTime += stat.ScanElapsedTime;
+            _summary.FileScanTime += stat.FileProcessingElapsedTime;
+            _summary.FolderScanTime += stat.FolderProcessingElapsedTime;
         }
 
         private static void ShowSessions(List<Session> sessions)
         {
-            _sessionTable.Header();
+            Table table = CreateTable();
+
+            table.Header();
 
             for (int currentSession = 0; currentSession < sessions.Count; currentSession++)
             {
@@ -179,7 +148,7 @@ namespace NextCloudScanStatsView
                 Tuple<bool, string> result = SearchLog(statistics);
                 string logFileName = result.Item1 ? result.Item2 : string.Empty;
 
-                _sessionTable.AddRow(new List<string>()
+                table.AddRow(new List<string>()
                 {
                     $"{session.Number}",
                     $"{statistics.Id}",
@@ -200,8 +169,8 @@ namespace NextCloudScanStatsView
                     for (int currentFolder = 0; currentFolder < statistics.ProcessedFolders.Count; currentFolder++)
                     {
                         string folder = statistics.ProcessedFolders[currentFolder];
-                        
-                        _sessionTable.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {folder}" },
+
+                        table.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {folder}" },
                             LAST_COLUMN_SPAN,
                             currentFolder >= statistics.ProcessedFolders.Count - 1,
                             currentSession >= sessions.Count - 1);
@@ -209,7 +178,26 @@ namespace NextCloudScanStatsView
                 }
             }
 
-            _sessionTable.CloseTable();
+            table.CloseTable();
+        }
+
+        private static Table CreateTable()
+        {
+            return new Table(new List<Column>
+            {
+                new Column(5,"#", Alignment.Left),
+                new Column(38,"Id", Alignment.Left),
+                new Column(21,"Start Time", Alignment.Left),
+                new Column(8,"Total", Alignment.Left),
+                new Column(10,"Scan", Alignment.Left),
+                new Column(8,"[+]", Alignment.Left),
+                new Column(8,"[-]", Alignment.Left),
+                new Column(8,"[A]", Alignment.Left),
+                new Column(10,"Files", Alignment.Left),
+                new Column(10,"Folders", Alignment.Left),
+                new Column(10,"Work time", Alignment.Left),
+                new Column(25,"Log", Alignment.Left),
+            });
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
@@ -235,7 +223,7 @@ namespace NextCloudScanStatsView
             DateTime first = statistics[0].StartTime;
             DateTime last = statistics[statistics.Count - 1].StartTime;
             TimeSpan period = last - first;
-            TimeSpan workTime = TimeSpan.FromTicks(_scanTime + _fileScanTime + _folderScanTime);
+            TimeSpan workTime = TimeSpan.FromTicks(_summary.ScanTime + _summary.FileScanTime + _summary.FolderScanTime);
 
             double hoursAll = period.TotalHours;
             double hoursWork = workTime.TotalHours;
@@ -243,10 +231,10 @@ namespace NextCloudScanStatsView
             double averageInterval = period.TotalMinutes / statistics.Count;
             double averageRealInterval = period.TotalMinutes / _notZeroSessions;
             double workSessionPercent = (double)_notZeroSessions * 100 / statistics.Count;
-            double averagefoldersPerSession = (double)_affected / statistics.Count;
-            double scanPercentFromPeriod = TimeSpan.FromTicks(_scanTime).TotalSeconds * 100 / period.TotalSeconds;
-            double filePercentFromPeriod = TimeSpan.FromTicks(_fileScanTime).TotalSeconds * 100 / period.TotalSeconds;
-            double folderPercentFromPeriod = TimeSpan.FromTicks(_folderScanTime).TotalSeconds * 100 / period.TotalSeconds;
+            double averagefoldersPerSession = (double)_summary.Affected / statistics.Count;
+            double scanPercentFromPeriod = TimeSpan.FromTicks(_summary.ScanTime).TotalSeconds * 100 / period.TotalSeconds;
+            double filePercentFromPeriod = TimeSpan.FromTicks(_summary.FileScanTime).TotalSeconds * 100 / period.TotalSeconds;
+            double folderPercentFromPeriod = TimeSpan.FromTicks(_summary.FolderScanTime).TotalSeconds * 100 / period.TotalSeconds;
             double workPercentFromPeriod = workTime.TotalSeconds * 100 / period.TotalSeconds;
 
             Console.WriteLine();
@@ -256,12 +244,12 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0} min interval)");
             Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} ({workSessionPercent:0}% of all sessions, ~{averageRealInterval:0} min interval)");
             Console.WriteLine();
-            Console.WriteLine($"Files added/removed:     {_added}/{_removed}");
-            Console.WriteLine($"Processed folders:       {_affected} (~{averagefoldersPerSession:0.00} folders/session)");
+            Console.WriteLine($"Files added/removed:     {_summary.Added}/{_summary.Removed}");
+            Console.WriteLine($"Processed folders:       {_summary.Affected} (~{averagefoldersPerSession:0.00} folders/session)");
             Console.WriteLine();
-            Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_scanTime))} ({scanPercentFromPeriod:0.0}%)");
-            Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_fileScanTime))} ({filePercentFromPeriod:0.0}%)");
-            Console.WriteLine($"Folder processing time:  {ToReadableString(TimeSpan.FromTicks(_folderScanTime))} ({folderPercentFromPeriod:0.0}%)");
+            Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_summary.ScanTime))} ({scanPercentFromPeriod:0.0}%)");
+            Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_summary.FileScanTime))} ({filePercentFromPeriod:0.0}%)");
+            Console.WriteLine($"Folder processing time:  {ToReadableString(TimeSpan.FromTicks(_summary.FolderScanTime))} ({folderPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
@@ -329,7 +317,7 @@ namespace NextCloudScanStatsView
             _csvFile = options.Export;
             _onlyWorking = options.OnlyWorking;
             _showFolders = options.ShowFolders;
-            _logsPath = string.IsNullOrEmpty(options.LogsPath) ? string.Empty : options.LogsPath;
+            _logsPath = options.LogsPath;
 
             if (_lines == 0) _showAll = true;
         }
@@ -348,5 +336,15 @@ namespace NextCloudScanStatsView
 
             return formatted;
         }
+    }
+
+    internal class Summary
+    {
+        public long Added { get; set; }
+        public long Removed { get; set; }
+        public long Affected { get; set; }
+        public long ScanTime { get; set; }
+        public long FileScanTime { get; set; }
+        public long FolderScanTime { get; set; }
     }
 }
