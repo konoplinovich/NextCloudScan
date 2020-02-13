@@ -247,7 +247,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} (~{averageRealInterval:0} min interval), ~{workingSessionPerDay:0} session/day, {workSessionPercent:0}% of all sessions");
             Console.WriteLine();
             Console.WriteLine($"Files added/removed:     {_summary.Added}/{_summary.Removed}");
-            Console.WriteLine($"Processed folders:       {_summary.Affected} (~{averagefoldersPerDay:0.00} folders/day)");
+            Console.WriteLine($"Processed folders:       {_summary.Affected} (~{averagefoldersPerDay:0} folders/day)");
             Console.WriteLine();
             Console.WriteLine($"Scan time:               {ToReadableString(TimeSpan.FromTicks(_summary.ScanTime))} ({scanPercentFromPeriod:0.0}%)");
             Console.WriteLine($"File processing time:    {ToReadableString(TimeSpan.FromTicks(_summary.FileScanTime))} ({filePercentFromPeriod:0.0}%)");
