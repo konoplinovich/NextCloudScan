@@ -23,6 +23,7 @@ namespace NextCloudScanStatsView
         private static string _logsPath;
         private static bool _summaryOnly;
         private static bool _showAll = false;
+        private static DateTime _startTime;
 
         private static long _added = 0;
         private static long _removed = 0;
@@ -50,9 +51,13 @@ namespace NextCloudScanStatsView
                 return;
             }
 
+            _startTime = DateTime.Now;
+
             ParseStatistics(agregator.Statistics);
             SessionFilters filter = SelectFIlter(agregator);
             CreateSessionTable();
+
+            TimeSpan interval = DateTime.Now - _startTime;
 
             switch (filter)
             {
@@ -103,6 +108,8 @@ namespace NextCloudScanStatsView
             {
                 ExportCsv(agregator.Statistics, _csvFile);
             }
+
+            Console.WriteLine($"Drawing: {(DateTime.Now - _startTime).TotalSeconds}");
         }
 
         private static void CreateSessionTable()
