@@ -3,29 +3,28 @@ using System;
 
 namespace NextCloudScanStatsView
 {
-    partial class StatsViewer
+    internal class Session
     {
-        private class Session
+        public long Number { get; set; }
+        public bool IsWorking { get; private set; }
+        public SessionStatistics Statistics { get; set; }
+        public DateTime StartTime { get; set; }
+        public TimeSpan ScanElapsedTime { get; set; }
+        public TimeSpan FileProcessingElapsedTime { get; set; }
+        public TimeSpan FolderProcessingElapsedTime { get; set; }
+        public TimeSpan WorkTime { get; set; }
+
+        public Session(long number, SessionStatistics statistics)
         {
-            public long Number { get; set; }
-            public bool IsWorking { get; private set; }
-            public SessionStatistics Statistics { get; set; }
-            public TimeSpan ScanElapsedTime { get; set; }
-            public TimeSpan FileProcessingElapsedTime { get; set; }
-            public TimeSpan FolderProcessingElapsedTime { get; set; }
-            public TimeSpan WorkTime { get; set; }
+            Number = number;
+            Statistics = statistics;
+            IsWorking = statistics.FileProcessingElapsedTime != 0 || statistics.FolderProcessingElapsedTime != 0;
 
-            public Session(long number, SessionStatistics statistics)
-            {
-                Number = number;
-                Statistics = statistics;
-                IsWorking = statistics.FileProcessingElapsedTime != 0 || statistics.FolderProcessingElapsedTime != 0;
-
-                WorkTime = TimeSpan.FromTicks(statistics.ScanElapsedTime + statistics.FileProcessingElapsedTime + statistics.FolderProcessingElapsedTime);
-                ScanElapsedTime = TimeSpan.FromTicks(statistics.ScanElapsedTime);
-                FileProcessingElapsedTime = TimeSpan.FromTicks(statistics.FileProcessingElapsedTime);
-                FolderProcessingElapsedTime = TimeSpan.FromTicks(statistics.FolderProcessingElapsedTime);
-            }
+            WorkTime = TimeSpan.FromTicks(statistics.ScanElapsedTime + statistics.FileProcessingElapsedTime + statistics.FolderProcessingElapsedTime);
+            ScanElapsedTime = TimeSpan.FromTicks(statistics.ScanElapsedTime);
+            FileProcessingElapsedTime = TimeSpan.FromTicks(statistics.FileProcessingElapsedTime);
+            FolderProcessingElapsedTime = TimeSpan.FromTicks(statistics.FolderProcessingElapsedTime);
+            StartTime = statistics.StartTime;
         }
     }
 }

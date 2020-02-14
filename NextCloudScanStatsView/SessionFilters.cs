@@ -1,14 +1,11 @@
 ﻿namespace NextCloudScanStatsView
 {
-    partial class StatsViewer
+    internal enum SessionFilters
     {
-        private enum SessionFilters
-        {
-            SummaryOnly,
-            WorkingOnly,
-            LastNSessions,
-            LastNWorkingSessions,
-            AllSessions
-        }
+        SummaryOnly,
+        WorkingOnly,
+        LastNSessions,
+        LastNWorkingSessions,
+        AllSessions
     }
 }
