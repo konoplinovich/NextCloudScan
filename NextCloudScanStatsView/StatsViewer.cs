@@ -65,7 +65,7 @@ namespace NextCloudScanStatsView
                         .ToList<Session>();
                     Console.WriteLine();
                     ShowSessions(working);
-                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(working.Period())})");
+                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNSessions:
