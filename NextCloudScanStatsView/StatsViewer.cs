@@ -83,9 +83,12 @@ namespace NextCloudScanStatsView
                         .Where(s => s.IsWorking)
                         .Select(s => s)
                         .ToList<Session>();
+                    var LastNAll = _sessions
+                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                        .ToList<Session>();
                     Console.WriteLine();
                     ShowSessions(lastNWorking);
-                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown  (for the last {ToReadableString(lastNWorking.Period())})");
+                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
                     ShowSummary(agregator);
                     break;
                 default:
@@ -341,7 +344,7 @@ namespace NextCloudScanStatsView
 
         private static TimeSpan Period(this List<Session> sessions)
         {
-            if (sessions == null) return TimeSpan.Zero;
+            if (sessions == null || sessions.Count == 0) return TimeSpan.Zero;
 
             DateTime start = sessions[0].StartTime;
             DateTime end = sessions[sessions.Count - 1].StartTime;
