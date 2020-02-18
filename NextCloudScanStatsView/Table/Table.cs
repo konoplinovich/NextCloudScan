@@ -10,16 +10,18 @@ namespace NextCloudScanStatsView.Interface
         private int _lastColumnsSpan = 0;
         private bool _isFirstSpannedRow = true;
         private bool _isClosed = false;
+        private ConsoleColor _accentColor;
 
         public List<Column> Columns { get; private set; }
         public List<string> Headers { get; private set; } = new List<string>();
         public static Borders Borders { get; private set; }
         public int Width { get; private set; }
 
-        public Table(List<Column> columns)
+        public Table(List<Column> columns, ConsoleColor accentColor)
         {
             Columns = columns;
             _columnsCount = columns.Count;
+            _accentColor = accentColor;
 
             foreach (Column column in Columns)
             {
@@ -54,9 +56,18 @@ namespace NextCloudScanStatsView.Interface
             Console.WriteLine(DrawLine(Borders.IntersectLeft, Borders.IntersectRight, Borders.IntersectCenter));
         }
 
-        public void AddRow(List<string> values, bool isLastRow)
+        public void AddRow(List<string> values)
         {
+            Console.ResetColor();
             Console.WriteLine(DrawRow(values));
+        }
+        
+        public void AddAccentRow(List<string> values)
+        {
+            Console.BackgroundColor = _accentColor;
+            Console.Write(DrawRow(values));
+            Console.ResetColor();
+            Console.WriteLine();
         }
 
         public void AddRow(List<string> values, int lastColumnsSpan, bool isLastSpanedRow, bool isLastRow)

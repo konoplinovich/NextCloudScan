@@ -148,7 +148,7 @@ namespace NextCloudScanStatsView
                 Tuple<bool, string> result = SearchLog(statistics);
                 string logFileName = result.Item1 ? result.Item2 : string.Empty;
 
-                table.AddRow(new List<string>()
+                List<string> values = new List<string>()
                 {
                     $"{session.Number}",
                     $"{statistics.Id}",
@@ -162,7 +162,10 @@ namespace NextCloudScanStatsView
                     $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.WorkTime.TotalSeconds:0.0000}",
                     $"{logFileName}"
-                }, currentSession >= sessions.Count - 1);
+                };
+
+                if (session.IsWorking) table.AddAccentRow(values);              
+                else table.AddRow(values);
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
@@ -197,7 +200,7 @@ namespace NextCloudScanStatsView
                 new Column(10,"Folders", Alignment.Left),
                 new Column(10,"Work time", Alignment.Left),
                 new Column(25,"Log", Alignment.Left),
-            });
+            }, ConsoleColor.Blue);
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
