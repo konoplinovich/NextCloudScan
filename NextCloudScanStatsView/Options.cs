@@ -2,8 +2,7 @@
 
 namespace NextCloudScanStatsView
 {
-    partial class StatsViewer
-    {
+    
         internal class Options
         {
             [Option('f', "file", Required = true, HelpText = "Statistics XML files to be processed")]
@@ -27,5 +26,5 @@ namespace NextCloudScanStatsView
             [Option('p', "path", Required = true, HelpText = "Path to NextCloudScan log files")]
             public string LogsPath { get; set; }
         }
-    }
+    
 }

@@ -11,7 +11,7 @@ using System.Text;
 
 namespace NextCloudScanStatsView
 {
-    partial class StatsViewer
+    internal static class StatsViewer
     {
         private static int LAST_COLUMN_SPAN = 11;
 
@@ -55,7 +55,7 @@ namespace NextCloudScanStatsView
                 case SessionFilters.AllSessions:
                     Console.WriteLine();
                     ShowSessions(_sessions);
-                    Console.WriteLine($"all {_sessions.Count} sessions are shown");
+                    Console.WriteLine($"all {_sessions.Count} sessions are shown (for the last {ToReadableString(_sessions.Period())})");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.WorkingOnly:
@@ -65,7 +65,7 @@ namespace NextCloudScanStatsView
                         .ToList<Session>();
                     Console.WriteLine();
                     ShowSessions(working);
-                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown");
+                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNSessions:
@@ -74,7 +74,7 @@ namespace NextCloudScanStatsView
                         .ToList<Session>();
                     Console.WriteLine();
                     ShowSessions(lastN);
-                    Console.WriteLine($"{lastN.Count} last sessions are shown");
+                    Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNWorkingSessions:
@@ -83,9 +83,12 @@ namespace NextCloudScanStatsView
                         .Where(s => s.IsWorking)
                         .Select(s => s)
                         .ToList<Session>();
+                    var LastNAll = _sessions
+                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                        .ToList<Session>();
                     Console.WriteLine();
                     ShowSessions(lastNWorking);
-                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown");
+                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
                     ShowSummary(agregator);
                     break;
                 default:
@@ -246,8 +249,8 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Statistics period:       {ToReadableString(period)}");
             Console.WriteLine($"First session start:     {statistics[0].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
             Console.WriteLine($"Last session start:      {statistics[statistics.Count - 1].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
-            Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0} min interval), ~{sessionPerDay:0} session/day");
-            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} (~{averageRealInterval:0} min interval), ~{workingSessionPerDay:0} session/day, {workSessionPercent:0}% of all sessions");
+            Console.WriteLine($"Sessions count:          {statistics.Count} (~{averageInterval:0.0} min interval), ~{sessionPerDay:0} session/day");
+            Console.WriteLine($"Sessions count (w/work): {_notZeroSessions} (~{averageRealInterval:0.0} min interval), ~{workingSessionPerDay:0} session/day, {workSessionPercent:0}% of all sessions");
             Console.WriteLine();
             Console.WriteLine($"Files added/removed:     {_summary.Added}/{_summary.Removed}");
             Console.WriteLine($"Processed folders:       {_summary.Affected} (~{averagefoldersPerDay:0} folders/day)");
@@ -327,7 +330,7 @@ namespace NextCloudScanStatsView
             if (_lines == 0) _showAll = true;
         }
 
-        public static string ToReadableString(TimeSpan span)
+        private static string ToReadableString(TimeSpan span)
         {
             string formatted = string.Format("{0}{1}{2}{3}",
                 span.Duration().Days > 0 ? string.Format("{0:0} day{1}, ", span.Days, span.Days == 1 ? string.Empty : "s") : string.Empty,
@@ -340,6 +343,16 @@ namespace NextCloudScanStatsView
             if (string.IsNullOrEmpty(formatted)) formatted = "0 seconds";
 
             return formatted;
+        }
+
+        private static TimeSpan Period(this List<Session> sessions)
+        {
+            if (sessions == null || sessions.Count == 0) return TimeSpan.Zero;
+
+            DateTime start = sessions[0].StartTime;
+            DateTime end = sessions[sessions.Count - 1].StartTime;
+
+            return end - start;
         }
     }
 }
