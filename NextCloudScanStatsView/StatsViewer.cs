@@ -53,42 +53,19 @@ namespace NextCloudScanStatsView
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.AllSessions:
-                    Console.WriteLine();
-                    ShowSessions(_sessions);
-                    Console.WriteLine($"all {_sessions.Count} sessions are shown (for the last {ToReadableString(_sessions.Period())})");
+                    AllSessionsFilter();
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.WorkingOnly:
-                    var working = _sessions
-                        .Where(s => s.IsWorking)
-                        .Select(s => s)
-                        .ToList<Session>();
-                    Console.WriteLine();
-                    ShowSessions(working);
-                    Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
+                    WorkingOnlyFilter();
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNSessions:
-                    var lastN = _sessions
-                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
-                        .ToList<Session>();
-                    Console.WriteLine();
-                    ShowSessions(lastN);
-                    Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
+                    LastNSessionsFilter(agregator);
                     ShowSummary(agregator);
                     break;
                 case SessionFilters.LastNWorkingSessions:
-                    var lastNWorking = _sessions
-                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
-                        .Where(s => s.IsWorking)
-                        .Select(s => s)
-                        .ToList<Session>();
-                    var LastNAll = _sessions
-                        .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
-                        .ToList<Session>();
-                    Console.WriteLine();
-                    ShowSessions(lastNWorking);
-                    Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
+                    LastNWorkingSessionsFilter(agregator);
                     ShowSummary(agregator);
                     break;
                 default:
@@ -99,6 +76,49 @@ namespace NextCloudScanStatsView
             {
                 ExportCsv(agregator.Statistics, _csvFile);
             }
+        }
+
+        private static void AllSessionsFilter()
+        {
+            Console.WriteLine();
+            ShowSessions(_sessions);
+            Console.WriteLine($"all {_sessions.Count} sessions are shown (for the last {ToReadableString(_sessions.Period())})");
+        }
+
+        private static void WorkingOnlyFilter()
+        {
+            var working = _sessions
+                .Where(s => s.IsWorking)
+                .Select(s => s)
+                .ToList<Session>();
+            Console.WriteLine();
+            ShowSessions(working);
+            Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
+        }
+
+        private static void LastNSessionsFilter(StatisticsAgregator agregator)
+        {
+            var lastN = _sessions
+                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .ToList<Session>();
+            Console.WriteLine();
+            ShowSessions(lastN);
+            Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
+        }
+
+        private static void LastNWorkingSessionsFilter(StatisticsAgregator agregator)
+        {
+            var lastNWorking = _sessions
+                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .Where(s => s.IsWorking)
+                .Select(s => s)
+                .ToList<Session>();
+            var LastNAll = _sessions
+                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .ToList<Session>();
+            Console.WriteLine();
+            ShowSessions(lastNWorking);
+            Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
         }
 
         private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
@@ -167,7 +187,7 @@ namespace NextCloudScanStatsView
                     $"{logFileName}"
                 };
 
-                if (session.IsWorking) table.AddAccentRow(values);              
+                if (session.IsWorking) table.AddAccentRow(values);
                 else table.AddRow(values);
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
