@@ -167,6 +167,7 @@ namespace NextCloudScanStatsView
             {
                 Session session = sessions[currentSession];
                 SessionStatistics statistics = session.Statistics;
+                string IsWorkingMarker = session.IsWorking ? ">" : "";
 
                 Tuple<bool, string> result = SearchLog(statistics);
                 string logFileName = result.Item1 ? result.Item2 : string.Empty;
@@ -175,6 +176,7 @@ namespace NextCloudScanStatsView
                 {
                     $"{session.Number}",
                     $"{statistics.Id}",
+                    $"{IsWorkingMarker}",
                     $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}",
                     $"{statistics.TotalFiles}",
                     $"{session.ScanElapsedTime.TotalSeconds:0.0000}",
@@ -188,8 +190,9 @@ namespace NextCloudScanStatsView
                     $"{logFileName}"
                 };
 
-                if (session.IsWorking) table.AddAccentRow(values);
-                else table.AddRow(values);
+                //if (session.IsWorking) table.AddAccentRow(values);
+                //else 
+                table.AddRow(values);
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
                 {
@@ -214,6 +217,7 @@ namespace NextCloudScanStatsView
             {
                 new Column(5,"#", Alignment.Left),
                 new Column(38,"Id", Alignment.Left),
+                new Column(1,"W", Alignment.Left),
                 new Column(21,"Start Time", Alignment.Left),
                 new Column(8,"Total", Alignment.Left),
                 new Column(10,"Scan", Alignment.Left),
@@ -223,7 +227,7 @@ namespace NextCloudScanStatsView
                 new Column(10,"Files", Alignment.Left),
                 new Column(10,"Folders", Alignment.Left),
                 new Column(10,"Work time", Alignment.Left),
-                new Column(4,"[E]", Alignment.Left),
+                new Column(3,"[E]", Alignment.Left),
                 new Column(25,"Log", Alignment.Left)
             }, ConsoleColor.Blue);
         }
