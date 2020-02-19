@@ -13,7 +13,7 @@ namespace NextCloudScanStatsView
 {
     internal static class StatsViewer
     {
-        private static int LAST_COLUMN_SPAN = 11;
+        private static int LAST_COLUMN_SPAN = 13;
 
         private static int _lines;
         private static string _statsFile;
@@ -167,7 +167,7 @@ namespace NextCloudScanStatsView
             {
                 Session session = sessions[currentSession];
                 SessionStatistics statistics = session.Statistics;
-                string IsWorkingMarker = session.IsWorking ? ">" : "";
+                string IsWorkingMarker = session.IsWorking ? "*" : "";
 
                 Tuple<bool, string> result = SearchLog(statistics);
                 string logFileName = result.Item1 ? result.Item2 : string.Empty;
@@ -190,8 +190,6 @@ namespace NextCloudScanStatsView
                     $"{logFileName}"
                 };
 
-                //if (session.IsWorking) table.AddAccentRow(values);
-                //else 
                 table.AddRow(values);
 
                 if (_showFolders && statistics.ProcessedFolders.Count != 0)
@@ -229,7 +227,7 @@ namespace NextCloudScanStatsView
                 new Column(10,"Work time", Alignment.Left),
                 new Column(3,"[E]", Alignment.Left),
                 new Column(25,"Log", Alignment.Left)
-            }, ConsoleColor.Blue);
+            });
         }
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
