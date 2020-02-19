@@ -184,6 +184,7 @@ namespace NextCloudScanStatsView
                     $"{session.FileProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.WorkTime.TotalSeconds:0.0000}",
+                    $"{statistics.Errors}",
                     $"{logFileName}"
                 };
 
@@ -222,7 +223,8 @@ namespace NextCloudScanStatsView
                 new Column(10,"Files", Alignment.Left),
                 new Column(10,"Folders", Alignment.Left),
                 new Column(10,"Work time", Alignment.Left),
-                new Column(25,"Log", Alignment.Left),
+                new Column(4,"[E]", Alignment.Left),
+                new Column(25,"Log", Alignment.Left)
             }, ConsoleColor.Blue);
         }
 
