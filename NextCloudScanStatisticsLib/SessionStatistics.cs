@@ -15,6 +15,7 @@ namespace NextCloudScan.Statistics.Lib
         public long FileProcessingElapsedTime { get; set; }
         public long FolderProcessingElapsedTime { get; set; }
         public List<string> ProcessedFolders { get; set; }
+        public int Errors { get; set; }
 
         public SessionStatistics() { }
     }

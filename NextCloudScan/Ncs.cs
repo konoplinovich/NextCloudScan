@@ -29,6 +29,7 @@ namespace NextCloudScan
         private static ActionsResult _folderActionsResult;
         private static Version _version;
         private static Dictionary<string, Version> _componentsVersions;
+        private static int _notFatalErrors;
 
         private static IHumanUI _interface;
 
@@ -100,6 +101,8 @@ namespace NextCloudScan
 
             _fdb = new FileDataBase(_config.Conf.Path, _config.Conf.BaseFile, _config.Conf.DiffFile, _config.Conf.AffectedFoldersFile, reduceToParents: _config.Conf.ReduceToParents);
 
+            if (_fdb.Errors.Count != 0) _notFatalErrors += _fdb.Errors.Count;
+            
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
             _interface.Show(Message.Stop, "Scan complete");
@@ -131,11 +134,13 @@ namespace NextCloudScan
             {
                 _interface.Show(Message.Start, "Launch actions for each affected NextCloud folder");
                 _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders, isNextCloud: true);
+                _notFatalErrors += _folderActionsResult.Failed;
             }
             else
             {
                 _interface.Show(Message.Start, "Launch actions for each affected folder");
                 _folderActionsResult = Actions(_config.Conf.FolderActionApp, _config.Conf.FolderActionAppOptions, _fdb.AffectedFolders);
+                _notFatalErrors += _folderActionsResult.Failed;
             }
         }
 
@@ -145,6 +150,7 @@ namespace NextCloudScan
 
             _interface.Show(Message.Start, "Launch actions for each new file");
             _fileActionsResult = Actions(_config.Conf.FileActionApp, _config.Conf.FileActionAppOptions, _fdb.AddedPath);
+            _notFatalErrors += _fileActionsResult.Failed;
         }
 
         private static void CheckRootFolder()
@@ -214,7 +220,8 @@ namespace NextCloudScan
                 ScanElapsedTime = _scanTime.Ticks,
                 FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
-                ProcessedFolders = _fdb.AffectedFolders
+                ProcessedFolders = _fdb.AffectedFolders,
+                Errors = _notFatalErrors
             };
 
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
