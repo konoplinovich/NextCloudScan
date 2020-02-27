@@ -37,36 +37,36 @@ namespace NextCloudScanStatsView
             var parserResult = parser.ParseArguments<Options>(args);
             parserResult.WithParsed<Options>(options => RunOptions(options)).WithNotParsed(errs => DisplayHelp(parserResult, errs));
 
-            StatisticsAgregator agregator = new StatisticsAgregator(_statsFile);
-            if (!agregator.Successfully)
+            StatisticsAggregator aggregator = new StatisticsAggregator(_statsFile);
+            if (!aggregator.Successfully)
             {
-                Console.WriteLine(agregator.ErrorMessage);
+                Console.WriteLine(aggregator.ErrorMessage);
                 return;
             }
 
-            ParseStatistics(agregator.Statistics);
-            SessionFilters filter = SelectFIlter(agregator);
+            ParseStatistics(aggregator.Statistics);
+            SessionFilters filter = SelectFIlter(aggregator);
 
             switch (filter)
             {
                 case SessionFilters.SummaryOnly:
-                    ShowSummary(agregator);
+                    ShowSummary(aggregator);
                     break;
                 case SessionFilters.AllSessions:
                     AllSessionsFilter();
-                    ShowSummary(agregator);
+                    ShowSummary(aggregator);
                     break;
                 case SessionFilters.WorkingOnly:
                     WorkingOnlyFilter();
-                    ShowSummary(agregator);
+                    ShowSummary(aggregator);
                     break;
                 case SessionFilters.LastNSessions:
-                    LastNSessionsFilter(agregator);
-                    ShowSummary(agregator);
+                    LastNSessionsFilter(aggregator);
+                    ShowSummary(aggregator);
                     break;
                 case SessionFilters.LastNWorkingSessions:
-                    LastNWorkingSessionsFilter(agregator);
-                    ShowSummary(agregator);
+                    LastNWorkingSessionsFilter(aggregator);
+                    ShowSummary(aggregator);
                     break;
                 default:
                     break;
@@ -74,7 +74,7 @@ namespace NextCloudScanStatsView
 
             if (!string.IsNullOrEmpty(_csvFile))
             {
-                ExportCsv(agregator.Statistics, _csvFile);
+                ExportCsv(aggregator.Statistics, _csvFile);
             }
         }
 
@@ -96,38 +96,38 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
         }
 
-        private static void LastNSessionsFilter(StatisticsAgregator agregator)
+        private static void LastNSessionsFilter(StatisticsAggregator aggregator)
         {
             var lastN = _sessions
-                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .Skip(Math.Max(0, aggregator.Statistics.Count() - _lines))
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastN);
             Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
         }
 
-        private static void LastNWorkingSessionsFilter(StatisticsAgregator agregator)
+        private static void LastNWorkingSessionsFilter(StatisticsAggregator aggregator)
         {
             var lastNWorking = _sessions
-                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .Skip(Math.Max(0, aggregator.Statistics.Count() - _lines))
                 .Where(s => s.IsWorking)
                 .Select(s => s)
                 .ToList<Session>();
             var LastNAll = _sessions
-                .Skip(Math.Max(0, agregator.Statistics.Count() - _lines))
+                .Skip(Math.Max(0, aggregator.Statistics.Count() - _lines))
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastNWorking);
             Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
         }
 
-        private static SessionFilters SelectFIlter(StatisticsAgregator agregator)
+        private static SessionFilters SelectFIlter(StatisticsAggregator aggregator)
         {
             SessionFilters filter;
             if (_summaryOnly) filter = SessionFilters.SummaryOnly;
-            else if (_onlyWorking && _lines < agregator.Statistics.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
+            else if (_onlyWorking && _lines < aggregator.Statistics.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
             else if (_onlyWorking) filter = SessionFilters.WorkingOnly;
-            else if (_showAll || _lines >= agregator.Statistics.Count) filter = SessionFilters.AllSessions;
+            else if (_showAll || _lines >= aggregator.Statistics.Count) filter = SessionFilters.AllSessions;
             else filter = SessionFilters.LastNSessions;
             return filter;
         }
@@ -250,9 +250,9 @@ namespace NextCloudScanStatsView
             return new Tuple<bool, string>(false, string.Empty);
         }
 
-        private static void ShowSummary(StatisticsAgregator agregator)
+        private static void ShowSummary(StatisticsAggregator aggregator)
         {
-            List<SessionStatistics> statistics = agregator.Statistics;
+            List<SessionStatistics> statistics = aggregator.Statistics;
 
             DateTime first = statistics[0].StartTime;
             DateTime last = statistics[statistics.Count - 1].StartTime;
@@ -289,7 +289,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Total work time:         {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):     {ratio:0.0000}");
             Console.WriteLine("---");
-            Console.WriteLine($"Statistics file size:    {agregator.Size:0.00} Kb (~{(agregator.Size / period.TotalDays):0.00} Kb/day)");
+            Console.WriteLine($"Statistics file size:    {aggregator.Size:0.00} Kb (~{(aggregator.Size / period.TotalDays):0.00} Kb/day)");
             Console.WriteLine();
         }
 

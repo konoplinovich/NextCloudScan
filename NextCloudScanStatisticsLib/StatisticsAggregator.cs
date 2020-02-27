@@ -4,7 +4,7 @@ using System.IO;
 
 namespace NextCloudScan.Statistics.Lib
 {
-    public class StatisticsAgregator
+    public class StatisticsAggregator
     {
         string _statsFile;
 
@@ -13,7 +13,7 @@ namespace NextCloudScan.Statistics.Lib
         public double Size { get; }
         public string ErrorMessage { get; private set; }
 
-        public StatisticsAgregator(string statsFile)
+        public StatisticsAggregator(string statsFile)
         {
             _statsFile = statsFile;
 

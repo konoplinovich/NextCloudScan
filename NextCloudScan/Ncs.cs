@@ -231,8 +231,8 @@ namespace NextCloudScan
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
             if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
 
-            StatisticsAgregator agregator = new StatisticsAgregator(_config.Conf.StatisticsFile);
-            agregator.Append(ss);
+            StatisticsAggregator aggregator = new StatisticsAggregator(_config.Conf.StatisticsFile);
+            aggregator.Append(ss);
         }
 
         private static void GetVersions()
