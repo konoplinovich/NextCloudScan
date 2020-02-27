@@ -30,6 +30,8 @@ namespace NextCloudScan
         private static Version _version;
         private static Dictionary<string, Version> _componentsVersions;
         private static int _notFatalErrors;
+        private static int _replacedWithParents;
+        private static int _removedAsSubfolders;
 
         private static IHumanUI _interface;
 
@@ -221,7 +223,9 @@ namespace NextCloudScan
                 FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 ProcessedFolders = _fdb.AffectedFolders,
-                Errors = _notFatalErrors
+                Errors = _notFatalErrors,
+                ReplacedWithParents = _replacedWithParents,
+                RemovedAsSubfolders = _removedAsSubfolders
             };
 
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
@@ -272,6 +276,7 @@ namespace NextCloudScan
             if (_fdb.ChangeFoldersToParent)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersReplacedWithParents.Count} folder(s) were replaced with parent folder(s) due to unavailability");
+                _replacedWithParents = _fdb.FoldersReplacedWithParents.Count;
 
                 foreach (var item in _fdb.FoldersReplacedWithParents)
                 {

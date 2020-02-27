@@ -16,6 +16,8 @@ namespace NextCloudScan.Statistics.Lib
         public long FolderProcessingElapsedTime { get; set; }
         public List<string> ProcessedFolders { get; set; }
         public int Errors { get; set; }
+        public int ReplacedWithParents { get; set; }
+        public int RemovedAsSubfolders { get; set; }
 
         public SessionStatistics() { }
     }
