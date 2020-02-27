@@ -13,7 +13,7 @@ namespace NextCloudScanStatsView
 {
     internal static class StatsViewer
     {
-        private static int LAST_COLUMN_SPAN = 13;
+        private static int LAST_COLUMN_SPAN = 15;
 
         private static int _lines;
         private static string _statsFile;
@@ -187,6 +187,8 @@ namespace NextCloudScanStatsView
                     $"{session.FolderProcessingElapsedTime.TotalSeconds:0.0000}",
                     $"{session.WorkTime.TotalSeconds:0.0000}",
                     $"{statistics.Errors}",
+                    $"{statistics.ReplacedWithParents}",
+                    $"{statistics.RemovedAsSubfolders}",
                     $"{logFileName}"
                 };
 
@@ -226,6 +228,8 @@ namespace NextCloudScanStatsView
                 new Column(10,"Folders", Alignment.Left),
                 new Column(10,"Work time", Alignment.Left),
                 new Column(3,"[E]", Alignment.Left),
+                new Column(4,"[P]", Alignment.Left),
+                new Column(4,"[S]", Alignment.Left),
                 new Column(25,"Log", Alignment.Left)
             });
         }
