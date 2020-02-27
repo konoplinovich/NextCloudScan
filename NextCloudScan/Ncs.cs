@@ -223,7 +223,9 @@ namespace NextCloudScan
                 FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 ProcessedFolders = _fdb.AffectedFolders,
-                Errors = _notFatalErrors
+                Errors = _notFatalErrors,
+                ReplacedWithParents = _replacedWithParents,
+                RemovedAsSubfolders = _removedAsSubfolders
             };
 
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
@@ -274,6 +276,7 @@ namespace NextCloudScan
             if (_fdb.ChangeFoldersToParent)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersReplacedWithParents.Count} folder(s) were replaced with parent folder(s) due to unavailability");
+                _replacedWithParents = _fdb.FoldersReplacedWithParents.Count;
 
                 foreach (var item in _fdb.FoldersReplacedWithParents)
                 {
@@ -284,6 +287,7 @@ namespace NextCloudScan
             if (_fdb.RemoveSubfolders)
             {
                 _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubolders.Count} folder(s) have been removed because they are in subfolders");
+                _removedAsSubfolders = _fdb.FoldersRemovedAsSubolders.Count;
 
                 foreach (var item in _fdb.FoldersRemovedAsSubolders)
                 {
