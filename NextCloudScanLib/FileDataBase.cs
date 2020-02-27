@@ -29,7 +29,7 @@ namespace NextCloudScan.Lib
         public bool ChangeFoldersToParent { get; private set; } = false;
         public List<Tuple<string, string>> FoldersReplacedWithParents { get; private set; } = new List<Tuple<string, string>>();
         public bool RemoveSubfolders { get; private set; } = false;
-        public List<Tuple<string, string>> FoldersRemovedAsSubolders { get; private set; } = new List<Tuple<string, string>>();
+        public List<Tuple<string, string>> FoldersRemovedAsSubfolders { get; private set; } = new List<Tuple<string, string>>();
 
         public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false, bool reduceToParents = false)
         {
@@ -166,7 +166,7 @@ namespace NextCloudScan.Lib
                         {
                             parentsOnly.Remove(testFolder);
                             RemoveSubfolders = true;
-                            FoldersRemovedAsSubolders.Add(new Tuple<string, string>(testFolder, currentFolder));
+                            FoldersRemovedAsSubfolders.Add(new Tuple<string, string>(testFolder, currentFolder));
                         }
                     }
                 }

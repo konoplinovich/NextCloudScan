@@ -281,9 +281,9 @@ namespace NextCloudScan
 
             if (_fdb.RemoveSubfolders)
             {
-                _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubolders.Count} folder(s) have been removed because they are in subfolders");
+                _interface.Show(Message.Warning, $"{_fdb.FoldersRemovedAsSubfolders.Count} folder(s) have been removed because they are in subfolders");
 
-                foreach (var item in _fdb.FoldersRemovedAsSubolders)
+                foreach (var item in _fdb.FoldersRemovedAsSubfolders)
                 {
                     _interface.Show(Message.Warning, $"\"{item.Item2}\" used instead \"{item.Item1}\"");
                 }
