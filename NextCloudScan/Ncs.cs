@@ -30,6 +30,8 @@ namespace NextCloudScan
         private static Version _version;
         private static Dictionary<string, Version> _componentsVersions;
         private static int _notFatalErrors;
+        private static int _replacedWithParents;
+        private static int _removedAsSubfolders;
 
         private static IHumanUI _interface;
 
