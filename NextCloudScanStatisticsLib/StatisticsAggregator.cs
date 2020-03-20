@@ -12,28 +12,51 @@ namespace NextCloudScan.Statistics.Lib
         string _statsDirectory;
         string _statsFileName;
         string _statsExt;
+        List<string> _statisticsFiles { get; set; } = new List<string>();
 
         public List<SessionStatistics> Statistics { get; private set; } = new List<SessionStatistics>();
-        public bool Successfully { get; private set; } = false;
+        public bool CreateSuccessfully { get; private set; } = false;
+        public bool LoadSuccessfully { get; private set; } = false;
         public double Size { get; private set; }
         public string ErrorMessage { get; private set; }
 
-        public StatisticsAggregator(string statsFile)
+        public StatisticsAggregator(string statsFile, int statisticsFilesLimit = 100)
         {
             _statsFile = statsFile;
 
-            _statsDirectory = (new FileInfo(_statsFile)).DirectoryName;
+            try { _statsDirectory = (new FileInfo(_statsFile)).DirectoryName; }
+            catch (Exception e)
+            {
+                ErrorMessage = $"Error creating Statistics Aggregator: {e.Message} [{e.GetType()}]";
+                return;
+            }
+
+            CreateSuccessfully = true;
+
             _statsFileName = Path.GetFileNameWithoutExtension(_statsFile);
             _statsExt = Path.GetExtension(_statsFile);
+
+            string[] files = Directory.GetFiles(_statsDirectory, $"{_statsFileName}*.*");
+            _statisticsFiles = new List<string>(files);
         }
 
-        public void Append(SessionStatistics session)
+        public bool Append(SessionStatistics session)
         {
             List<SessionStatistics> part = new List<SessionStatistics>();
             string partFile = AppendIdToFilename(session.Id.ToString());
-
+            
             part.Add(session);
-            Save(part, partFile);
+
+            try
+            {
+                Save(part, partFile);
+                return true;
+            }
+            catch (Exception e)
+            {
+                ErrorMessage = $"Error saving a record: {e.Message} [{e.GetType()}]";
+                return false;
+            }
         }
 
         public void Load()
@@ -44,7 +67,7 @@ namespace NextCloudScan.Statistics.Lib
             {
                 Size = (double)new FileInfo(_statsFile).Length / 1024;
                 Statistics = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
-                Successfully = true;
+                LoadSuccessfully = true;
             }
             else
             {
@@ -58,21 +81,19 @@ namespace NextCloudScan.Statistics.Lib
             Console.WriteLine(_statsDirectory);
             Console.WriteLine(_statsFileName);
 
-            string[] files = Directory.GetFiles(_statsDirectory, $"{_statsFileName}*.*");
-
             HashSet<SessionStatistics> combined = new HashSet<SessionStatistics>();
 
-            foreach (string file in files)
+            foreach (string file in _statisticsFiles)
             {
                 List<SessionStatistics> parts = new List<SessionStatistics>();
                 parts = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(file);
 
-                foreach(SessionStatistics part in parts)
+                foreach (SessionStatistics part in parts)
                 {
                     combined.Add(part);
                 }
 
-                Console.WriteLine($"{parts.Count}:{combined.Count}");
+                Console.WriteLine($"{file} - {parts.Count}:{combined.Count}");
             }
 
             Save(new List<SessionStatistics>(combined.OrderBy(stat => { return stat.StartTime; })), _statsFile);

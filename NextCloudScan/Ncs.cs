@@ -88,7 +88,7 @@ namespace NextCloudScan
             }
 
             ShowSummary();
-            AgregateStatistics();
+            AggregateStatistics();
 
             if (_config.Conf.OneProcessAtATime)
             {
@@ -209,7 +209,7 @@ namespace NextCloudScan
             }
         }
 
-        private static void AgregateStatistics()
+        private static void AggregateStatistics()
         {
             SessionStatistics ss = new SessionStatistics()
             {
@@ -231,8 +231,16 @@ namespace NextCloudScan
             if (_fileActionsResult != null) ss.FileProcessingElapsedTime = _fileActionsResult.ElapsedTime.Ticks;
             if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
 
-            StatisticsAggregator aggregator = new StatisticsAggregator(_config.Conf.StatisticsFile);
-            aggregator.Append(ss);
+            StatisticsAggregator aggregator = new StatisticsAggregator(_config.Conf.StatisticsFile, _config.Conf.StatisticFilesBeforeCombined);
+
+            bool successfullAppend = false;
+            if (aggregator.CreateSuccessfully)
+            {
+                successfullAppend = aggregator.Append(ss);
+            }
+
+            if (successfullAppend) _interface.Show(Message.Info, "Statistics aggregate and saved");
+            else _interface.Show(Message.Error, aggregator.ErrorMessage);
         }
 
         private static void GetVersions()

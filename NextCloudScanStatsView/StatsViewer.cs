@@ -37,10 +37,10 @@ namespace NextCloudScanStatsView
             var parserResult = parser.ParseArguments<Options>(args);
             parserResult.WithParsed<Options>(options => RunOptions(options)).WithNotParsed(errs => DisplayHelp(parserResult, errs));
 
-            StatisticsAggregator aggregator = new StatisticsAggregator(_statsFile);
+            StatisticsAggregator aggregator = new StatisticsAggregator(_statsFile, 100);
             aggregator.Load();
 
-            if (!aggregator.Successfully)
+            if (!aggregator.LoadSuccessfully)
             {
                 Console.WriteLine(aggregator.ErrorMessage);
                 return;
