@@ -232,7 +232,7 @@ namespace NextCloudScan
             if (_folderActionsResult != null) ss.FolderProcessingElapsedTime = _folderActionsResult.ElapsedTime.Ticks;
 
             StatisticsAggregator aggregator = new StatisticsAggregator(_config.Conf.StatisticsFile);
-            aggregator.Append(ss);
+            aggregator.AppendLazy(ss);
         }
 
         private static void GetVersions()

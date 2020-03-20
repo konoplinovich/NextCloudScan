@@ -19,12 +19,12 @@ namespace NextCloudScan.UI
                 string directory = (new FileInfo(logFilePath)).DirectoryName;
                 string filename = Path.GetFileNameWithoutExtension(logFilePath);
                 string ext = Path.GetExtension(logFilePath);
-
-                ClearOldLogs(directory, ext);
-
                 string time = DateTime.Now.ToString("_ddMMyyyy_HHmmss");
+
                 filename += time + ext;
                 _logFilePath = Path.Combine(directory, filename);
+
+                ClearOldLogs(directory, ext);
             }
         }
 
