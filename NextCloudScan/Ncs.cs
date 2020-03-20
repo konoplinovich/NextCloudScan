@@ -352,6 +352,7 @@ namespace NextCloudScan
                 _interface.Show(Message.Config, $"Base file: {_config.Conf.BaseFile}");
                 _interface.Show(Message.Config, $"Diff file: {_config.Conf.DiffFile}");
                 _interface.Show(Message.Config, $"Statistics file: {_config.Conf.StatisticsFile}");
+                _interface.Show(Message.Config, $"Number of statistics files before combined: {_config.Conf.StatisticFilesBeforeCombined} file(s)");
                 _interface.Show(Message.Config, $"Affected folders file: {_config.Conf.AffectedFoldersFile}");
                 _interface.Show(Message.Config, $"Log file: {_config.Conf.LogFile}");
                 _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} hour(s)");
