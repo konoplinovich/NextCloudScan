@@ -21,22 +21,9 @@ namespace NextCloudScan.Statistics.Lib
 
         public void Append(SessionStatistics session)
         {
+            Load();
             Statistics.Add(session);
             Save(Statistics, _statsFile);
-        }
-
-        private void Load()
-        {
-            if (File.Exists(_statsFile))
-            {
-                Size = (double)new FileInfo(_statsFile).Length / 1024;
-                Statistics = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
-                Successfully = true;
-            }
-            else
-            {
-                ErrorMessage = $"Statistics file not found: { _statsFile}";
-            }
         }
 
         public void AppendLazy(SessionStatistics session)
@@ -54,6 +41,20 @@ namespace NextCloudScan.Statistics.Lib
             string partFile = Path.Combine(directory, filename);
 
             Save(part, partFile);
+        }
+
+        public void Load()
+        {
+            if (File.Exists(_statsFile))
+            {
+                Size = (double)new FileInfo(_statsFile).Length / 1024;
+                Statistics = XmlExtension.ReadFromXmlFile<List<SessionStatistics>>(_statsFile);
+                Successfully = true;
+            }
+            else
+            {
+                ErrorMessage = $"Statistics file not found: { _statsFile}";
+            }
         }
 
         private void Save(List<SessionStatistics> statistics, string statsFile)
