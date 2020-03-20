@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NextCloudScan.Statistics.Lib
 {
-    public class SessionStatistics
+    public class SessionStatistics : IEquatable<SessionStatistics>
     {
         public Guid Id { get; set; }
         public DateTime StartTime { get; set; }
@@ -20,5 +20,25 @@ namespace NextCloudScan.Statistics.Lib
         public int RemovedAsSubfolders { get; set; }
 
         public SessionStatistics() { }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SessionStatistics);
+        }
+
+        public bool Equals(SessionStatistics other)
+        {
+            return other != null &&
+                   Id.Equals(other.Id) &&
+                   StartTime == other.StartTime;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1405877102;
+            hashCode = hashCode * -1521134295 + Id.GetHashCode();
+            hashCode = hashCode * -1521134295 + StartTime.GetHashCode();
+            return hashCode;
+        }
     }
 }
