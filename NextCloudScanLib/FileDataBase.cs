@@ -8,6 +8,7 @@ namespace NextCloudScan.Lib
     public class FileDataBase
     {
         string _path;
+        string _basePath;
         string _baseFile;
         string _diffFile;
         string _affectedFoldersFile;
@@ -30,20 +31,25 @@ namespace NextCloudScan.Lib
         public List<Tuple<string, string>> FoldersReplacedWithParents { get; private set; } = new List<Tuple<string, string>>();
         public bool RemoveSubfolders { get; private set; } = false;
         public List<Tuple<string, string>> FoldersRemovedAsSubfolders { get; private set; } = new List<Tuple<string, string>>();
+        public string BasePath { get => _basePath; private set => _basePath = value; }
 
-        public FileDataBase(string path, string baseFile = "base.xml", string diffFile = "diff.xml", string affectedFoldersFile = "affected_folders.log", bool resetBase = false, bool reduceToParents = false)
+        public FileDataBase(FileDataBaseOptions options)
         {
-            _path = path;
-            _baseFile = baseFile;
-            _diffFile = diffFile;
-            _affectedFoldersFile = affectedFoldersFile;
-            _reduceToParents = reduceToParents;
+            _path = options.Path;
+            _basePath = options.BasePath;
+
+            _baseFile = options.BaseFile;
+            _diffFile = options.DiffFile;
+            _affectedFoldersFile = options.AffectedFoldersFile;
+            _reduceToParents = options.ReduceToParents;
+
+            if (!Directory.Exists(_basePath)) Directory.CreateDirectory(_basePath);
 
             _base = new List<FileItem>();
             _affectedFolders = new List<string>();
             _files = new HashSet<string>();
 
-            if (!File.Exists(_baseFile) || resetBase)
+            if (!File.Exists(_baseFile) || options.ResetBase)
             {
                 _base = Scan();
                 Save();
