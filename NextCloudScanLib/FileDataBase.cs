@@ -8,7 +8,6 @@ namespace NextCloudScan.Lib
     public class FileDataBase
     {
         string _path;
-        string _basePath;
         string _baseFile;
         string _diffFile;
         string _affectedFoldersFile;
@@ -19,6 +18,7 @@ namespace NextCloudScan.Lib
         List<string> _affectedFolders;
         private HashSet<string> _files;
 
+        public string BasePath { get; private set; }
         public bool IsNewBase { get; private set; } = false;
         public long Count { get { return _base.Count; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
@@ -31,20 +31,19 @@ namespace NextCloudScan.Lib
         public List<Tuple<string, string>> FoldersReplacedWithParents { get; private set; } = new List<Tuple<string, string>>();
         public bool RemoveSubfolders { get; private set; } = false;
         public List<Tuple<string, string>> FoldersRemovedAsSubfolders { get; private set; } = new List<Tuple<string, string>>();
-        public string BasePath { get => _basePath; private set => _basePath = value; }
 
         public FileDataBase(FileDataBaseOptions options)
         {
-            _path = options.Path;
-            _basePath = options.BasePath;
+            BasePath = options.BasePath;
 
+            _path = options.Path;
             _baseFile = options.BaseFile;
             _diffFile = options.DiffFile;
             _affectedFoldersFile = options.AffectedFoldersFile;
             _reduceToParents = options.ReduceToParents;
             _resetBase = options.ResetBase;
 
-            if (!Directory.Exists(_basePath)) Directory.CreateDirectory(_basePath);
+            if (!Directory.Exists(BasePath)) Directory.CreateDirectory(BasePath);
         }
 
         public void Refresh()
@@ -89,7 +88,7 @@ namespace NextCloudScan.Lib
                         if (!_affectedFolders.Contains(folder)) _affectedFolders.Add(folder);
                     }
 
-                    AffectedFolders = CheckAffectedFolders(_affectedFolders);
+                    AffectedFolders = FilterAffectedFolders(_affectedFolders);
 
                     SaveAffectedFoldersAsPlainText();
                     SaveDiff(diff);
@@ -132,7 +131,49 @@ namespace NextCloudScan.Lib
             return new List<FileItem>(resultArray);
         }
 
-        private List<string> CheckAffectedFolders(List<string> unfiltered)
+        private List<string> FilterAffectedFolders(List<string> unfiltered)
+        {
+            List<string> result = RemoveUnavialableFolders(unfiltered);
+
+            if (!_reduceToParents)
+            {
+                return result;
+            }
+            else
+            {
+                List<string> parentsOnly = ReduceToParents(result);
+                return parentsOnly;
+            }
+        }
+
+        private List<string> ReduceToParents(List<string> result)
+        {
+            List<string> parentsOnly = new List<string>(result);
+
+            foreach (string folder in result)
+            {
+                string currentFolder = folder;
+                if (!currentFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) currentFolder += Path.DirectorySeparatorChar;
+
+                foreach (string testFolder in result)
+                {
+                    if (!parentsOnly.Contains(testFolder)) continue;
+
+                    bool testFolderIsSubfolder = testFolder.IndexOf(currentFolder) != -1 && testFolder.Length > currentFolder.Length;
+
+                    if (testFolderIsSubfolder)
+                    {
+                        parentsOnly.Remove(testFolder);
+                        RemoveSubfolders = true;
+                        FoldersRemovedAsSubfolders.Add(new Tuple<string, string>(testFolder, currentFolder));
+                    }
+                }
+            }
+
+            return parentsOnly;
+        }
+
+        private List<string> RemoveUnavialableFolders(List<string> unfiltered)
         {
             List<string> result = new List<string>();
 
@@ -155,36 +196,7 @@ namespace NextCloudScan.Lib
                 }
             }
 
-            if (!_reduceToParents)
-            {
-                return result;
-            }
-            else
-            {
-                List<string> parentsOnly = new List<string>(result);
-
-                foreach (string folder in result)
-                {
-                    string currentFolder = folder;
-                    if (!currentFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) currentFolder += Path.DirectorySeparatorChar;
-
-                    foreach (string testFolder in result)
-                    {
-                        if (!parentsOnly.Contains(testFolder)) continue;
-
-                        bool testFolderIsSubfolder = testFolder.IndexOf(currentFolder) != -1 && testFolder.Length > currentFolder.Length;
-
-                        if (testFolderIsSubfolder)
-                        {
-                            parentsOnly.Remove(testFolder);
-                            RemoveSubfolders = true;
-                            FoldersRemovedAsSubfolders.Add(new Tuple<string, string>(testFolder, currentFolder));
-                        }
-                    }
-                }
-
-                return parentsOnly;
-            }
+            return result;
         }
 
         void GetFiles(string path)
