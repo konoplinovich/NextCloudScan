@@ -199,7 +199,7 @@ namespace NextCloudScan.Lib
             return result;
         }
 
-        void GetFiles(string path)
+        private void GetFiles(string path)
         {
             try
             {
