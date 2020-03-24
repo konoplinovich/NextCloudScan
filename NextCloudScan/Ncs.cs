@@ -61,14 +61,13 @@ namespace NextCloudScan
                     return;
                 }
 
-                _fdbOptions = new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents);
-                CreateServiceFolders();
+                CheckRootFolder();
+                CreateServiceFolders(new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents));
 
-                _interface = UIFactory.CreateUI(_config.Conf.Interface, _logfile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
                 _startTime = DateTime.Now;
+                _interface = UIFactory.CreateUI(_config.Conf.Interface, _logfile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
 
                 ShowComponentsVersions();
-                CheckRootFolder();
                 ShowConfigParameters();
 
                 if (_config.Conf.OneProcessAtATime)
@@ -173,8 +172,10 @@ namespace NextCloudScan
             }
         }
 
-        private static void CreateServiceFolders()
+        private static void CreateServiceFolders(FileDataBaseOptions options)
         {
+            _fdbOptions = options;
+
             string logs = Path.Combine(_fdbOptions.BasePath, LOG_DIR);
             if (!Directory.Exists(logs)) Directory.CreateDirectory(logs);
             _logfile = Path.Combine(logs, LOG_FILE);
