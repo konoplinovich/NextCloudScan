@@ -62,7 +62,11 @@ namespace NextCloudScan
                 }
 
                 CheckRootFolder();
-                CreateServiceFolders(new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents));
+
+                _fdbOptions = new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents);
+                _fdb = new FileDataBase(_fdbOptions);
+
+                CreateServiceFolders();
 
                 _startTime = DateTime.Now;
                 _interface = UIFactory.CreateUI(_config.Conf.Interface, _logfile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
@@ -110,13 +114,14 @@ namespace NextCloudScan
             _interface.Show(Message.Start, "Start scan");
             DateTime start = DateTime.Now;
 
-            _fdb = new FileDataBase(_fdbOptions);
+            _fdb.Refresh();
 
             if (_fdb.Errors.Count != 0) _notFatalErrors += _fdb.Errors.Count;
 
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
-            _interface.Show(Message.Stop, "Scan complete");
+
+            _interface.Show(Message.Stop, _fdb.IsNewBase ? "Scan is complete. A new file database has been created" : "Scan is complete");
         }
 
         private static ActionsResult Actions(string action, string actionOptions, List<string> paths, bool isNextCloud = false)
@@ -172,10 +177,8 @@ namespace NextCloudScan
             }
         }
 
-        private static void CreateServiceFolders(FileDataBaseOptions options)
+        private static void CreateServiceFolders()
         {
-            _fdbOptions = options;
-
             string logs = Path.Combine(_fdbOptions.BasePath, LOG_DIR);
             if (!Directory.Exists(logs)) Directory.CreateDirectory(logs);
             _logfile = Path.Combine(logs, LOG_FILE);
@@ -381,8 +384,8 @@ namespace NextCloudScan
             {
                 _interface.Show(Message.Config, $"Config file: {_configFile}");
                 _interface.Show(Message.Config, $"Scaning path: {_config.Conf.Path}");
-                
-                if (_fdbOptions != null ) _interface.Show(Message.Config, $"NCS data files path: {_fdbOptions.BasePath}");
+
+                if (_fdbOptions != null) _interface.Show(Message.Config, $"NCS data files path: {_fdbOptions.BasePath}");
                 else _interface.Show(Message.Config, $"NCS data files path: {_config.Conf.BasePath}");
                 _interface.Show(Message.Config, $"Statistics file: {_statisticsFile}");
                 _interface.Show(Message.Config, $"Log file: {_logfile}");

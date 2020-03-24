@@ -13,7 +13,7 @@ namespace NextCloudScan.Lib
         string _diffFile;
         string _affectedFoldersFile;
         bool _reduceToParents;
-
+        private bool _resetBase;
         List<FileItem> _base;
         List<FileItem> _newFiles;
         List<string> _affectedFolders;
@@ -42,14 +42,18 @@ namespace NextCloudScan.Lib
             _diffFile = options.DiffFile;
             _affectedFoldersFile = options.AffectedFoldersFile;
             _reduceToParents = options.ReduceToParents;
+            _resetBase = options.ResetBase;
 
             if (!Directory.Exists(_basePath)) Directory.CreateDirectory(_basePath);
+        }
 
+        public void Refresh()
+        {
             _base = new List<FileItem>();
             _affectedFolders = new List<string>();
             _files = new HashSet<string>();
 
-            if (!File.Exists(_baseFile) || options.ResetBase)
+            if (!File.Exists(_baseFile) || _resetBase)
             {
                 _base = Scan();
                 Save();

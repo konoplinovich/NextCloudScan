@@ -69,9 +69,13 @@ namespace NextCloudScan.Lib.Tests
         public void IsNewBaseTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
+
             Assert.AreEqual(true, dataBase.IsNewBase);
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
+
             Assert.AreEqual(false, dataBase.IsNewBase);
         }
 
@@ -79,9 +83,12 @@ namespace NextCloudScan.Lib.Tests
         public void RemoveOneFileTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             File.Delete(Files[0]);
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
+
             Assert.AreEqual(1, dataBase.Removed.Count);
         }
 
@@ -89,12 +96,15 @@ namespace NextCloudScan.Lib.Tests
         public void AddOneFileTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             FileStream f = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx.tmp"), FileMode.Create);
             f.Flush();
             f.Close();
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
+
             Assert.AreEqual(1, dataBase.Added.Count);
         }
 
@@ -102,6 +112,7 @@ namespace NextCloudScan.Lib.Tests
         public void AddAndRemoveTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             File.Delete(Files[0]);
             File.Delete(Files[1]);
@@ -111,6 +122,8 @@ namespace NextCloudScan.Lib.Tests
             f.Close();
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
+
             Assert.AreEqual(3, dataBase.Removed.Count);
             Assert.AreEqual(1, dataBase.Added.Count);
         }
@@ -119,6 +132,7 @@ namespace NextCloudScan.Lib.Tests
         public void AddedFileNameTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             FileStream f = File.Open(Files[3], FileMode.Create);
             f.Flush();
@@ -127,6 +141,7 @@ namespace NextCloudScan.Lib.Tests
             DateTime lwt = File.GetLastWriteTime(Files[3]);
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[3], LastWriteTime = lwt }));
         }
@@ -135,12 +150,14 @@ namespace NextCloudScan.Lib.Tests
         public void RemovedFileNameTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             DateTime lwt0 = File.GetLastWriteTime(Files[0]); File.Delete(Files[0]);
             DateTime lwt1 = File.GetLastWriteTime(Files[1]); File.Delete(Files[1]);
             DateTime lwt2 = File.GetLastWriteTime(Files[2]); File.Delete(Files[2]);
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt0 }));
             Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[1], LastWriteTime = lwt1 }));
@@ -151,12 +168,14 @@ namespace NextCloudScan.Lib.Tests
         public void ChangeLWTTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             DateTime lwt_old = File.GetLastWriteTime(Files[0]);
             File.AppendAllText(Files[0], "TEST");
             DateTime lwt_new = File.GetLastWriteTime(Files[0]);
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(true, dataBase.Added.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_new }));
             Assert.AreEqual(true, dataBase.Removed.Contains(new FileItem() { Path = Files[0], LastWriteTime = lwt_old }));
@@ -166,6 +185,7 @@ namespace NextCloudScan.Lib.Tests
         public void AffectedFoldersCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             File.AppendAllText(Files[0], "TEST");
             File.AppendAllText(Files[1], "TEST");
@@ -173,6 +193,7 @@ namespace NextCloudScan.Lib.Tests
             File.AppendAllText(Files[5], "TEST");
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(2, dataBase.AffectedFoldersCount);
         }
@@ -181,6 +202,7 @@ namespace NextCloudScan.Lib.Tests
         public void AffectedFoldersAddOnlyCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             FileStream f1 = File.Open(Path.Combine(_tempFolder, "three", "2", "file_xxx1.tmp"), FileMode.Create);
             f1.Flush();
@@ -191,6 +213,7 @@ namespace NextCloudScan.Lib.Tests
             f2.Close();
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(1, dataBase.AffectedFoldersCount);
         }
@@ -199,11 +222,13 @@ namespace NextCloudScan.Lib.Tests
         public void AffectedFoldersRemoveOnlyCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             File.Delete(Files[0]);
             File.Delete(Files[4]);
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(1, dataBase.AffectedFoldersCount);
         }
@@ -212,6 +237,7 @@ namespace NextCloudScan.Lib.Tests
         public void AffectedFoldersTest()
         {
             FileDataBase dataBase = new FileDataBase(_optionsReset);
+            dataBase.Refresh();
 
             File.AppendAllText(Files[0], "TEST");
             File.AppendAllText(Files[1], "TEST");
@@ -219,6 +245,7 @@ namespace NextCloudScan.Lib.Tests
             File.AppendAllText(Files[5], "TEST");
 
             dataBase = new FileDataBase(_options);
+            dataBase.Refresh();
 
             Assert.AreEqual(Path.GetDirectoryName(Files[0]), dataBase.AffectedFolders[0]);
             Assert.AreEqual(Path.GetDirectoryName(Files[1]), dataBase.AffectedFolders[1]);
