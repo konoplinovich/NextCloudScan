@@ -168,9 +168,10 @@ namespace NextCloudScan.Lib
                     string currentFolder = folder;
                     if (!currentFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) currentFolder += Path.DirectorySeparatorChar;
 
-
                     foreach (string testFolder in result)
                     {
+                        if (!parentsOnly.Contains(testFolder)) continue;
+
                         bool testFolderIsSubfolder = testFolder.IndexOf(currentFolder) != -1 && testFolder.Length > currentFolder.Length;
 
                         if (testFolderIsSubfolder)
