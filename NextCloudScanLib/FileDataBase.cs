@@ -58,6 +58,7 @@ namespace NextCloudScan.Lib
             else
             {
                 if (File.Exists(_diffFile)) File.Delete(_diffFile);
+                if (File.Exists(_affectedFoldersFile)) File.Delete(_affectedFoldersFile);
 
                 Load();
                 _newFiles = Scan();

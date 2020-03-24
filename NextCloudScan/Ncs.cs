@@ -53,22 +53,23 @@ namespace NextCloudScan
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
 
+                if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
+                {
+                    _interface = UIFactory.CreateUI(SupportedUI.Screen);
+                    ShowComponentsVersions();
+                    ShowDefaultConfigBanner();
+                    return;
+                }
+
                 _fdbOptions = new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents);
                 CreateServiceFolders();
 
                 _interface = UIFactory.CreateUI(_config.Conf.Interface, _logfile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
                 _startTime = DateTime.Now;
 
-                ShowStartUpBanner();
-
-                if (status == ConfigExtension<NcsConfig>.LoadStatus.LoadedDefault)
-                {
-                    ShowDefaultConfigBanner();
-                    return;
-                }
-
-                ShowConfigParameters();
+                ShowComponentsVersions();
                 CheckRootFolder();
+                ShowConfigParameters();
 
                 if (_config.Conf.OneProcessAtATime)
                 {
@@ -369,6 +370,7 @@ namespace NextCloudScan
             _interface.Show(Message.Warning, $"A new file was created with this name and the following default settings:");
 
             ShowConfigParameters();
+
             _interface.Show(Message.Warning, "Check the configuration file before next run!");
         }
 
@@ -378,7 +380,9 @@ namespace NextCloudScan
             {
                 _interface.Show(Message.Config, $"Config file: {_configFile}");
                 _interface.Show(Message.Config, $"Scaning path: {_config.Conf.Path}");
-                _interface.Show(Message.Config, $"NCS data files path: {_fdbOptions.BasePath}");
+                
+                if (_fdbOptions != null ) _interface.Show(Message.Config, $"NCS data files path: {_fdbOptions.BasePath}");
+                else _interface.Show(Message.Config, $"NCS data files path: {_config.Conf.BasePath}");
                 _interface.Show(Message.Config, $"Statistics file: {_statisticsFile}");
                 _interface.Show(Message.Config, $"Log file: {_logfile}");
                 _interface.Show(Message.Config, $"Age limit for log files: {_config.Conf.LogFilesAgeLimit} hour(s)");
@@ -398,7 +402,7 @@ namespace NextCloudScan
             }
         }
 
-        private static void ShowStartUpBanner()
+        private static void ShowComponentsVersions()
         {
             _interface.Show(Message.None, string.Empty);
             _interface.Show(Message.None, $"NextClouScan started. Version {_version}");
