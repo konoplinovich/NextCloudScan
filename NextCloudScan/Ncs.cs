@@ -18,6 +18,10 @@ namespace NextCloudScan
         private const int IS_FATAL_EXCEPTION = 404;
         private const int IS_LOCK_ERROR = 405;
         private const int IS_CONFIG_PATHS_IS_WRONG = 406;
+        private const string LOG_FILE = "ncs.log";
+        private const string LOG_DIR = "logs";
+        private const string STATISTICS_FILE = "statistics.xml";
+        private const string STATISTICS_DIR = "statistics";
 
         private static ConfigExtension<NcsConfig> _config;
         private static string _configFile;
@@ -48,10 +52,9 @@ namespace NextCloudScan
             {
                 _config = new ConfigExtension<NcsConfig>(_configFile);
                 ConfigExtension<NcsConfig>.LoadStatus status = _config.LoadConfig();
-                
+
                 _fdbOptions = new FileDataBaseOptions(_config.Conf.Path, _config.Conf.BasePath, reduceToParents: _config.Conf.ReduceToParents);
-                _logfile = Path.Combine(_fdbOptions.BasePath, "ncs.log");
-                _statisticsFile = Path.Combine(_fdbOptions.BasePath, "statistics.xml");
+                CreateServiceFolders();
 
                 _interface = UIFactory.CreateUI(_config.Conf.Interface, _logfile, _config.Conf.SingleLogFile, _config.Conf.LogFilesAgeLimit);
                 _startTime = DateTime.Now;
@@ -100,6 +103,17 @@ namespace NextCloudScan
             {
                 RemoveLock();
             }
+        }
+
+        private static void CreateServiceFolders()
+        {
+            string logs = Path.Combine(_fdbOptions.BasePath, LOG_DIR);
+            if (!Directory.Exists(logs)) Directory.CreateDirectory(logs);
+            _logfile = Path.Combine(logs, LOG_FILE);
+
+            string statistics = Path.Combine(_fdbOptions.BasePath, STATISTICS_DIR);
+            if (!Directory.Exists(statistics)) Directory.CreateDirectory(statistics);
+            _statisticsFile = Path.Combine(statistics, STATISTICS_FILE);
         }
 
         private static void Scan()
@@ -245,7 +259,7 @@ namespace NextCloudScan
                 successfullAppend = aggregator.Append(ss);
             }
 
-            if (successfullAppend) _interface.Show(Message.Info, "Statistics aggregate and saved");
+            if (successfullAppend) _interface.Show(Message.Info, "Statistics aggregated and saved");
             else _interface.Show(Message.Error, aggregator.ErrorMessage);
         }
 
