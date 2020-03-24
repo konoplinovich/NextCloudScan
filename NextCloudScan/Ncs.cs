@@ -80,7 +80,7 @@ namespace NextCloudScan
             }
             catch (Exception e)
             {
-                ShowErrorAndExit(Message.Error, e.Message, IS_FATAL_EXCEPTION);
+                ShowErrorAndExit(Message.Error, $"{e.Message} [in {e.TargetSite}]", IS_FATAL_EXCEPTION);
             }
 
             if (!_fdb.IsNewBase)
