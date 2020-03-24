@@ -105,17 +105,6 @@ namespace NextCloudScan
             }
         }
 
-        private static void CreateServiceFolders()
-        {
-            string logs = Path.Combine(_fdbOptions.BasePath, LOG_DIR);
-            if (!Directory.Exists(logs)) Directory.CreateDirectory(logs);
-            _logfile = Path.Combine(logs, LOG_FILE);
-
-            string statistics = Path.Combine(_fdbOptions.BasePath, STATISTICS_DIR);
-            if (!Directory.Exists(statistics)) Directory.CreateDirectory(statistics);
-            _statisticsFile = Path.Combine(statistics, STATISTICS_FILE);
-        }
-
         private static void Scan()
         {
             _interface.Show(Message.Start, "Start scan");
@@ -124,7 +113,7 @@ namespace NextCloudScan
             _fdb = new FileDataBase(_fdbOptions);
 
             if (_fdb.Errors.Count != 0) _notFatalErrors += _fdb.Errors.Count;
-            
+
             DateTime stop = DateTime.Now;
             _scanTime = stop - start;
             _interface.Show(Message.Stop, "Scan complete");
@@ -181,6 +170,17 @@ namespace NextCloudScan
             {
                 ShowErrorAndExit(Message.Error, $"The root folder does not exist: {_config.Conf.Path}", IS_CONFIG_PATHS_IS_WRONG);
             }
+        }
+
+        private static void CreateServiceFolders()
+        {
+            string logs = Path.Combine(_fdbOptions.BasePath, LOG_DIR);
+            if (!Directory.Exists(logs)) Directory.CreateDirectory(logs);
+            _logfile = Path.Combine(logs, LOG_FILE);
+
+            string statistics = Path.Combine(_fdbOptions.BasePath, STATISTICS_DIR);
+            if (!Directory.Exists(statistics)) Directory.CreateDirectory(statistics);
+            _statisticsFile = Path.Combine(statistics, STATISTICS_FILE);
         }
 
         private static void SetLock()
