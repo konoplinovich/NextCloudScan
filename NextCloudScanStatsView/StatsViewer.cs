@@ -215,7 +215,7 @@ namespace NextCloudScanStatsView
         {
             return new Table(new List<Column>
             {
-                new Column(5,"#", Alignment.Left),
+                new Column(6,"#", Alignment.Left),
                 new Column(38,"Id", Alignment.Left),
                 new Column(1,"W", Alignment.Left),
                 new Column(21,"Start Time", Alignment.Left),
