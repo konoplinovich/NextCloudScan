@@ -50,11 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Options.cs" />
     <Compile Include="Summary.cs" />
     <Compile Include="Table\Alignment.cs" />
     <Compile Include="Table\Borders.cs" />
     <Compile Include="Table\Column.cs" />
-    <Compile Include="Options.cs" />
+    <Compile Include="ParsedOptions.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionFilters.cs" />
     <Compile Include="StatsViewer.cs" />

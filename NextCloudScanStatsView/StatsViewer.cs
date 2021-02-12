@@ -13,25 +13,11 @@ namespace NextCloudScanStatsView
 {
     internal static class StatsViewer
     {
-        private static int LAST_COLUMN_SPAN = 15;
-
-        private static int _lines;
-        private static string _statsFile;
-        private static string _csvFile;
-        private static bool _onlyWorking;
-        private static bool _showFolders;
-        private static string _logsPath;
-        private static bool _summaryOnly;
-        private static bool _showAll = false;
-
-        private static int _notZeroSessions = 0;
-
         private static Summary _summary = new Summary();
+        private static Options _options = new Options();
         private static List<Session> _sessions = new List<Session>();
         private static List<SessionStatistics> _sessionsStatistics = new List<SessionStatistics>();
-        private static double _totalFilesSize;
-        private static TimeSpan _totalLoadTime;
-        private static long _totalSessionsCount;
+
         private static Version _version;
         private static Dictionary<string, Version> _componentsVersions;
 
@@ -42,9 +28,9 @@ namespace NextCloudScanStatsView
             ShowStartUpBanner();
             ParseCommandLine(args);
 
-            string ext = Path.GetExtension(_statsFile);
-            string name = Path.GetFileNameWithoutExtension(_statsFile);
-            string path = Path.GetDirectoryName(_statsFile);
+            string ext = Path.GetExtension(_options.StatsFile);
+            string name = Path.GetFileNameWithoutExtension(_options.StatsFile);
+            string path = Path.GetDirectoryName(_options.StatsFile);
 
             string[] files = Directory.GetFiles(path, $"{name}*{ext}");
 
@@ -60,53 +46,54 @@ namespace NextCloudScanStatsView
 
                 Console.WriteLine($"--> {aggregator.Statistics.Count} sessions / {aggregator.Size:0.0} Kb in {aggregator.LoadTime.TotalSeconds:0.000} seconds");
 
-                ParseStatistics(aggregator.Statistics);
-                _totalFilesSize += aggregator.Size;
-                _totalLoadTime += aggregator.LoadTime;
+                _sessionsStatistics.AddRange(aggregator.Statistics);
+                _summary.TotalFilesSize += aggregator.Size;
+                _summary.TotalLoadTime += aggregator.LoadTime;
             }
 
-            Console.WriteLine($"Loaded {_sessions.Count} sessions from {files.Length} files ({_totalFilesSize:0.00} Kb in {_totalLoadTime.TotalSeconds:0.000} seconds)");
+            _sessionsStatistics = new List<SessionStatistics>(_sessionsStatistics.OrderBy(x => x.StartTime));
 
+            ParseStatistics();
             SessionFilters filter = SelectFilter();
-            var sortedSessions = _sessionsStatistics.OrderBy(x => x.StartTime);
-            _sessionsStatistics = new List<SessionStatistics>(sortedSessions);
+
+            Console.WriteLine($"Loaded {_sessions.Count} sessions from {files.Length} files ({_summary.TotalFilesSize:0.00} Kb in {_summary.TotalLoadTime.TotalSeconds:0.000} seconds)");
 
             switch (filter)
             {
                 case SessionFilters.SummaryOnly:
-                    ShowSummary(_sessionsStatistics);
+                    ShowSummary();
                     break;
                 case SessionFilters.AllSessions:
                     AllSessionsFilter();
-                    ShowSummary(_sessionsStatistics);
+                    ShowSummary();
                     break;
                 case SessionFilters.WorkingOnly:
                     WorkingOnlyFilter();
-                    ShowSummary(_sessionsStatistics);
+                    ShowSummary();
                     break;
                 case SessionFilters.LastNSessions:
-                    LastNSessionsFilter(_sessionsStatistics);
-                    ShowSummary(_sessionsStatistics);
+                    LastNSessionsFilter();
+                    ShowSummary();
                     break;
                 case SessionFilters.LastNWorkingSessions:
-                    LastNWorkingSessionsFilter(_sessionsStatistics);
-                    ShowSummary(_sessionsStatistics);
+                    LastNWorkingSessionsFilter();
+                    ShowSummary();
                     break;
                 default:
                     break;
             }
 
-            if (!string.IsNullOrEmpty(_csvFile))
+            if (!string.IsNullOrEmpty(_options.CsvFile))
             {
-                ExportCsv(_sessionsStatistics, _csvFile);
+                ExportCsv(_options.CsvFile);
             }
         }
 
         private static void ParseCommandLine(string[] args)
         {
             var parser = new Parser(with => with.HelpWriter = null);
-            var parserResult = parser.ParseArguments<Options>(args);
-            parserResult.WithParsed<Options>(options => RunOptions(options)).WithNotParsed(errs => DisplayHelp(parserResult, errs));
+            var parserResult = parser.ParseArguments<ParsedOptions>(args);
+            parserResult.WithParsed<ParsedOptions>(options => RunOptions(options)).WithNotParsed(errs => DisplayHelp(parserResult, errs));
         }
 
         private static void AllSessionsFilter()
@@ -127,53 +114,52 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
         }
 
-        private static void LastNSessionsFilter(List<SessionStatistics> statistics)
+        private static void LastNSessionsFilter()
         {
             var lastN = _sessions
-                .Skip(Math.Max(0, statistics.Count() - _lines))
+                .Skip(Math.Max(0, _summary.TotalSessionsCount - _options.Lines))
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastN);
             Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
         }
 
-        private static void LastNWorkingSessionsFilter(List<SessionStatistics> statistics)
+        private static void LastNWorkingSessionsFilter()
         {
             var lastNWorking = _sessions
-                .Skip(Math.Max(0, statistics.Count() - _lines))
+                .Skip(Math.Max(0, _summary.TotalSessionsCount - _options.Lines))
                 .Where(s => s.IsWorking)
                 .Select(s => s)
                 .ToList<Session>();
             var LastNAll = _sessions
-                .Skip(Math.Max(0, statistics.Count() - _lines))
+                .Skip(Math.Max(0, _summary.TotalSessionsCount - _options.Lines))
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastNWorking);
-            Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
+            Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_options.Lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
         }
 
         private static SessionFilters SelectFilter()
         {
             SessionFilters filter;
-            if (_summaryOnly) filter = SessionFilters.SummaryOnly;
-            else if (_onlyWorking && _lines < _sessions.Count && _lines != 0) filter = SessionFilters.LastNWorkingSessions;
-            else if (_onlyWorking) filter = SessionFilters.WorkingOnly;
-            else if (_showAll || _lines >= _sessions.Count) filter = SessionFilters.AllSessions;
+            if (_options.SummaryOnly) filter = SessionFilters.SummaryOnly;
+            else if (_options.OnlyWorking && _options.Lines < _sessions.Count && _options.Lines != 0) filter = SessionFilters.LastNWorkingSessions;
+            else if (_options.OnlyWorking) filter = SessionFilters.WorkingOnly;
+            else if (_options.ShowAll || _options.Lines >= _sessions.Count) filter = SessionFilters.AllSessions;
             else filter = SessionFilters.LastNSessions;
             return filter;
         }
 
-        private static void ParseStatistics(List<SessionStatistics> statistics)
+        private static void ParseStatistics()
         {
-            foreach (SessionStatistics stat in statistics)
+            foreach (SessionStatistics stat in _sessionsStatistics)
             {
                 AddValuesToSummary(stat);
 
-                Session session = new Session(++_totalSessionsCount, stat);
+                Session session = new Session(++_summary.TotalSessionsCount, stat);
                 _sessions.Add(session);
-                _sessionsStatistics.Add(stat);
 
-                if (session.IsWorking) _notZeroSessions += 1;
+                if (session.IsWorking) _summary.NotZeroSessions += 1;
             }
         }
 
@@ -224,14 +210,14 @@ namespace NextCloudScanStatsView
 
                 table.AddRow(values);
 
-                if (_showFolders && statistics.ProcessedFolders.Count != 0)
+                if (_options.ShowFolders && statistics.ProcessedFolders.Count != 0)
                 {
                     for (int currentFolder = 0; currentFolder < statistics.ProcessedFolders.Count; currentFolder++)
                     {
                         string folder = statistics.ProcessedFolders[currentFolder];
 
                         table.AddRow(new List<string>() { "", $"  [{(currentFolder + 1)}] {folder}" },
-                            LAST_COLUMN_SPAN,
+                            _options.LastColumnSpan,
                             currentFolder >= statistics.ProcessedFolders.Count - 1,
                             currentSession >= sessions.Count - 1);
                     }
@@ -266,11 +252,11 @@ namespace NextCloudScanStatsView
 
         private static Tuple<bool, string> SearchLog(SessionStatistics statistics)
         {
-            if (string.IsNullOrEmpty(_logsPath)) return new Tuple<bool, string>(false, string.Empty);
+            if (string.IsNullOrEmpty(_options.LogsPath)) return new Tuple<bool, string>(false, string.Empty);
 
             string pattern = statistics.StartTime.ToString("_ddMMyyyy_HHmmss");
             pattern = pattern.Remove(pattern.Length - 1);
-            string[] files = Directory.GetFiles(_logsPath);
+            string[] files = Directory.GetFiles(_options.LogsPath);
 
             foreach (string file in files)
             {
@@ -280,33 +266,33 @@ namespace NextCloudScanStatsView
             return new Tuple<bool, string>(false, string.Empty);
         }
 
-        private static void ShowSummary(List<SessionStatistics> statistics)
+        private static void ShowSummary()
         {
-            DateTime first = statistics[0].StartTime;
-            DateTime last = statistics[statistics.Count - 1].StartTime;
+            DateTime first = _sessionsStatistics[0].StartTime;
+            DateTime last = _sessionsStatistics[_summary.TotalSessionsCount - 1].StartTime;
             TimeSpan period = last - first;
             TimeSpan workTime = TimeSpan.FromTicks(_summary.ScanTime + _summary.FileScanTime + _summary.FolderScanTime);
 
             double hoursAll = period.TotalHours;
             double hoursWork = workTime.TotalHours;
             double ratio = hoursWork / hoursAll;
-            double averageInterval = period.TotalMinutes / statistics.Count;
-            double averageRealInterval = period.TotalMinutes / _notZeroSessions;
-            double workSessionPercent = (double)_notZeroSessions * 100 / statistics.Count;
+            double averageInterval = period.TotalMinutes / _summary.TotalSessionsCount;
+            double averageRealInterval = period.TotalMinutes / _summary.NotZeroSessions;
+            double workSessionPercent = (double)_summary.NotZeroSessions * 100 / _summary.TotalSessionsCount;
             double averagefoldersPerDay = (double)_summary.Affected / period.TotalDays;
             double scanPercentFromPeriod = TimeSpan.FromTicks(_summary.ScanTime).TotalSeconds * 100 / period.TotalSeconds;
             double filePercentFromPeriod = TimeSpan.FromTicks(_summary.FileScanTime).TotalSeconds * 100 / period.TotalSeconds;
             double folderPercentFromPeriod = TimeSpan.FromTicks(_summary.FolderScanTime).TotalSeconds * 100 / period.TotalSeconds;
             double workPercentFromPeriod = workTime.TotalSeconds * 100 / period.TotalSeconds;
-            double sessionPerDay = statistics.Count / period.TotalDays;
-            double workingSessionPerDay = _notZeroSessions / period.TotalDays;
+            double sessionPerDay = _summary.TotalSessionsCount / period.TotalDays;
+            double workingSessionPerDay = _summary.NotZeroSessions / period.TotalDays;
 
             Console.WriteLine();
             Console.WriteLine($"Statistics period:        {ToReadableString(period)}");
-            Console.WriteLine($"First session start:      {statistics[0].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
-            Console.WriteLine($"Last session start:       {statistics[statistics.Count - 1].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
-            Console.WriteLine($"Sessions count:           {statistics.Count} (~{averageInterval:0.0} min interval), ~{sessionPerDay:0} session/day");
-            Console.WriteLine($"Sessions count (w/work):  {_notZeroSessions} (~{averageRealInterval:0.0} min interval), ~{workingSessionPerDay:0} session/day, {workSessionPercent:0}% of all sessions");
+            Console.WriteLine($"First session start:      {_sessionsStatistics[0].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
+            Console.WriteLine($"Last session start:       {_sessionsStatistics[_summary.TotalSessionsCount - 1].StartTime.ToString("dd-MM-yyyy HH:mm:ss")}");
+            Console.WriteLine($"Sessions count:           {_summary.TotalSessionsCount} (~{averageInterval:0.0} min interval), ~{sessionPerDay:0} session/day");
+            Console.WriteLine($"Sessions count (w/work):  {_summary.NotZeroSessions} (~{averageRealInterval:0.0} min interval), ~{workingSessionPerDay:0} session/day, {workSessionPercent:0}% of all sessions");
             Console.WriteLine();
             Console.WriteLine($"Files added/removed:      {_summary.Added}/{_summary.Removed}");
             Console.WriteLine($"Processed folders:        {_summary.Affected} (~{averagefoldersPerDay:0} folders/day)");
@@ -317,20 +303,20 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"Total work time:          {ToReadableString(workTime)} ({workPercentFromPeriod:0.0}%)");
             Console.WriteLine($"Ratio (work/period):      {ratio:0.0000}");
             Console.WriteLine("---");
-            Console.WriteLine($"Statistics file(s) size:  {_totalFilesSize:0.00} Kb (~{(_totalFilesSize / period.TotalDays):0.00} Kb/day)"); //заменить на общий размер
+            Console.WriteLine($"Statistics file(s) size:  {_summary.TotalFilesSize:0.00} Kb (~{(_summary.TotalFilesSize / period.TotalDays):0.00} Kb/day)");
             Console.WriteLine();
         }
 
-        private static void ExportCsv(List<SessionStatistics> statistics, string csvFile)
+        private static void ExportCsv(string csvFile)
         {
             StringBuilder sb = new StringBuilder();
 
             sb.Append($"Number,Start Time,Total Files (pc.),Scan Elapsed Time (s),Added Files (pc.),Removed Files (pc.),Affected Folders (pc.),File Processing (s),Folder Processing (s)");
             sb.Append(Environment.NewLine);
 
-            for (int i = 0; i < statistics.Count; i++)
+            for (int i = 0; i < _sessionsStatistics.Count; i++)
             {
-                SessionStatistics stat = statistics[i];
+                SessionStatistics stat = _sessionsStatistics[i];
                 sb.Append($"{i + 1}," +
                     $"{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}," +
                     $"{stat.TotalFiles}," +
@@ -347,7 +333,7 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"CSV File exported: {csvFile}");
         }
 
-        private static void DisplayHelp(ParserResult<Options> parserResult, IEnumerable<Error> errs)
+        private static void DisplayHelp(ParserResult<ParsedOptions> parserResult, IEnumerable<Error> errs)
         {
             AssemblyName assembly = Assembly.GetExecutingAssembly().GetName();
 
@@ -373,17 +359,17 @@ namespace NextCloudScanStatsView
             Environment.Exit(102);
         }
 
-        private static void RunOptions(Options options)
+        private static void RunOptions(ParsedOptions options)
         {
-            _statsFile = options.InputFile;
-            _lines = options.Lines;
-            _summaryOnly = options.SummaryOnly;
-            _csvFile = options.Export;
-            _onlyWorking = options.OnlyWorking;
-            _showFolders = options.ShowFolders;
-            _logsPath = options.LogsPath;
+            StatsViewer._options.StatsFile = options.InputFile;
+            StatsViewer._options.Lines = options.Lines;
+            StatsViewer._options.SummaryOnly = options.SummaryOnly;
+            StatsViewer._options.CsvFile = options.Export;
+            StatsViewer._options.OnlyWorking = options.OnlyWorking;
+            StatsViewer._options.ShowFolders = options.ShowFolders;
+            StatsViewer._options.LogsPath = options.LogsPath;
 
-            if (_lines == 0) _showAll = true;
+            if (StatsViewer._options.Lines == 0) StatsViewer._options.ShowAll = true;
         }
 
         private static void ShowStartUpBanner()
