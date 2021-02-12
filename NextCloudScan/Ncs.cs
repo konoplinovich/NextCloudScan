@@ -375,7 +375,7 @@ namespace NextCloudScan
         private static void ShowStartUpBanner()
         {
             _interface.Show(Message.None, string.Empty);
-            _interface.Show(Message.None, $"NextClouScan started. Version {_version}");
+            _interface.Show(Message.None, $"NextCloudScan started. Version {_version}");
 
             foreach (var componentVersion in _componentsVersions)
             {
