@@ -30,10 +30,14 @@ namespace NextCloudScanStatsView
         private static List<Session> _sessions = new List<Session>();
         private static List<SessionStatistics> _sessionsStats = new List<SessionStatistics>();
         private static double _totalFilesSize;
+        private static Version _version;
+        private static Dictionary<string, Version> _componentsVersions;
 
         static void Main(string[] args)
         {
             if (args.Length == 0) return;
+
+            ShowStartUpBanner();
 
             var parser = new Parser(with => with.HelpWriter = null);
             var parserResult = parser.ParseArguments<Options>(args);
@@ -61,8 +65,7 @@ namespace NextCloudScanStatsView
                 _totalFilesSize = _totalFilesSize + sa.Size;
 
             }
-            Console.WriteLine();
-
+            
             SessionFilters filter = SelectFilter();
             var _sS = _sessionsStats.OrderBy(x => x.StartTime);
             _sessionsStats = new List<SessionStatistics>(_sS);
@@ -377,6 +380,34 @@ namespace NextCloudScanStatsView
             _logsPath = options.LogsPath;
 
             if (_lines == 0) _showAll = true;
+        }
+
+        private static void ShowStartUpBanner()
+        {
+            GetVersions();
+            
+            Console.WriteLine();
+            Console.WriteLine($"NextCloudScan statistics viewer started. Version {_version}");
+
+            foreach (var componentVersion in _componentsVersions)
+            {
+                Console.WriteLine($"{componentVersion.Key}, version={componentVersion.Value}");
+            }
+
+            Console.WriteLine();
+        }
+
+        private static void GetVersions()
+        {
+            AssemblyName anBase = Assembly.GetExecutingAssembly().GetName();
+
+            _version = anBase.Version;
+            _componentsVersions = new Dictionary<string, Version>();
+
+            foreach (AssemblyName an in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+            {
+                _componentsVersions[an.Name] = an.Version;
+            }
         }
 
         private static string ToReadableString(TimeSpan span)
