@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 namespace NextCloudScan.Statistics.Lib
 {
@@ -13,8 +14,11 @@ namespace NextCloudScan.Statistics.Lib
         public double Size { get; }
         public string ErrorMessage { get; private set; }
 
+        public TimeSpan LoadTime { get; private set; }
+
         public StatisticsAggregator(string statsFile)
         {
+            DateTime start = DateTime.Now;
             _statsFile = statsFile;
 
             if (File.Exists(_statsFile))
@@ -27,6 +31,8 @@ namespace NextCloudScan.Statistics.Lib
             {
                 ErrorMessage = $"Statistics file not found: { statsFile}";
             }
+
+            LoadTime = DateTime.Now - start;
         }
 
         public void Append(SessionStatistics session)
