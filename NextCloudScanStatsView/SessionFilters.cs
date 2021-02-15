@@ -5,7 +5,8 @@
         SummaryOnly,
         WorkingOnly,
         LastNSessions,
-        LastNWorkingSessions,
+        LastNOnlyWorkingSessions,
+        LastNWorking,
         AllSessions
     }
 }

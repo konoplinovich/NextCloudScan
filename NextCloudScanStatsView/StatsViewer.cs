@@ -20,6 +20,7 @@ namespace NextCloudScanStatsView
 
         private static Version _version;
         private static Dictionary<string, Version> _componentsVersions;
+        private static SessionFilters _filter;
 
         static void Main(string[] args)
         {
@@ -54,11 +55,11 @@ namespace NextCloudScanStatsView
             _sessionsStatistics = new List<SessionStatistics>(_sessionsStatistics.OrderBy(x => x.StartTime));
 
             ParseStatistics();
-            SessionFilters filter = SelectFilter();
+            _filter = SelectFilter();
 
             Console.WriteLine($"Loaded {_sessions.Count} sessions from {files.Length} files ({_summary.TotalFilesSize:0.00} Kb in {_summary.TotalLoadTime.TotalSeconds:0.000} seconds)");
 
-            switch (filter)
+            switch (_filter)
             {
                 case SessionFilters.SummaryOnly:
                     ShowSummary();
@@ -75,7 +76,11 @@ namespace NextCloudScanStatsView
                     LastNSessionsFilter();
                     ShowSummary();
                     break;
-                case SessionFilters.LastNWorkingSessions:
+                case SessionFilters.LastNOnlyWorkingSessions:
+                    LastNOnlyWorkingSessionsFilter();
+                    ShowSummary();
+                    break;
+                case SessionFilters.LastNWorking:
                     LastNWorkingSessionsFilter();
                     ShowSummary();
                     break;
@@ -124,9 +129,9 @@ namespace NextCloudScanStatsView
             Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
         }
 
-        private static void LastNWorkingSessionsFilter()
+        private static void LastNOnlyWorkingSessionsFilter()
         {
-            var lastNWorking = _sessions
+            var lastNOnlyWorking = _sessions
                 .Skip(Math.Max(0, _summary.TotalSessionsCount - _options.Lines))
                 .Where(s => s.IsWorking)
                 .Select(s => s)
@@ -135,16 +140,30 @@ namespace NextCloudScanStatsView
                 .Skip(Math.Max(0, _summary.TotalSessionsCount - _options.Lines))
                 .ToList<Session>();
             Console.WriteLine();
+            ShowSessions(lastNOnlyWorking);
+            Console.WriteLine($"{lastNOnlyWorking.Count} working sessions from the last {_options.Lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
+        }
+
+        private static void LastNWorkingSessionsFilter()
+        {
+            var working = _sessions
+                .Where(s => s.IsWorking)
+                .ToList<Session>();
+            var lastNWorking = working.
+                Skip(Math.Max(0, working.Count() - _options.Working)).
+                ToList<Session>();
+            Console.WriteLine();
             ShowSessions(lastNWorking);
-            Console.WriteLine($"{lastNWorking.Count} working sessions from the last {_options.Lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
+            Console.WriteLine($"{lastNWorking.Count()} last working sessions from the {working.Count()} total working session are shown (for the last {ToReadableString(lastNWorking.PeriodFromLast())})");
         }
 
         private static SessionFilters SelectFilter()
         {
             SessionFilters filter;
             if (_options.SummaryOnly) filter = SessionFilters.SummaryOnly;
-            else if (_options.OnlyWorking && _options.Lines < _sessions.Count && _options.Lines != 0) filter = SessionFilters.LastNWorkingSessions;
-            else if (_options.OnlyWorking) filter = SessionFilters.WorkingOnly;
+            else if (_options.Working != 0) filter = SessionFilters.LastNWorking;
+            else if (_options.LinesOnlyWorking && _options.Lines < _sessions.Count && _options.Lines != 0) filter = SessionFilters.LastNOnlyWorkingSessions;
+            else if (_options.LinesOnlyWorking) filter = SessionFilters.WorkingOnly;
             else if (_options.ShowAll || _options.Lines >= _sessions.Count) filter = SessionFilters.AllSessions;
             else filter = SessionFilters.LastNSessions;
             return filter;
@@ -235,18 +254,18 @@ namespace NextCloudScanStatsView
                 new Column(38,"Id", Alignment.Left),
                 new Column(1,"W", Alignment.Left),
                 new Column(21,"Start Time", Alignment.Left),
-                new Column(8,"Total", Alignment.Left),
-                new Column(10,"Scan", Alignment.Left),
-                new Column(8,"[+]", Alignment.Left),
-                new Column(8,"[-]", Alignment.Left),
-                new Column(8,"[A]", Alignment.Left),
-                new Column(10,"Files", Alignment.Left),
-                new Column(10,"Folders", Alignment.Left),
-                new Column(10,"Work time", Alignment.Left),
-                new Column(3,"[E]", Alignment.Left),
-                new Column(4,"[P]", Alignment.Left),
-                new Column(4,"[S]", Alignment.Left),
-                new Column(25,"Log", Alignment.Left)
+                new Column(8,"Total", Alignment.Right),
+                new Column(10,"Scan", Alignment.Right),
+                new Column(8,"[+]", Alignment.Right),
+                new Column(8,"[-]", Alignment.Right),
+                new Column(8,"[A]", Alignment.Right),
+                new Column(10,"Files", Alignment.Right),
+                new Column(10,"Folders", Alignment.Right),
+                new Column(10,"Work time", Alignment.Right),
+                new Column(3,"[E]", Alignment.Right),
+                new Column(4,"[P]", Alignment.Right),
+                new Column(4,"[S]", Alignment.Right),
+                new Column(25,"Log file", Alignment.Right)
             });
         }
 
@@ -365,7 +384,8 @@ namespace NextCloudScanStatsView
             StatsViewer._options.Lines = options.Lines;
             StatsViewer._options.SummaryOnly = options.SummaryOnly;
             StatsViewer._options.CsvFile = options.Export;
-            StatsViewer._options.OnlyWorking = options.OnlyWorking;
+            StatsViewer._options.LinesOnlyWorking = options.LinesOnlyWorking;
+            StatsViewer._options.Working = options.Working;
             StatsViewer._options.ShowFolders = options.ShowFolders;
             StatsViewer._options.LogsPath = options.LogsPath;
 
@@ -423,6 +443,34 @@ namespace NextCloudScanStatsView
             DateTime end = sessions[sessions.Count - 1].StartTime;
 
             return end - start;
+        }
+
+        private static TimeSpan PeriodFromLast(this List<Session> sessions)
+        {
+            if (sessions == null || sessions.Count == 0) return TimeSpan.Zero;
+
+            DateTime start = sessions[0].StartTime;
+            DateTime end = _sessions[_sessions.Count - 1].StartTime;
+
+            return end - start;
+        }
+
+        private static void ShowOptions()
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Filter: {_filter}");
+            Console.WriteLine("---");
+            Console.WriteLine($"StatsFile: {_options.StatsFile}");
+            Console.WriteLine($"LogsPath: {_options.LogsPath}");
+            Console.WriteLine($"CsvFile: {_options.CsvFile}");
+            Console.WriteLine($"Lines: {_options.Lines}");
+            Console.WriteLine($"LinesOnlyWorking: {_options.LinesOnlyWorking}");
+            Console.WriteLine($"Working: {_options.Working}");
+            Console.WriteLine($"ShowFolders: {_options.ShowFolders}");
+            Console.WriteLine($"SummaryOnly: {_options.SummaryOnly}");
+            Console.WriteLine($"ShowAll: {_options.ShowAll}");
+            Console.WriteLine($"LastColumnSpan: {_options.LastColumnSpan}");
+            Console.WriteLine();
         }
     }
 }
