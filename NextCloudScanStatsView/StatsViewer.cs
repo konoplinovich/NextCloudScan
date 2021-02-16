@@ -105,7 +105,7 @@ namespace NextCloudScanStatsView
         {
             Console.WriteLine();
             ShowSessions(_sessions);
-            Console.WriteLine($"all {_sessions.Count} sessions are shown (for the last {ToReadableString(_sessions.Period())})");
+            Console.WriteLine($"all {_sessions.Count} sessions are shown (for the last {ToReadableString(_sessions.PeriodFromLast())})");
         }
 
         private static void WorkingOnlyFilter()
@@ -116,7 +116,7 @@ namespace NextCloudScanStatsView
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(working);
-            Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(_sessions.Period())})");
+            Console.WriteLine($"all {working.Count} working sessions out of {_sessions.Count} are shown (for the last {ToReadableString(working.PeriodFromLast())})");
         }
 
         private static void LastNSessionsFilter()
@@ -126,7 +126,7 @@ namespace NextCloudScanStatsView
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastN);
-            Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.Period())})");
+            Console.WriteLine($"{lastN.Count} last sessions are shown (for the last {ToReadableString(lastN.PeriodFromLast())})");
         }
 
         private static void LastNOnlyWorkingSessionsFilter()
@@ -141,7 +141,7 @@ namespace NextCloudScanStatsView
                 .ToList<Session>();
             Console.WriteLine();
             ShowSessions(lastNOnlyWorking);
-            Console.WriteLine($"{lastNOnlyWorking.Count} working sessions from the last {_options.Lines} are shown (for the last {ToReadableString(LastNAll.Period())})");
+            Console.WriteLine($"{lastNOnlyWorking.Count} working sessions from the last {_options.Lines} are shown (for the last {ToReadableString(lastNOnlyWorking.PeriodFromLast())})");
         }
 
         private static void LastNWorkingSessionsFilter()
