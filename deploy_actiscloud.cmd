@@ -1,3 +1,4 @@
+copy NextCloudScan\bin\Release\Tree.dll n:\nick\files\NextCloudScan\
 copy NextCloudScan\bin\Release\Extensions.dll n:\nick\files\NextCloudScan\
 copy NextCloudScan\bin\Release\NextCloudScan.exe n:\nick\files\NextCloudScan\
 copy NextCloudScan\bin\Release\NextCloudScanFileLib.dll n:\nick\files\NextCloudScan\
