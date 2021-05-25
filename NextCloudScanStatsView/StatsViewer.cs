@@ -213,6 +213,7 @@ namespace NextCloudScanStatsView
                     $"{statistics.Id}",
                     $"{IsWorkingMarker}",
                     $"{statistics.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}",
+                    $"{statistics.TotalFolders}",
                     $"{statistics.TotalFiles}",
                     $"{session.ScanElapsedTime.TotalSeconds:0.0000}",
                     $"{statistics.AddedFiles}",
@@ -254,7 +255,8 @@ namespace NextCloudScanStatsView
                 new Column(38,"Id", Alignment.Left),
                 new Column(1,"W", Alignment.Left),
                 new Column(21,"Start Time", Alignment.Left),
-                new Column(8,"Total", Alignment.Right),
+                new Column(8,"Folders", Alignment.Right),
+                new Column(8,"Files", Alignment.Right),
                 new Column(10,"Scan", Alignment.Right),
                 new Column(8,"[+]", Alignment.Right),
                 new Column(8,"[-]", Alignment.Right),
@@ -330,7 +332,7 @@ namespace NextCloudScanStatsView
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"Number,Start Time,Total Files (pc.),Scan Elapsed Time (s),Added Files (pc.),Removed Files (pc.),Affected Folders (pc.),File Processing (s),Folder Processing (s)");
+            sb.Append($"Number,Start Time,Total Folders (pc.),Total Files (pc.),Scan Elapsed Time (s),Added Files (pc.),Removed Files (pc.),Affected Folders (pc.),File Processing (s),Folder Processing (s)");
             sb.Append(Environment.NewLine);
 
             for (int i = 0; i < _sessionsStatistics.Count; i++)
@@ -338,6 +340,7 @@ namespace NextCloudScanStatsView
                 SessionStatistics stat = _sessionsStatistics[i];
                 sb.Append($"{i + 1}," +
                     $"{stat.StartTime.ToString("dd-MM-yyyy HH:mm:ss")}," +
+                    $"{stat.TotalFolders}," +
                     $"{stat.TotalFiles}," +
                     $"{TimeSpan.FromTicks(stat.ScanElapsedTime).TotalSeconds}," +
                     $"{stat.AddedFiles}," +

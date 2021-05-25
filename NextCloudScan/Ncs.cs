@@ -218,7 +218,9 @@ namespace NextCloudScan
                 AddedFiles = _fdb.Added.Count,
                 RemovedFiles = _fdb.Removed.Count,
                 AffectedFolders = _fdb.AffectedFolders.Count,
-                TotalFiles = _fdb.Count,
+                TotalItems = _fdb.ItemsCount,
+                TotalFiles = _fdb.FilesCount,
+                TotalFolders = _fdb.FoldersCount,
                 ScanElapsedTime = _scanTime.Ticks,
                 FileProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
                 FolderProcessingElapsedTime = TimeSpan.FromSeconds(0).Ticks,
@@ -302,7 +304,7 @@ namespace NextCloudScan
             if (_fdb.AffectedFoldersCount != 0)
                 _interface.Show(Message.Info, $"Affected folders: {_fdb.AffectedFoldersCount}");
 
-            _interface.Show(Message.Info, $"Total in the database {_fdb.Count} files, scan elapsed time: {_scanTime.TotalSeconds:0.000} seconds");
+            _interface.Show(Message.Info, $"Total in the database {_fdb.FilesCount} files and {_fdb.FoldersCount} folders, scan elapsed time: {_scanTime.TotalSeconds:0.000} seconds");
 
             if (_fdb.Errors.Count != 0)
                 _interface.Show(Message.Warning, $"({_fdb.Errors.Count} folder(s) unavailable during the last scan)");

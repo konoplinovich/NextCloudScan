@@ -33,7 +33,9 @@ namespace NextCloudScan.Lib
         private HashSet<string> _files;
 
         public bool IsNewBase { get; private set; } = false;
-        public long Count { get { return _base.ItemsCount; } }
+        public long ItemsCount { get { return _base.ItemsCount; } }
+        public long FilesCount { get { return _base.FilesCount; } }
+        public long FoldersCount { get { return _base.FoldersCount; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
         public List<string> AddedPath { get; set; } = new List<string>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();

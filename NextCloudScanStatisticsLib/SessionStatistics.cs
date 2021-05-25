@@ -7,7 +7,9 @@ namespace NextCloudScan.Statistics.Lib
     {
         public Guid Id { get; set; }
         public DateTime StartTime { get; set; }
+        public long TotalItems { get; set; }
         public long TotalFiles { get; set; }
+        public long TotalFolders { get; set; }
         public long AddedFiles { get; set; }
         public long RemovedFiles { get; set; }
         public int AffectedFolders { get; set; }
