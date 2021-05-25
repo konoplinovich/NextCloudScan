@@ -172,6 +172,21 @@ namespace NextCloudScan.Lib.Tests
         }
 
         [TestMethod()]
+        public void AffectedFoldersCountEmptyTest()
+        {
+            FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);
+
+            Directory.CreateDirectory(Path.Combine(_tempFolder, "NEW"));
+            Directory.CreateDirectory(Path.Combine(_tempFolder, "three", "2", "NEW"));
+
+            dataBase = new FileDataBase(_tempFolder);
+
+            Assert.AreEqual(2, dataBase.AffectedFoldersCount);
+            Assert.IsTrue(dataBase.AffectedFolders.Contains(Path.Combine(_tempFolder, "NEW")));
+            Assert.IsTrue(dataBase.AffectedFolders.Contains(Path.Combine(_tempFolder, "three", "2", "NEW")));
+        }
+
+        [TestMethod()]
         public void AffectedFoldersAddOnlyCountTest()
         {
             FileDataBase dataBase = new FileDataBase(_tempFolder, resetBase: true);

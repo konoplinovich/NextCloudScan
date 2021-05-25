@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using FsTree;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,14 +13,27 @@ namespace NextCloudScan.Lib
         string _diffFile;
         string _affectedFoldersFile;
         bool _reduceToParents;
+        List<string> _filters = new List<string>()
+        {
+            "files_external",
+            "files_trashbin",
+            "files_versions",
+            "uploads",
+            "cache",
+            "appdata",
+            ".htaccess",
+            ".ocdata",
+            "index.html",
+            "nextcloud.log"
+        };
 
-        List<FileItem> _base;
-        List<FileItem> _newFiles;
+        Tree _base;
+        Tree _newBase;
         List<string> _affectedFolders;
         private HashSet<string> _files;
 
         public bool IsNewBase { get; private set; } = false;
-        public long Count { get { return _base.Count; } }
+        public long Count { get { return _base.ItemsCount; } }
         public List<FileItem> Added { get; private set; } = new List<FileItem>();
         public List<string> AddedPath { get; set; } = new List<string>();
         public List<FileItem> Removed { get; private set; } = new List<FileItem>();
@@ -39,7 +53,7 @@ namespace NextCloudScan.Lib
             _affectedFoldersFile = affectedFoldersFile;
             _reduceToParents = reduceToParents;
 
-            _base = new List<FileItem>();
+            _base = new Tree();
             _affectedFolders = new List<string>();
             _files = new HashSet<string>();
 
@@ -54,71 +68,45 @@ namespace NextCloudScan.Lib
                 if (File.Exists(_diffFile)) File.Delete(_diffFile);
 
                 Load();
-                _newFiles = Scan();
+                _newBase = Scan();
 
-                ListComparator<FileItem> lc = new ListComparator<FileItem>();
-                lc.Compare(_base, _newFiles);
+                DiffResult result = _base.DiffWith(_newBase, _filters);
 
-                if (!lc.AddedIsEmpty)
+                foreach (var item in result.AddedFiles)
                 {
-                    Added = lc.Added;
-                    AddedPath = FileItemsToPaths(Added);
+                    FileItem file = new FileItem() { Path = item.FullName, LastWriteTime = item.LWT };
+
+                    Added.Add(file);
+                    AddedPath.Add(file.Path);
                 }
-                if (!lc.RemovedIsEmpty) Removed = lc.Removed;
+
+                foreach (var item in result.RemovedFiles)
+                {
+                    FileItem file = new FileItem() { Path = item.FullName, LastWriteTime = item.LWT };
+
+                    Removed.Add(file);
+
+                }
 
                 List<FileItem> diff = new List<FileItem>();
                 diff.AddRange(Added);
                 diff.AddRange(Removed);
 
-                if (diff.Count != 0)
-                {
-                    foreach (FileItem item in diff)
-                    {
-                        string folder = Path.GetDirectoryName(item.Path);
-                        if (!_affectedFolders.Contains(folder)) _affectedFolders.Add(folder);
-                    }
+                AffectedFolders = CheckAffectedFolders(new List<string>(result.AffectedFolders));
+                SaveAffectedFoldersAsPlainText();
+                SaveDiff(diff);
 
-                    AffectedFolders = CheckAffectedFolders(_affectedFolders);
-
-                    SaveAffectedFoldersAsPlainText();
-                    SaveDiff(diff);
-                }
-
-                _base = _newFiles;
+                _base = _newBase;
                 Save();
             }
         }
 
-        private List<FileItem> Scan()
+        private Tree Scan()
         {
-            HashSet<FileItem> result = new HashSet<FileItem>();
-            GetFiles(_path);
+            Tree tree = new Tree(_path);
+            tree.GetTree();
 
-            foreach (string path in _files)
-            {
-                bool goodfile =
-                    path.IndexOf("files_external") == -1
-                    && path.IndexOf("files_trashbin") == -1
-                    && path.IndexOf("files_versions") == -1
-                    && path.IndexOf("uploads") == -1
-                    && path.IndexOf("cache") == -1
-                    && path.IndexOf("appdata") == -1
-                    && path.IndexOf(".htaccess") == -1
-                    && path.IndexOf(".ocdata") == -1
-                    && path.IndexOf("index.html") == -1
-                    && path.IndexOf("nextcloud.log") == -1;
-
-                if (goodfile)
-                {
-                    DateTime lwt = File.GetLastWriteTime(path);
-                    FileItem fi = new FileItem() { Path = path, LastWriteTime = lwt };
-                    result.Add(fi);
-                }
-            }
-
-            FileItem[] resultArray = new FileItem[result.Count];
-            result.CopyTo(resultArray);
-            return new List<FileItem>(resultArray);
+            return tree;
         }
 
         private List<string> CheckAffectedFolders(List<string> unfiltered)
@@ -196,7 +184,7 @@ namespace NextCloudScan.Lib
 
         private void Save()
         {
-            XmlExtension.WriteToXmlFile<List<FileItem>>(_baseFile, _base);
+            _base.Save(_baseFile);
         }
 
         private void SaveAffectedFoldersAsPlainText()
@@ -212,7 +200,8 @@ namespace NextCloudScan.Lib
 
         private void Load()
         {
-            _base = XmlExtension.ReadFromXmlFile<List<FileItem>>(_baseFile);
+            _base = new Tree();
+            _base.Load(_baseFile);
         }
 
         private List<string> FileItemsToPaths(List<FileItem> items)

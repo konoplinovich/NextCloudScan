@@ -57,7 +57,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FileDataBaseTests.cs" />
-    <Compile Include="ListComparatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

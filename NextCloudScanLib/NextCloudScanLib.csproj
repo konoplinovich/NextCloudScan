@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="FileDataBase.cs" />
     <Compile Include="FileItem.cs" />
-    <Compile Include="ListComparator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
