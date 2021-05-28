@@ -72,7 +72,7 @@ namespace NextCloudScan.Lib
                 Load();
                 _newBase = Scan();
 
-                DiffResult result = _base.DiffWith(_newBase, _filters);
+                DiffResult result = _base.DiffWith(_newBase);
 
                 foreach (var item in result.AddedFiles)
                 {
@@ -105,7 +105,7 @@ namespace NextCloudScan.Lib
 
         private Tree Scan()
         {
-            Tree tree = new Tree(_path);
+            Tree tree = new Tree(_path, _filters);
             tree.GetTree();
 
             return tree;
